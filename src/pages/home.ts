@@ -1,4 +1,3 @@
-import { renderConfigurationPage } from "./configuration";
 import { renderEnterCodePage } from "./enter-code";
 
 export function renderHomePage(target: HTMLDivElement) {

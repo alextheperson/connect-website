@@ -1,5 +1,4 @@
 import "./style.css";
-import { setupCounter } from "./counter.ts";
 import { renderHomePage } from "./pages/home.ts";
 import { renderConfigurationPage } from "./pages/configuration.ts";
 import { renderGamePage } from "./pages/game.ts";
