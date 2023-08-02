@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Connect 𝑛</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link rel="shortcut icon" href="/assets/icon64.png" />
+    <meta
+      property="description"
+      content="A website that lets you play games about connecting shapes. Connect 4 meets Tic Tac Toe!"
+    />
+    <meta property="og:title" content="Connect 𝑛" />
+    <meta
+      property="og:description"
+      content="A website that lets you play games about connecting shapes. Connect 4 meets Tic Tac Toe!"
+    />
+    <meta property="og:image" content="/assets/icon1200.png" />
+    <link rel="stylesheet" href="../css/main.css" type="text/css" />
+  </head>
+  <body>
+    <div class="main-panel">
+      <h2>Enter Game Code</h2>
+      <input id="code" placeholder="000000000" class="big" pattern="[0-9]{9}" />
+      <div class="no-text buttons fieldset">
+        <a href="./" class="button half-width">&larr; Cancel</a>
+        <button class="primary half-width" id="join">Join &rarr;</button>
+      </div>
+    </div>
+
+    <script>
+      document.querySelector('#join').addEventListener('click', () => {
+        const codeInput = document.querySelector('#code');
+        if (codeInput?.validity.valid) {
+          window.location.pathname = `game/${codeInput.value ?? '000000000'}`;
+        } else {
+          alert('The game code should be a 9-digit number');
+        }
+      });
+    </script>
+  </body>
+</html>
