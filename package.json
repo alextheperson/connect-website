@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "dev": "npx tsc src/*.ts app.ts; node app.js"
+    "dev": "npx tsc src/*.ts app.ts; node app.js",
+    "build": "npx tsc src/*.ts app.ts"
   },
   "dependencies": {
     "express": "^4.18.2",
