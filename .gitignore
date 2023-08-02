@@ -91,3 +91,5 @@ dist/
 # We use TypeScript Here!
 /src/*.js
 app.js
+
+dist/
