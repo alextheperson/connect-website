@@ -19,49 +19,50 @@
   -webkit-text-size-adjust: 100%;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  height: 100%;
+  width: 100%;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  text-align: center;
 }
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+h2 {
+  font-size: 2.2em;
+  line-height: 1.1;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #3178c6aa);
+.main-panel,
+.configuration-panel {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.card {
-  padding: 2em;
+.main-panel {
+  width: 300px;
 }
 
-.read-the-docs {
-  color: #888;
+.configuration-panel {
+  width: 500px;
 }
 
 button,
-a.button {
+a.button,
+input[type='submit'] {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -76,26 +77,35 @@ a.button {
   text-align: center;
 }
 button:hover,
-a.button:hover {
+a.button:hover,
+input[type='submit']:hover {
   border-color: var(--primary-color);
 }
 button:focus,
 a.button:focus,
+input[type='submit']:focus,
 button:focus-visible,
-a.button:focus-visible {
+a.button:focus-visible,
+input[type='submit']:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
 a,
-.button.primary,
-button.primary {
+a.button.primary,
+button.primary,
+input[type='submit'].primary.primary {
   color: var(--primary-color);
   text-decoration: inherit;
 }
 a:hover,
-.button.primary:hover,
-button.primary:hover {
+a.button.primary:hover,
+button.primary:hover,
+input[type='submit'].primary:hover {
   color: var(--primary-hovered);
+}
+
+.half-width {
+  width: 50%;
 }
 
 form {
@@ -139,7 +149,7 @@ fieldset.no-text {
 
 input.big {
   display: block;
-  /* width: 100%; */
+  width: 100%;
   height: 2em;
   margin-inline: 2px;
   border-radius: 8px;
@@ -151,7 +161,7 @@ input.big {
   background: transparent;
 }
 
-input.big[type="number"] {
+input.big[type='number'] {
   font-family: monospace;
 }
 
@@ -168,4 +178,9 @@ input.big[type="number"] {
   fieldset {
     border-color: color-mix(in srgb, currentColor 50%, #fff 50%);
   }
+}
+
+#game-canvas {
+  width: 100%;
+  height: 100%;
 }
