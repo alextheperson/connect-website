@@ -18,6 +18,7 @@
     />
     <meta property="og:image" content="/assets/icon1200.png" />
     <link rel="stylesheet" href="../css/main.css" type="text/css" />
+    <script src="../../scripts/configuration-validation.js" defer></script>
   </head>
   <body>
     <div class="configuration-panel">
@@ -25,17 +26,17 @@
       <form action="game" method="post">
         <fieldset>
           <legend>Dimensions</legend>
-          <input type="number" value="3" name="width" /> X
-          <input type="number" value="3" name="height" />
+          <input type="number" value="3" min="3" name="width" id="width" /> X
+          <input type="number" value="3" min="3" name="height" id="height" />
         </fieldset>
         <fieldset>
           <legend>Win Condition</legend>
           <input
             type="number"
             value="3"
-            min="2"
-            max="3"
+            min="3"
             name="numberToConnect"
+            id="numberToConnect"
           />
           in a row<br />
           <input type="checkbox" name="diagonals" value="checked" /> Diagonals

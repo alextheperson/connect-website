@@ -129,7 +129,7 @@ function parseGameSettings(body: Object): GameSetting {
   if (
     body['numberToConnect'] !== undefined &&
     body['numberToConnect'].match(/^[1-9][0-9]*$/) &&
-    parseInt(body['numberToConnect']) <= Math.min(width, height)
+    parseInt(body['numberToConnect']) <= Math.max(width, height)
   ) {
   } else {
     throw new Error("Property 'numberToConnect' is bad");
