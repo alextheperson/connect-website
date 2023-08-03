@@ -58,21 +58,9 @@
        orientation="0,256"
        id="guide18"
        inkscape:locked="true" />
-    <inkscape:page
-       x="0"
-       y="0"
-       width="256"
-       height="256"
-       id="page18"
-       margin="32"
-       bleed="0" />
   </sodipodi:namedview>
   <defs
      id="defs1" />
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1" />
   <circle
      style="fill:none;stroke:{{color}};stroke-width:32;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.1;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
      id="path1"

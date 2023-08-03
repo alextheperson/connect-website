@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "npx tsc src/*.ts app.ts; node app.js",
-    "build": "npx tsc src/*.ts app.ts;mkdir dist;cp -a public dist;cp -a src dist;cp app.js dist"
+    "build": "npx tsc src/*.ts app.ts;mkdir dist;cp -a public dist;cp -a src dist;cp app.js dist;cp package.json dist"
   },
   "dependencies": {
     "express": "^4.18.2",

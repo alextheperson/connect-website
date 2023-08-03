@@ -8,7 +8,7 @@
    version="1.1"
    id="svg1"
    inkscape:version="1.3 (0e150ed, 2023-07-21)"
-   sodipodi:docname="cross.svg"
+   sodipodi:docname="turn-indicator.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,10 +23,10 @@
      inkscape:pagecheckerboard="false"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="1.728261"
-     inkscape:cx="94.025149"
-     inkscape:cy="139.15722"
-     inkscape:current-layer="layer1"
+     inkscape:zoom="2.1632114"
+     inkscape:cx="14.792821"
+     inkscape:cy="109.55933"
+     inkscape:current-layer="svg1"
      inkscape:lockguides="true">
     <sodipodi:guide
        position="0,0"
@@ -58,12 +58,27 @@
        orientation="0,256"
        id="guide18"
        inkscape:locked="true" />
+    <inkscape:page
+       x="0"
+       y="0"
+       width="256"
+       height="256"
+       id="page18"
+       margin="32"
+       bleed="0"
+       inkscape:export-filename="turn-indicator.svg"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
   </sodipodi:namedview>
   <defs
      id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1" />
   <path
-     style="fill:none;stroke:{{color}};stroke-width:32;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-     d="m 48,208 80,-80 80,80 -80,-80 80,-80 -80,80 -80,-80"
-     id="path19"
-     sodipodi:nodetypes="ccccccc" />
+     style="fill:none;stroke:#f9f9f9;stroke-width:32;stroke-linecap:round;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
+     d="M 48,128 H 208"
+     id="path1"
+     sodipodi:nodetypes="cc" />
 </svg>

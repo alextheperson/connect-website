@@ -25,12 +25,27 @@
     <script src="../../scripts/index.js" defer></script>
   </head>
   <body>
-    <div class="app">
-      <h1 class="title">Game Code: 123456789</h1>
-      <div class="board" id="board"></div>
-      <div class="turns"></div>
-      <div class="rules"></div>
+    <div id="game" class="hidden">
+      <h1 id="game-title"></h1>
+      <div class="play-area">
+        <div id="board"></div>
+        <div id="game-info">
+          <div id="turns">
+            <div id="indicator-area">
+              <img id="turn-indicator" src="/assets/turn-indicator.svg" />
+            </div>
+            <div id="turn-list"></div>
+          </div>
+          <div id="rules"></div>
+        </div>
+      </div>
     </div>
+    <div id="lobby">
+      <h1 id="title">Game Code: 123456789</h1>
+      <h1 id="attendance"></h1>
+    </div>
+    <div id="error"></div>
+    <h1 id="result"></h1>
 
     <style id="cell-style"></style>
   </body>

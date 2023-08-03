@@ -1,12 +1,12 @@
 const express = require('express');
-import { Server } from 'socket.io';
+import { Namespace, Server } from 'socket.io';
 const fs = require('fs');
 const path = require('path');
 
 const Constants = require(path.join(
   __dirname + '/public/scripts/constants.js'
 ));
-import { Game, type GameSetting } from './src/game';
+import { Game, turnResults, type GameSetting } from './src/game';
 const games: Map<string, Game> = new Map<string, Game>();
 
 // Setup an Express server
@@ -48,7 +48,7 @@ app.get('/tokens/:filename([a-z]+.svg)/:color([0-9a-f]{6})', (req, res) => {
       }
       res.type('image/svg+xml');
       res.set('Cache-Control', 'public, max-age=31557600'); // one year
-      res.send(data.replaceAll('{{color}}', '#' + req.params.color));
+      res.send(data.replace('{{color}}', '#' + req.params.color));
     }
   );
 });
@@ -68,13 +68,17 @@ gameNamespaces.on('connection', (socket) => {
   const gameId = socket.nsp.name.slice(1);
   let currentGame = games.get(gameId);
   if (currentGame) {
-    if (currentGame.addPlayer(socket.id)) {
+    if (currentGame.addPlayer(socket.id, socket.nsp)) {
       // socket.emit('join-success');
-      socket.emit('settings', currentGame.settings);
-      socket.nsp.emit('players', currentGame.numPlayers);
+      socket.nsp.emit('players', {
+        'current-players': currentGame.numPlayers,
+        'max-players': currentGame.settings.numPlayers,
+      });
     } else {
       socket.emit('join-failure');
     }
+  } else {
+    socket.emit('bad-code');
   }
 
   // socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
@@ -82,6 +86,24 @@ gameNamespaces.on('connection', (socket) => {
   socket.on('disconnect', () => {
     if (currentGame) {
       currentGame.removePlayer(socket.id);
+      cullGames();
+    }
+    console.log(
+      `Player (id: ${socket.id}) disconnected from the ${socket.nsp.name} namespace`
+    );
+  });
+
+  socket.on('place-token', (arg) => {
+    if (currentGame) {
+      let result = currentGame.placeToken(socket.id, arg.x, arg.y);
+      if (result == 'invalid-move') {
+        socket.emit('invalid-move');
+      } else if (result['outcome'] == turnResults.WIN) {
+        socket.nsp.emit('game-end', result);
+      } else if (result['outcome'] == turnResults.DRAW) {
+        socket.nsp.emit('game-end', result);
+      }
+      socket.nsp.emit('game-state', currentGame.gameState);
     }
   });
 });
@@ -148,12 +170,12 @@ function parseGameSettings(body: Object): GameSetting {
     fractalized: fractalized,
     turnPattern: [
       {
-        player: 1,
-        piece: 1,
+        player: 0,
+        piece: 0,
       },
       {
-        player: 2,
-        piece: 2,
+        player: 1,
+        piece: 1,
       },
     ],
   };
@@ -180,4 +202,14 @@ function newId() {
   );
 
   return code;
+}
+
+function cullGames() {
+  const gameList = Array.from(games.values());
+  for (let i = 0; i < gameList.length; i++) {
+    if (gameList[i].numPlayers <= 0) {
+      // games.delete(gameList[i].id);
+      // console.log(`deleted game ${gameList[i].id} because it had no players`);
+    }
+  }
 }
