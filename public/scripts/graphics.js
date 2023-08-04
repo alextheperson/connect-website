@@ -4,9 +4,9 @@ let hasTurn = false;
 let loaded = false;
 let ownNumber;
 
-const shapes = ['cross', 'circle', 'triangle', 'square'];
+const shapes = ['cross', 'circle', 'triangle', 'square', 'diamond'];
 
-colors = ['c37d4d', '29ab48', '733eaf', 'c42860']; //These are Hex-Codes
+colors = ['c37d4d', '29ab48', '733eaf', 'c42860', '2caec0']; //These are Hex-Codes
 
 // const cell = `<img class="cell" src="/tokens/${shape}.svg/${color}" />`;
 

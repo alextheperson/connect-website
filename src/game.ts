@@ -116,8 +116,8 @@ export class Game {
         if (this.board[y][x] > -1) {
           let hasWonHorizontal = true;
           let hasWonVertical = true;
-          let hasWonDiagonal1 = true;
-          let hasWonDiagonal2 = true;
+          let hasWonDiagonal1 = this.settings.diagonals;
+          let hasWonDiagonal2 = this.settings.diagonals;
           for (let i = 0; i < this.settings['numberToConnect']; i++) {
             if (this.board[y][x + i] != this.board[y][x]) {
               hasWonHorizontal = false;
