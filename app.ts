@@ -160,6 +160,14 @@ function parseGameSettings(body: Object): GameSetting {
   }
   fractalized = body['fractalized'] === 'on';
 
+  let turnPattern: { player: number; piece: number }[] = [];
+  for (let i = 0; i < numPlayers; i++) {
+    turnPattern.push({
+      player: i,
+      piece: i,
+    });
+  }
+
   return {
     width: width,
     height: height,
@@ -168,16 +176,7 @@ function parseGameSettings(body: Object): GameSetting {
     gravity: gravity,
     numPlayers: numPlayers,
     fractalized: fractalized,
-    turnPattern: [
-      {
-        player: 0,
-        piece: 0,
-      },
-      {
-        player: 1,
-        piece: 1,
-      },
-    ],
+    turnPattern: turnPattern,
   };
 }
 
