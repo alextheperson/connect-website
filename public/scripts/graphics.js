@@ -3,6 +3,7 @@ let gameSettings;
 let hasTurn = false;
 let loaded = false;
 let ownNumber;
+let gameBoard;
 
 const shapes = ['cross', 'circle', 'triangle', 'square', 'diamond'];
 
@@ -33,7 +34,7 @@ function createCells() {
   board.innerHTML = '<h1 id="result"></h1>';
   for (let y = 0; y < gameSettings['height']; y++) {
     for (let x = 0; x < gameSettings['width']; x++) {
-      board.innerHTML += `<button class="cell" onclick="placeToken(${x}, ${y})"><img class="cell-image" src="/tokens/empty.svg/000000" id="${x}-${y}"/></button>`;
+      board.innerHTML += `<button class="cell" onclick="placeToken(${x}, ${y})"><img class="cell-image" src="/tokens/empty.svg/000000" id="${x}-${y}" onmouseover="hover(${x}, ${y}, this)" onmouseout="unhover(${x}, ${y}, this)"/></button>`;
     }
   }
   board.style.gridTemplateColumns = '1fr '
@@ -77,13 +78,13 @@ function drawTurns(turnNumber) {
   );
 }
 
-function drawBoard(board) {
-  for (let y = 0; y < board.length; y++) {
-    for (let x = 0; x < board[0].length; x++) {
-      if (board[y][x] > -1) {
+function drawBoard() {
+  for (let y = 0; y < gameBoard.length; y++) {
+    for (let x = 0; x < gameBoard[0].length; x++) {
+      if (gameBoard[y][x] > -1) {
         document.getElementById(`${x}-${y}`).src = `/tokens/${
-          shapes[gameSettings.turnPattern[board[y][x]].player]
-        }.svg/${colors[gameSettings.turnPattern[board[y][x]].piece]}`;
+          shapes[gameSettings.turnPattern[gameBoard[y][x]].player]
+        }.svg/${colors[gameSettings.turnPattern[gameBoard[y][x]].piece]}`;
       } else {
         document.getElementById(`${x}-${y}`).src = `/tokens/empty.svg/000000`;
       }
@@ -101,5 +102,31 @@ function drawGameEnd(arg) {
       shapes[arg['player']]
     }.svg/ffffff"/> <span>Wins!</span>
     `;
+  }
+}
+
+function hover(x, y, obj) {
+  if (hasTurn && gameBoard && gameBoard[y][x] === -1) {
+    if (gameSettings.gravity && gameBoard[0][x] === -1) {
+      for (let i = 0; i < gameBoard.length; i++) {
+        if (gameBoard[i + 1] === undefined || gameBoard[i + 1][x] > -1) {
+          let gravObj = document.getElementById(`${x}-${i}`);
+          gravObj.src = `/tokens/${shapes[ownNumber]}.svg/${colors[ownNumber]}`;
+          gravObj.classList.add('trans');
+          break;
+        }
+      }
+    } else {
+      obj.src = `/tokens/${shapes[ownNumber]}.svg/${colors[ownNumber]}`;
+      obj.classList.add('trans');
+    }
+  }
+}
+
+function unhover(x, y, obj) {
+  drawBoard();
+  transObjs = document.querySelectorAll('.cell-image.trans');
+  for (let i = 0; i < transObjs.length; i++) {
+    transObjs[i].classList.remove('trans');
   }
 }

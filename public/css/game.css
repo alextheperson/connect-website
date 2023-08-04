@@ -113,3 +113,7 @@
   aspect-ratio: 1 / 1;
   display: inline;
 }
+
+.trans {
+  opacity: 0.5;
+}

@@ -27,6 +27,7 @@ socket.on('players', (arg) => {
 });
 
 socket.on('game-state', (arg) => {
+  gameBoard = arg.board;
   hasTurn = gameSettings['turnPattern'][arg.currentTurn]['player'] == ownNumber;
   drawBoard(arg.board);
   drawTurns(arg.currentTurn);
@@ -59,9 +60,26 @@ socket.on('game-end', drawGameEnd);
 
 function placeToken(x, y) {
   if (hasTurn) {
-    socket.emit('place-token', {
-      x: x,
-      y: y,
-    });
+    if (gameSettings.gravity && gameBoard[0][x] === -1) {
+      for (let i = 0; i < gameBoard.length; i++) {
+        if (gameBoard[i + 1] === undefined || gameBoard[i + 1][x] > -1) {
+          socket.emit('place-token', {
+            x: x,
+            y: i,
+          });
+          break;
+        }
+      }
+    } else {
+      socket.emit('place-token', {
+        x: x,
+        y: y,
+      });
+    }
+  }
+  transObjs = document.querySelectorAll('.cell.trans');
+  transObjs = document.querySelectorAll('.cell-image.trans');
+  for (let i = 0; i < transObjs.length; i++) {
+    transObjs[i].classList.remove('trans');
   }
 }
