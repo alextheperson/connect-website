@@ -136,7 +136,7 @@ export class Game {
             }
             if (
               this.board[y + i] === undefined ||
-              this.board[y + i][x - 1] != this.board[y][x]
+              this.board[y + i][x - i] != this.board[y][x]
             ) {
               hasWonDiagonal2 = false;
             }
