@@ -111,16 +111,16 @@ function drawGameEnd(arg) {
 
 function hover(x, y, obj) {
   if (hasTurn && gameBoard && gameBoard[y][x] === -1) {
-    if (gameSettings.gravity && gameBoard[0][x] === -1) {
-      for (let i = 0; i < gameBoard.length; i++) {
-        if (gameBoard[i + 1] === undefined || gameBoard[i + 1][x] > -1) {
-          let gravObj = document.getElementById(`${x}-${i}`);
-          gravObj.src = `/tokens/${SHAPES[ownNumber]}.svg/${
-            COLORS[gameSettings.turnPattern[currentTurn].piece]
-          }`;
-          gravObj.classList.add('trans');
-          break;
-        }
+    if (gameSettings.hasGravity) {
+      let computeResult = computeGravity(x, y);
+      if (computeResult !== null) {
+        let computedX = computeResult.x;
+        let computedY = computeResult.y;
+        let gravityObj = document.getElementById(`${computedX}-${computedY}`);
+        gravityObj.src = `/tokens/${SHAPES[ownNumber]}.svg/${
+          COLORS[gameSettings.turnPattern[currentTurn].piece]
+        }`;
+        gravityObj.classList.add('trans');
       }
     } else {
       obj.src = `/tokens/${SHAPES[ownNumber]}.svg/${
@@ -137,4 +137,49 @@ function unhover(x, y, obj) {
   for (let i = 0; i < transObjs.length; i++) {
     transObjs[i].classList.remove('trans');
   }
+}
+
+function computeGravity(x, y) {
+  let { gravityDirection } = gameSettings;
+  let localX = x;
+  if (gravityDirection.x === 1) {
+    localX = 0;
+  } else if (gravityDirection.x === -1) {
+    localX = gameSettings.boardWidth - 1;
+  }
+  let localY = y;
+  if (gravityDirection.y === 1) {
+    localY = 0;
+  } else if (gravityDirection.y === -1) {
+    localY = gameSettings.boardHeight - 1;
+  }
+
+  if (gravityDirection.x !== 0 && gravityDirection.y !== 0) {
+    let delta = Math.min(Math.abs(x - localX), Math.abs(y - localY));
+    localX = x + delta * -gravityDirection.x;
+    localY = y + delta * -gravityDirection.y;
+  }
+  if (gameBoard[localY][localX] === -1) {
+    for (
+      let i = 0;
+      i < Math.ceil(gameBoard.length ^ (2 + gameBoard[1].length) ^ 2 ^ 0.5); // Length of the diagonal
+      i++
+    ) {
+      if (
+        gameBoard[(i + 1) * gravityDirection.y + localY] === undefined ||
+        gameBoard[(i + 1) * gravityDirection.y + localY][
+          (i + 1) * gravityDirection.x + localX
+        ] === undefined ||
+        gameBoard[(i + 1) * gravityDirection.y + localY][
+          (i + 1) * gravityDirection.x + localX
+        ] > -1
+      ) {
+        return {
+          x: i * gravityDirection.x + localX,
+          y: i * gravityDirection.y + localY,
+        };
+      }
+    }
+  }
+  return null;
 }

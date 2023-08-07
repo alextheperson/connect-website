@@ -62,19 +62,17 @@ socket.on('game-end', drawGameEnd);
 
 function placeToken(x, y) {
   if (hasTurn) {
-    if (gameSettings.hasGravity && gameBoard[0][x] === -1) {
-      for (let i = 0; i < gameBoard.length; i++) {
-        if (gameBoard[i + 1] === undefined || gameBoard[i + 1][x] > -1) {
-          socket.emit('place-token', {
-            x: x,
-            y: i,
-          });
-          console.log({
-            x: x,
-            y: i,
-          });
-          break;
-        }
+    if (gameSettings.hasGravity) {
+      let gravity = computeGravity(x, y);
+      if (gravity !== null) {
+        socket.emit('place-token', {
+          x: gravity.x,
+          y: gravity.y,
+        });
+        console.log({
+          x: gravity.x,
+          y: gravity.y,
+        });
       }
     } else {
       socket.emit('place-token', {
