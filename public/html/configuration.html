@@ -18,16 +18,30 @@
     />
     <meta property="og:image" content="/assets/icon1200.png" />
     <link rel="stylesheet" href="../css/main.css" type="text/css" />
+    <script src="../../scripts/constants.js"></script>
     <script src="../../scripts/configuration-validation.js" defer></script>
   </head>
-  <body>
+  <body class="center">
     <div class="configuration-panel">
       <h1>Configure Game</h1>
-      <form action="game" method="post">
+      <form action="" method="get" id="form">
         <fieldset>
           <legend>Dimensions</legend>
-          <input type="number" value="3" min="3" name="width" id="width" /> X
-          <input type="number" value="3" min="3" name="height" id="height" />
+          <input
+            type="number"
+            value="3"
+            min="3"
+            name="boardWidth"
+            id="boardWidth"
+          />
+          X
+          <input
+            type="number"
+            value="3"
+            min="3"
+            name="boardHeight"
+            id="boardHeight"
+          />
         </fieldset>
         <fieldset>
           <legend>Win Condition</legend>
@@ -35,21 +49,82 @@
             type="number"
             value="3"
             min="3"
-            name="numberToConnect"
-            id="numberToConnect"
+            name="numToConnect"
+            id="numToConnect"
           />
           in a row<br />
-          <input type="checkbox" name="diagonals" checked /> Diagonals
+          <input type="checkbox" name="allowDiagonals" checked /> Diagonals
         </fieldset>
         <fieldset>
           <legend>Play</legend>
-          <input type="checkbox" name="gravity" /> Gravity<br />
-          <input type="number" min="2" max="5" value="2" name="players" />
-          Players
+          <input type="checkbox" name="hasGravity" /> Gravity<br />
+          <select name="gravityDirection">
+            <option value="0,1">&UpArrow;</option>
+            <option value="1,0">&RightArrow;</option>
+            <option value="0,-1">&DownArrow;</option>
+            <option value="-1,0">&LeftArrow;</option>
+            <option value="-1,1">&UpperLeftArrow;</option>
+            <option value="1,1">&UpperRightArrow;</option>
+            <option value="1,-1">&LowerRightArrow;</option>
+            <option value="-1,-1">&LowerLeftArrow;</option>
+          </select>
+          <input type="checkbox" name="doTumble" /> Tokens Tumble<br />
+          <select name="numPlayers" id="numPlayers">
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+          </select>
+          Players<br />
+          <input type="checkbox" name="allowSpectators" /> Allow Spectators<br />
+        </fieldset>
+        <fieldset>
+          <legend>Pieces & Turns</legend>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="3">Pieces</th>
+              </tr>
+              <tr>
+                <th>#</th>
+                <th colspan="2">Can Win?</th>
+              </tr>
+            </thead>
+            <tbody id="pieces"></tbody>
+            <tfoot>
+              <td colspan="3">
+                <input type="button" onclick="addPiece()" value="+ Add Piece" />
+              </td>
+            </tfoot>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="4">Turns</th>
+              </tr>
+              <tr>
+                <th>#</th>
+                <th>Player</th>
+                <th colspan="2">Piece</th>
+              </tr>
+            </thead>
+            <tbody id="turns"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4">
+                  <input type="button" onclick="addTurn()" value="+ Add Turn" />
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         </fieldset>
         <fieldset>
           <legend>Miscellaneous</legend>
-          <input type="checkbox" name="fractalized" /> Fractal<br />
+          <select name="extraRulesets">
+            <option value="none">None</option>
+            <option value="fractal">Fractal</option>
+            <option value="gravity-rotate">Gravity Rotation</option>
+          </select>
         </fieldset>
         <fieldset class="no-text buttons">
           <a href="./" class="button half-width">&larr; Cancel</a>

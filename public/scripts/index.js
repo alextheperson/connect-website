@@ -20,7 +20,7 @@ socket.on('connect', () => {
 });
 
 socket.on('players', (arg) => {
-  console.log(arg);
+  console.log('players', arg);
   document.getElementById(
     'attendance'
   ).innerHTML = `${arg['current-players']}/${arg['max-players']} players`;
@@ -28,13 +28,15 @@ socket.on('players', (arg) => {
 
 socket.on('game-state', (arg) => {
   gameBoard = arg.board;
-  hasTurn = gameSettings['turnPattern'][arg.currentTurn]['player'] == ownNumber;
-  drawBoard(arg.board);
-  drawTurns(arg.currentTurn);
+  currentTurn = arg.currentTurn;
+  hasTurn = gameSettings.turnPattern[arg.currentTurn].player == ownNumber;
+  drawBoard();
+  drawTurns();
   console.log('game-state', arg);
 });
 
 socket.on('start-game', (arg) => {
+  console.log('start-game', arg);
   document.getElementById('lobby').classList.add('hidden');
   document.getElementById('error').classList.add('hidden');
   ownNumber = arg['own-number'];
@@ -60,10 +62,14 @@ socket.on('game-end', drawGameEnd);
 
 function placeToken(x, y) {
   if (hasTurn) {
-    if (gameSettings.gravity && gameBoard[0][x] === -1) {
+    if (gameSettings.hasGravity && gameBoard[0][x] === -1) {
       for (let i = 0; i < gameBoard.length; i++) {
         if (gameBoard[i + 1] === undefined || gameBoard[i + 1][x] > -1) {
           socket.emit('place-token', {
+            x: x,
+            y: i,
+          });
+          console.log({
             x: x,
             y: i,
           });

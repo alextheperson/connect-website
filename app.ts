@@ -1,12 +1,20 @@
 const express = require('express');
 import { Namespace, Server } from 'socket.io';
+const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const upload = multer();
 
 const Constants = require(path.join(
   __dirname + '/public/scripts/constants.js'
 ));
-import { Game, turnResults, type GameSetting } from './src/game';
+import {
+  Game,
+  turnResults,
+  type GameSetting,
+  rulesets,
+  vector,
+} from './src/game';
 const games: Map<string, Game> = new Map<string, Game>();
 
 // Setup an Express server
@@ -30,10 +38,10 @@ app.get('/game/:code([0-9]{9})', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/html/game.html'));
 });
 
-app.post('/game', (req, res) => {
+app.post('/game', upload.none(), (req, res) => {
   const newId = createNewGame(parseGameSettings(req.body)).id;
   console.log(newId);
-  res.redirect(`/game/${newId}`);
+  res.send(newId);
   // res.sendFile(path.join(__dirname + '/public/html/game.html'));
 });
 
@@ -108,74 +116,140 @@ gameNamespaces.on('connection', (socket) => {
   });
 });
 
+function validateToInt(input: string | undefined, name: string) {
+  if (input !== undefined && input.match(/^[1-9][0-9]*$/)) {
+    return parseInt(input);
+  } else {
+    throw new Error(`'${name}' in not an Integer`);
+  }
+}
+
+function validateToBool(input: string | undefined, name: string) {
+  if (input === undefined || input === 'on') {
+    return input === 'on';
+  } else {
+    throw new Error(`'${name}' in not a Boolean`);
+  }
+}
+
+function validateToEnum(
+  input: string | undefined,
+  allowed: string[],
+  name: string
+) {
+  if (input !== undefined && allowed.includes(input)) {
+    return input;
+  } else {
+    throw new Error(
+      `'${name}' does not have one of the allowed values: '${allowed.join(
+        "', '"
+      )}'`
+    );
+  }
+}
+
+function validateToVector(input: string | undefined, name: string) {
+  if (input !== undefined && input.match(/[-0-1],[-0-1]/)) {
+    let values = input.split(',');
+    return {
+      x: parseInt(values[0]),
+      y: parseInt(values[1]),
+    };
+  } else {
+    throw new Error(`'${name}' does not have the right format (#,#)`);
+  }
+}
+
 function parseGameSettings(body: Object): GameSetting {
   let width: number,
     height: number,
     numberToConnect: number,
     diagonals: boolean,
     gravity: boolean,
+    gravityDirection: vector,
     numPlayers: number,
-    fractalized: boolean;
-  if (body['width'] !== undefined && body['width'].match(/^[1-9][0-9]*$/)) {
-  } else {
-    throw new Error("Property 'width' is bad");
-  }
-  width = parseInt(body['width']);
-  if (body['height'] !== undefined && body['height'].match(/^[1-9][0-9]*$/)) {
-  } else {
-    throw new Error("Property 'height' is bad");
-  }
-  height = parseInt(body['height']);
-  if (
-    body['numberToConnect'] !== undefined &&
-    body['numberToConnect'].match(/^[1-9][0-9]*$/) &&
-    parseInt(body['numberToConnect']) <= Math.max(width, height)
-  ) {
-  } else {
-    throw new Error("Property 'numberToConnect' is bad");
-  }
-  numberToConnect = parseInt(body['numberToConnect']);
-  if (body['diagonals'] === undefined || body['diagonals'] === 'on') {
-  } else {
-    throw new Error("Property 'diagonals' is bad");
-  }
-  diagonals = body['diagonals'] === 'on';
-  if (body['gravity'] === undefined || body['gravity'] === 'on') {
-  } else {
-    throw new Error("Property 'gravity' is bad");
-  }
-  gravity = body['gravity'] === 'on';
-  if (
-    body['players'] !== undefined &&
-    body['players'].match(/^[1-9][0-9]*$/) &&
-    parseInt(body['players']) >= 2
-  ) {
-  } else {
-    throw new Error("Property 'players' is bad");
-  }
-  numPlayers = parseInt(body['players']);
-  if (body['fractalized'] === undefined || body['fractalized'] === 'on') {
-  } else {
-    throw new Error("Property 'fractalized' is bad");
-  }
-  fractalized = body['fractalized'] === 'on';
+    allowSpectators: boolean,
+    extraRulesets: rulesets,
+    pieces: boolean[],
+    turnPattern: { player: number; piece: number }[];
 
-  let turnPattern: { player: number; piece: number }[] = [];
-  for (let i = 0; i < numPlayers; i++) {
-    turnPattern.push({
-      player: i,
-      piece: i,
+  console.log(body['boardWidth'], body);
+  if (validateToInt(body['boardWidth'], 'boardWidth') > 2) {
+    width = parseInt(body['boardWidth']);
+  } else {
+    throw new Error("'boardWidth' is less than 2");
+  }
+  if (validateToInt(body['boardHeight'], 'boardHeight') > 2) {
+  } else {
+    throw new Error("'boardHeight' is less than 2");
+  }
+  height = parseInt(body['boardHeight']);
+  if (
+    validateToInt(body['numToConnect'], 'numToConnect') <=
+    Math.max(width, height)
+  ) {
+    numberToConnect = parseInt(body['numToConnect']);
+  } else {
+    throw new Error("'numToConnect' is greater than the size of the board");
+  }
+  diagonals = validateToBool(body['allowDiagonals'], 'allowDiagonals');
+  gravity = validateToBool(body['hasGravity'], 'hasGravity');
+  gravityDirection = validateToVector(
+    body['gravityDirection'],
+    'gravityDirection'
+  ) as vector;
+  if (
+    validateToInt(body['numPlayers'], 'numPlayers') > 1 &&
+    parseInt(body['numPlayers']) <= 5
+  ) {
+    numPlayers = parseInt(body['numPlayers']);
+  } else {
+    throw new Error("'numPlayers' out of the range [2:5]");
+  }
+  allowSpectators = validateToBool(body['allowSpectators'], 'allowSpectators');
+  extraRulesets = validateToEnum(
+    body['extraRulesets'],
+    ['fractal', 'gravity-rotate', 'none'],
+    'extraRulesets'
+  ) as rulesets;
+
+  if (body['pieces'] !== undefined && body['pieces'].match(/^[0-1]{2,}$/)) {
+    let pieceList = body['pieces'].split('');
+    pieceList = pieceList.map((el) => el == 1);
+    pieces = pieceList;
+  } else {
+    throw new Error(
+      `'pieces' is not in the right format (it can only contain 0 and 1).`
+    );
+  }
+
+  if (
+    body['turnPattern'] !== undefined &&
+    body['turnPattern'].match(/^([0-9]+-[0-9]+,){2,}$/)
+  ) {
+    let turns = body['turnPattern'].slice(0, -1).split(',');
+    turns = turns.map((el) => {
+      let split = el.split('-');
+      return { player: split[0], piece: split[1] };
     });
+    turnPattern = turns;
+  } else {
+    throw new Error(
+      `'turnPattern' is not in the right format (player#-piece#,player#-piece#,).`
+    );
   }
 
   return {
-    width: width,
-    height: height,
-    numberToConnect: numberToConnect,
-    diagonals: diagonals,
-    gravity: gravity,
+    boardWidth: width,
+    boardHeight: height,
+    numToConnect: numberToConnect,
+    allowDiagonals: diagonals,
+    hasGravity: gravity,
+    gravityDirection: gravityDirection,
     numPlayers: numPlayers,
-    fractalized: fractalized,
+    allowSpectators: allowSpectators,
+    extraRulesets: extraRulesets,
+    pieces: pieces,
     turnPattern: turnPattern,
   };
 }

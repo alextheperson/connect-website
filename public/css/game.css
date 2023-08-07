@@ -117,3 +117,19 @@
 .trans {
   opacity: 0.5;
 }
+
+.turn {
+  border: 1px solid #fff3;
+}
+
+.owned {
+  border: 1px solid white;
+}
+
+.owned.no-win {
+  border: 1px dashed white;
+}
+
+.no-win {
+  border: 1px dashed #fff3;
+}

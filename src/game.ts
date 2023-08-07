@@ -1,13 +1,20 @@
 import { Namespace } from 'socket.io';
-
+export type rulesets = 'fractal' | 'gravity-rotate' | 'none';
+export type vector = {
+  x: 0 | 1 | -1;
+  y: 0 | 1 | -1;
+};
 export type GameSetting = {
-  width: number;
-  height: number;
-  numberToConnect: number;
-  diagonals: boolean;
-  gravity: boolean;
+  boardWidth: number;
+  boardHeight: number;
+  numToConnect: number;
+  allowDiagonals: boolean;
+  hasGravity: boolean;
+  gravityDirection: vector;
   numPlayers: number;
-  fractalized: boolean;
+  allowSpectators: boolean;
+  extraRulesets: rulesets;
+  pieces: boolean[];
   turnPattern: {
     player: number;
     piece: number;
@@ -46,11 +53,11 @@ export class Game {
   }
 
   get currentPlayer() {
-    return this.settings['turnPattern'][this.currentTurn].player;
+    return this.settings.turnPattern[this.currentTurn].player;
   }
 
   get currentPiece() {
-    return this.settings['turnPattern'][this.currentTurn].piece;
+    return this.settings.turnPattern[this.currentTurn].piece;
   }
 
   hasPlayer(id: string) {
@@ -78,9 +85,9 @@ export class Game {
   }
 
   initializeGame(namespace: Namespace) {
-    this.board = new Array(this.settings.height)
+    this.board = new Array(this.settings.boardHeight)
       .fill(-1)
-      .map((u) => new Array(this.settings.width).fill(-1));
+      .map((u) => new Array(this.settings.boardWidth).fill(-1));
     this.currentTurn = 0;
     for (let i = 0; i < this.players.length; i++) {
       namespace
@@ -99,13 +106,42 @@ export class Game {
       //If it is their turn
       this.board[y][x] = this.currentTurn;
       this.currentTurn += 1;
-      if (this.currentTurn >= this.settings['turnPattern'].length) {
+      if (this.currentTurn >= this.settings.turnPattern.length) {
         this.currentTurn = 0;
       }
     } else {
       return 'invalid-move';
     }
     return this.evaluateBoard();
+  }
+
+  checkForMatch(x1: number, y1: number, x2: number, y2: number) {
+    if (this.board[y1] === undefined || this.board[y2] === undefined) {
+      // check if it has gone off the the board vertically.
+      return false;
+    }
+    if (
+      this.board[y1][x1] === undefined ||
+      this.board[y1][x1] === -1 ||
+      this.board[y2][x2] === undefined ||
+      this.board[y2][x2] === -1
+    ) {
+      // check if it has gone off the the board horizontally or if it is an empty space.
+      return false;
+    }
+    if (!this.settings.pieces[this.board[y1][x1]]) {
+      return false;
+    }
+    if (
+      this.settings.turnPattern[this.board[y1][x1]].piece !==
+        this.settings.turnPattern[this.board[y2][x2]].piece &&
+      this.settings.turnPattern[this.board[y1][x1]].player !==
+        this.settings.turnPattern[this.board[y2][x2]].player
+    ) {
+      // check if they are the same player
+      return false;
+    }
+    return true;
   }
 
   evaluateBoard() {
@@ -116,28 +152,19 @@ export class Game {
         if (this.board[y][x] > -1) {
           let hasWonHorizontal = true;
           let hasWonVertical = true;
-          let hasWonDiagonal1 = this.settings.diagonals;
-          let hasWonDiagonal2 = this.settings.diagonals;
-          for (let i = 0; i < this.settings['numberToConnect']; i++) {
-            if (this.board[y][x + i] != this.board[y][x]) {
+          let hasWonDiagonal1 = this.settings.allowDiagonals;
+          let hasWonDiagonal2 = this.settings.allowDiagonals;
+          for (let i = 1; i < this.settings.numToConnect; i++) {
+            if (!this.checkForMatch(x, y, x + i, y)) {
               hasWonHorizontal = false;
             }
-            if (
-              this.board[y + i] === undefined ||
-              this.board[y + i][x] != this.board[y][x]
-            ) {
+            if (!this.checkForMatch(x, y, x, y + i)) {
               hasWonVertical = false;
             }
-            if (
-              this.board[y + i] === undefined ||
-              this.board[y + i][x + i] != this.board[y][x]
-            ) {
+            if (!this.checkForMatch(x, y, x + i, y + i)) {
               hasWonDiagonal1 = false;
             }
-            if (
-              this.board[y + i] === undefined ||
-              this.board[y + i][x - i] != this.board[y][x]
-            ) {
+            if (!this.checkForMatch(x, y, x - i, y + i)) {
               hasWonDiagonal2 = false;
             }
           }
@@ -149,7 +176,7 @@ export class Game {
           ) {
             return {
               outcome: turnResults.WIN,
-              player: this.settings['turnPattern'][this.board[y][x]]['player'],
+              player: this.settings.turnPattern[this.board[y][x]].player,
               position: {
                 x: x,
                 y: y,

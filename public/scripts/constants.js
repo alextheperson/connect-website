@@ -1,18 +1,3 @@
-Object.freeze({
-  PLAYER_RADIUS: 20,
-  PLAYER_MAX_HP: 100,
-  PLAYER_SPEED: 400,
-  PLAYER_FIRE_COOLDOWN: 0.25,
-  BULLET_RADIUS: 3,
-  BULLET_SPEED: 800,
-  BULLET_DAMAGE: 10,
-  SCORE_BULLET_HIT: 20,
-  SCORE_PER_SECOND: 1,
-  MAP_SIZE: 3000,
-  MSG_TYPES: {
-    JOIN_GAME: 'join_game',
-    GAME_UPDATE: 'move',
-    WIN: 'win',
-    LOSE: 'lose',
-  },
-});
+const SHAPES = ['cross', 'circle', 'triangle', 'square', 'diamond'];
+
+const COLORS = ['c37d4d', '29ab48', '733eaf', 'c42860', '2caec0']; //These are Hex-Codes

@@ -3,6 +3,7 @@
   --primary-color: #489dd9;
   --primary-hovered: #3e93cf;
   --sans-font: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --background: #242424;
 
   font-family: var(--sans-font);
   line-height: 1.5;
@@ -44,20 +45,28 @@ h2 {
   text-align: center;
 }
 
-.main-panel,
-.configuration-panel {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+input,
+select {
+  accent-color: var(--primary-color);
+}
+
+select {
+  min-width: 3em;
 }
 
 .main-panel {
   width: 300px;
+  margin: auto;
+}
+
+.center {
+  display: flex;
+  align-items: center;
 }
 
 .configuration-panel {
   width: 500px;
+  margin: auto;
 }
 
 button,
@@ -165,7 +174,7 @@ input.big[type='number'] {
   font-family: monospace;
 }
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
   :root {
     --text-color: #213547;
     background-color: #ffffff;
@@ -178,9 +187,34 @@ input.big[type='number'] {
   fieldset {
     border-color: color-mix(in srgb, currentColor 50%, #fff 50%);
   }
-}
+} */
 
 #game-canvas {
   width: 100%;
   height: 100%;
 }
+
+table {
+  display: inline-block;
+  border-collapse: collapse;
+  margin-right: 10px;
+}
+
+td,
+th {
+  border: 1px solid rgb(117, 116, 122);
+  padding: 5px;
+  text-align: center;
+}
+
+tr:hover {
+  background: rgba(117, 116, 122, 0.25);
+}
+
+/* tfoot td {
+  border-style: none;
+}
+
+tfoot tr:hover {
+  background: transparent;
+} */
