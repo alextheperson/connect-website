@@ -3,7 +3,8 @@
   --primary-color: #489dd9;
   --primary-hovered: #3e93cf;
   --sans-font: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  --background: #242424;
+  --background: #2b2a33;
+  --background-dark: #1f1e24;
 
   font-family: var(--sans-font);
   line-height: 1.5;
@@ -11,7 +12,7 @@
 
   color-scheme: light dark;
   color: var(--text-color);
-  background-color: #242424;
+  background-color: var(--background);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -78,7 +79,7 @@ input[type='submit'] {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--background-dark);
   cursor: pointer;
   transition: border-color 0.25s;
   color: var(--text-color);
@@ -174,20 +175,17 @@ input.big[type='number'] {
   font-family: monospace;
 }
 
-/* @media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: light) {
   :root {
     --text-color: #213547;
-    background-color: #ffffff;
     --primary-color: #216da3;
-  }
-  button,
-  a.button {
-    background-color: #e5e5e5;
+    --background: #eeeeee;
+    --background-dark: #dddddd;
   }
   fieldset {
     border-color: color-mix(in srgb, currentColor 50%, #fff 50%);
   }
-} */
+}
 
 #game-canvas {
   width: 100%;

@@ -35,6 +35,7 @@ export class Game {
   // currentPlayer: number;
   // currentPiece: number;
   players: string[] = [];
+  gameFinished: boolean = false;
 
   constructor(id: string, settings: GameSetting) {
     this.id = id;
@@ -101,7 +102,8 @@ export class Game {
     if (
       this.currentTurn !== undefined &&
       this.players.indexOf(id) == this.currentPlayer &&
-      this.board[y][x] == -1
+      this.board[y][x] == -1 &&
+      !this.gameFinished
     ) {
       //If it is their turn
       this.board[y][x] = this.currentTurn;
@@ -112,6 +114,7 @@ export class Game {
     } else {
       return 'invalid-move';
     }
+    this.applyGravityToBoard();
     return this.evaluateBoard();
   }
 
@@ -174,6 +177,7 @@ export class Game {
             hasWonDiagonal1 ||
             hasWonDiagonal2
           ) {
+            this.gameFinished = true;
             return {
               outcome: turnResults.WIN,
               player: this.settings.turnPattern[this.board[y][x]].player,
@@ -195,8 +199,89 @@ export class Game {
         }
       }
     }
+    this.gameFinished = hasDrawn;
     return {
       outcome: hasDrawn ? turnResults.DRAW : turnResults.NORMAL,
     };
+  }
+
+  computeGravity(x, y, direction) {
+    let localX = x;
+    if (direction.x === 1) {
+      localX = 0;
+    } else if (direction.x === -1) {
+      localX = this.settings.boardWidth - 1;
+    }
+    let localY = y;
+    if (direction.y === 1) {
+      localY = 0;
+    } else if (direction.y === -1) {
+      localY = this.settings.boardHeight - 1;
+    }
+
+    if (direction.x !== 0 && direction.y !== 0) {
+      let delta = Math.min(Math.abs(x - localX), Math.abs(y - localY));
+      localX = x + delta * -direction.x;
+      localY = y + delta * -direction.y;
+    }
+    if (this.board[localY][localX] === -1) {
+      for (
+        let i = 0;
+        i <
+        Math.ceil((this.board.length ** 2 + this.board[1].length ** 2) ** 0.5); // Length of the diagonal
+        i++
+      ) {
+        if (
+          this.board[(i + 1) * direction.y + localY] === undefined ||
+          this.board[(i + 1) * direction.y + localY][
+            (i + 1) * direction.x + localX
+          ] === undefined ||
+          this.board[(i + 1) * direction.y + localY][
+            (i + 1) * direction.x + localX
+          ] > -1
+        ) {
+          return {
+            x: i * direction.x + localX,
+            y: i * direction.y + localY,
+          };
+        }
+      }
+    }
+    return null;
+  }
+
+  applyGravityToBoard() {
+    let down = {
+      x: 1,
+      y: 0,
+    };
+    let up = {
+      x: -down.x,
+      y: -down.y,
+    };
+    let left = {
+      x: down.y,
+      y: down.x,
+    };
+    let right = {
+      x: -down.y,
+      y: -down.x,
+    };
+
+    let currentToken = {
+      x: 0,
+      y: 0,
+    };
+
+    // let diagonalLength = Math.ceil(
+    //   gameBoard.length ^ (2 + gameBoard[1].length) ^ 2 ^ 0.5
+    // );
+    // let isDiagonal = down.x !== 0 && down.y !== 0;
+
+    // let boardArea = isDiagonal ? diagonalLength**2 : gam
+
+    // for (let i = 0; i < (boardArea); i++) {
+
+    // }
   }
 }

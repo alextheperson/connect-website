@@ -26,7 +26,7 @@
       <h1>Configure Game</h1>
       <form action="" method="get" id="form">
         <fieldset>
-          <legend>Dimensions</legend>
+          <legend>General</legend>
           <input
             type="number"
             value="3"
@@ -42,9 +42,6 @@
             name="boardHeight"
             id="boardHeight"
           />
-        </fieldset>
-        <fieldset>
-          <legend>Win Condition</legend>
           <input
             type="number"
             value="3"
@@ -53,10 +50,8 @@
             id="numToConnect"
           />
           in a row<br />
-          <input type="checkbox" name="allowDiagonals" checked /> Diagonals
-        </fieldset>
-        <fieldset>
-          <legend>Play</legend>
+          <input type="checkbox" name="allowDiagonals" checked /> Allow
+          Diagonals <br />
           <input type="checkbox" name="hasGravity" /> Gravity<br />
           <select name="gravityDirection">
             <option value="0,-1">&UpArrow;</option>
@@ -68,7 +63,7 @@
             <option value="1,1">&LowerRightArrow;</option>
             <option value="-1,1">&LowerLeftArrow;</option>
           </select>
-          <input type="checkbox" name="doTumble" /> Tokens Tumble<br />
+          Gravity Direction<br />
           <select name="numPlayers" id="numPlayers">
             <option>2</option>
             <option>3</option>
@@ -76,7 +71,6 @@
             <option>5</option>
           </select>
           Players<br />
-          <input type="checkbox" name="allowSpectators" /> Allow Spectators<br />
         </fieldset>
         <fieldset>
           <legend>Pieces & Turns</legend>
@@ -125,6 +119,8 @@
             <option value="fractal">Fractal</option>
             <option value="gravity-rotate">Gravity Rotation</option>
           </select>
+          Extra Rulesets<br />
+          <input type="checkbox" name="allowSpectators" /> Allow Spectators<br />
         </fieldset>
         <fieldset class="no-text buttons">
           <a href="./" class="button half-width">&larr; Cancel</a>

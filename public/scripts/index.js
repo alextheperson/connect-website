@@ -60,8 +60,10 @@ socket.on('bad-code', () => {
 
 socket.on('game-end', drawGameEnd);
 
+socket.on('invalid-move', () => console.log('invalid-move'));
+
 function placeToken(x, y) {
-  if (hasTurn) {
+  if (!gameFinished && hasTurn) {
     if (gameSettings.hasGravity) {
       let gravity = computeGravity(x, y);
       if (gravity !== null) {

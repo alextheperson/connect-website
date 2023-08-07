@@ -5,6 +5,7 @@ let loaded = false;
 let ownNumber;
 let gameBoard;
 let currentTurn;
+let gameFinished = false;
 
 // const cell = `<img class="cell" src="/tokens/${shape}.svg/${color}" />`;
 
@@ -12,12 +13,12 @@ function initializeGame() {
   board = document.getElementById('board');
   cellStyle = document.getElementById('cell-style');
   rulesList = document.getElementById('rules');
-  turnList = document.getElementById('turn-list');
+  turnList = document.getElementById('turns');
   turnIndicator = document.getElementById('turn-indicator');
 
-  document.getElementById(
-    'game-title'
-  ).innerHTML = `Connect ${gameSettings.numToConnect} (${gameSettings.boardWidth}x${gameSettings.boardHeight})`;
+  // document.getElementById(
+  //   'game-title'
+  // ).innerHTML = `Connect ${gameSettings.numToConnect} (${gameSettings.boardWidth}x${gameSettings.boardHeight})`;
 
   document.getElementById('game').classList.remove('hidden');
   createCells();
@@ -26,6 +27,8 @@ function initializeGame() {
 }
 
 function createCells() {
+  let aspectRatio = gameSettings.boardWidth / gameSettings.boardHeight;
+  board.style.width = aspectRatio * board.offsetHeight + 'px';
   board.innerHTML = '<h1 id="result"></h1>';
   for (let y = 0; y < gameSettings.boardHeight; y++) {
     for (let x = 0; x < gameSettings.boardWidth; x++) {
@@ -55,30 +58,26 @@ function createTurnIndicator() {
     let { player, piece } = gameSettings.turnPattern[i];
     let tokenOwned = player == ownNumber;
     let canWin = gameSettings.pieces[piece];
-    turnList.innerHTML += `<div class="turn${tokenOwned ? ' owned' : ''}${
-      canWin ? '' : ' no-win'
-    }" title="${tokenOwned ? 'You' : 'Other players'} can ${
-      canWin ? '' : 'not '
-    }use this token to win."><img src="/tokens/${SHAPES[player]}.svg/${
-      COLORS[piece]
-    }" /></div>`;
+    // <div class="turn-indicator hidden" id="turn-${i}"></div>
+    turnList.innerHTML += `<div id="turn-${i}" class="current-turn turn${
+      tokenOwned ? ' owned' : ''
+    }${canWin ? '' : ' no-win'}" title="${
+      tokenOwned ? 'You' : 'Other players'
+    } can ${canWin ? '' : 'not '}use this token to win."><img src="/tokens/${
+      SHAPES[player]
+    }.svg/${COLORS[piece]}" /></div>`;
   }
 }
 
 function createRulesList() {
-  rulesList.innerHTML = JSON.stringify(gameSettings, null, 4);
+  // rulesList.innerHTML = JSON.stringify(gameSettings, null, 4);
 }
 
 function drawTurns() {
-  let turnHeight = turnList.children[0].offsetHeight;
-
-  turnIndicator.style.top = turnHeight * currentTurn + 'px';
-  console.log(
-    'indicator moved',
-    turnIndicator,
-    turnIndicator.style.top,
-    turnHeight * currentTurn + 'px'
+  Array.from(document.getElementsByClassName('turn')).map((el) =>
+    el.classList.remove('current-turn')
   );
+  document.getElementById(`turn-${currentTurn}`).classList.add('current-turn');
 }
 
 function drawBoard() {
@@ -97,6 +96,7 @@ function drawBoard() {
 
 function drawGameEnd(arg) {
   console.log('game-end', arg);
+  gameFinished = true;
   if (arg['outcome'] === 2) {
     document.getElementById('result').innerHTML = 'DRAW';
   } else {
@@ -110,7 +110,7 @@ function drawGameEnd(arg) {
 }
 
 function hover(x, y, obj) {
-  if (hasTurn && gameBoard && gameBoard[y][x] === -1) {
+  if (!gameFinished && hasTurn && gameBoard && gameBoard[y][x] === -1) {
     if (gameSettings.hasGravity) {
       let computeResult = computeGravity(x, y);
       if (computeResult !== null) {
@@ -162,7 +162,7 @@ function computeGravity(x, y) {
   if (gameBoard[localY][localX] === -1) {
     for (
       let i = 0;
-      i < Math.ceil(gameBoard.length ^ (2 + gameBoard[1].length) ^ 2 ^ 0.5); // Length of the diagonal
+      i < Math.ceil(gameBoard.length ** 2 + (gameBoard[1].length ** 2) ** 0.5); // Length of the diagonal
       i++
     ) {
       if (
