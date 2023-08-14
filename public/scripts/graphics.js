@@ -103,7 +103,7 @@ function drawGameEnd(arg) {
     document.getElementById(
       'result'
     ).innerHTML = `<img class="cell-image" src="/tokens/${
-      SHAPES[arg['player']]
+      SHAPES[arg.turn.player.index]
     }.svg/ffffff"/> <span>Wins!</span>
     `;
   }
