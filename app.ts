@@ -10,10 +10,10 @@ const Constants = require(path.join(
 ));
 import {
   Game,
-  turnResults,
+  TurnResults,
   type GameSetting,
-  rulesets,
-  vector,
+  Rulesets,
+  Vector,
 } from './src/game';
 const games: Map<string, Game> = new Map<string, Game>();
 
@@ -76,7 +76,7 @@ gameNamespaces.on('connection', (socket) => {
   const gameId = socket.nsp.name.slice(1);
   let currentGame = games.get(gameId);
   if (currentGame) {
-    if (currentGame.addPlayer(socket.id, socket.nsp)) {
+    if (currentGame.addPlayer(socket.id)) {
       // socket.emit('join-success');
       socket.nsp.emit('players', {
         'current-players': currentGame.numPlayers,
@@ -104,20 +104,12 @@ gameNamespaces.on('connection', (socket) => {
   socket.on('place-token', (arg) => {
     if (currentGame) {
       let result = currentGame.placeToken(socket.id, arg.x, arg.y);
-      if (result == 'invalid-move') {
-        socket.emit('invalid-move');
-      } else if (result['outcome'] == turnResults.WIN) {
-        socket.nsp.emit('game-end', result);
-      } else if (result['outcome'] == turnResults.DRAW) {
-        socket.nsp.emit('game-end', result);
-      }
-      socket.nsp.emit('game-state', currentGame.gameState);
     }
   });
 });
 
 function validateToInt(input: string | undefined, name: string) {
-  if (input !== undefined && input.match(/^[1-9][0-9]*$/)) {
+  if (input !== undefined && input.match(/^([1-9][0-9]*)|([0-9])$/)) {
     return parseInt(input);
   } else {
     throw new Error(`'${name}' in not an Integer`);
@@ -166,14 +158,13 @@ function parseGameSettings(body: Object): GameSetting {
     numberToConnect: number,
     diagonals: boolean,
     gravity: boolean,
-    gravityDirection: vector,
+    gravityDirection: Vector,
     numPlayers: number,
     allowSpectators: boolean,
-    extraRulesets: rulesets,
+    extraRulesets: Rulesets,
     pieces: boolean[],
     turnPattern: { player: number; piece: number }[];
 
-  console.log(body['boardWidth'], body);
   if (validateToInt(body['boardWidth'], 'boardWidth') > 2) {
     width = parseInt(body['boardWidth']);
   } else {
@@ -188,6 +179,7 @@ function parseGameSettings(body: Object): GameSetting {
     validateToInt(body['numToConnect'], 'numToConnect') <=
     Math.max(width, height)
   ) {
+    // TODO: Add minimum too
     numberToConnect = parseInt(body['numToConnect']);
   } else {
     throw new Error("'numToConnect' is greater than the size of the board");
@@ -197,7 +189,7 @@ function parseGameSettings(body: Object): GameSetting {
   gravityDirection = validateToVector(
     body['gravityDirection'],
     'gravityDirection'
-  ) as vector;
+  ) as Vector;
   if (
     validateToInt(body['numPlayers'], 'numPlayers') > 1 &&
     parseInt(body['numPlayers']) <= 5
@@ -211,7 +203,7 @@ function parseGameSettings(body: Object): GameSetting {
     body['extraRulesets'],
     ['fractal', 'gravity-rotate', 'none'],
     'extraRulesets'
-  ) as rulesets;
+  ) as Rulesets;
 
   if (body['pieces'] !== undefined && body['pieces'].match(/^[0-1]{2,}$/)) {
     let pieceList = body['pieces'].split('');
@@ -230,7 +222,10 @@ function parseGameSettings(body: Object): GameSetting {
     let turns = body['turnPattern'].slice(0, -1).split(',');
     turns = turns.map((el) => {
       let split = el.split('-');
-      return { player: split[0], piece: split[1] };
+      return {
+        player: validateToInt(split[0], 'turnPattern'),
+        piece: validateToInt(split[1], 'turnPattern'),
+      };
     });
     turnPattern = turns;
   } else {
@@ -255,7 +250,8 @@ function parseGameSettings(body: Object): GameSetting {
 }
 
 function createNewGame(settings: GameSetting) {
-  const newGame = new Game(newId(), settings);
+  let id = newId();
+  const newGame = new Game(id, settings, io.of(`/${id}`));
   games.set(newGame.id, newGame);
 
   return newGame;
