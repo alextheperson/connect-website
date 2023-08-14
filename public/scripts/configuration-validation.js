@@ -1,36 +1,19 @@
-let pieces = [
-  {
-    canWin: true,
-  },
-  {
-    canWin: true,
-  },
-  {
-    canWin: false,
-  },
-  {
-    canWin: false,
-  },
-];
+let pieces = [{ canWin: true }, { canWin: true }];
 
 let turns = [
-  {
-    player: 0,
-    piece: 0,
-  },
-  {
-    player: 1,
-    piece: 1,
-  },
-  {
-    player: 0,
-    piece: 2,
-  },
-  {
-    player: 1,
-    piece: 3,
-  },
+  { player: 0, piece: 0 },
+  { player: 1, piece: 1 },
 ];
+
+let savedPieces = localStorage.getItem('pieces');
+if (savedPieces !== null) {
+  pieces = JSON.parse(savedPieces);
+}
+
+let savedTurns = localStorage.getItem('turns');
+if (savedTurns !== null) {
+  turns = JSON.parse(savedTurns);
+}
 
 let numPlayers;
 
@@ -150,6 +133,8 @@ function changeTurnPlayer(index, changeTo) {
 }
 
 function drawTables() {
+  localStorage.setItem('pieces', JSON.stringify(pieces));
+  localStorage.setItem('turns', JSON.stringify(turns));
   document.getElementById('pieces').innerHTML = '';
   for (let i = 0; i < pieces.length; i++) {
     document.getElementById('pieces').innerHTML += createPieceRow(
