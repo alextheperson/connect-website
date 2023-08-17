@@ -64,9 +64,15 @@ document.getElementById('form').addEventListener('submit', (e) => {
 function createPieceRow(index, canWin) {
   return `<tr><td><code style="color: #${COLORS[index]}">${
     index + 1
-  }.</code></td><td><input type="checkbox" oninput="changePieceCanWin(${index},this.checked)"${
+  }.</code></td><td${
+    index < 2 ? ' colspan="2"' : ''
+  }><input type="checkbox" oninput="changePieceCanWin(${index},this.checked)"${
     canWin ? ' checked' : ''
-  } /></td><td><input type="button" onclick="removePiece(${index})" value="X" /></td></tr>`;
+  } /></td>${
+    index > 1
+      ? `<td><input type="button" onclick="removePiece(${index})" value="X" /></td>`
+      : ''
+  }</tr>`;
 }
 
 function createPlayerRow(index) {
@@ -95,10 +101,12 @@ function createPlayerRow(index) {
 }
 
 function addPiece() {
-  pieces.push({
-    canWin: true,
-  });
-  drawTables();
+  if (pieces.length < 5) {
+    pieces.push({
+      canWin: true,
+    });
+    drawTables();
+  }
 }
 
 function addTurn() {
@@ -110,8 +118,10 @@ function addTurn() {
 }
 
 function removePiece(index) {
-  pieces.splice(index, 1);
-  drawTables();
+  if (pieces.length > 2) {
+    pieces.splice(index, 1);
+    drawTables();
+  }
 }
 
 function removeTurn(index) {

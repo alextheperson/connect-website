@@ -1,4 +1,4 @@
-let board, cellStyle, rulesList, turnList, turnIndicator;
+let board, cellStyle, rulesList, turnList, turnIndicator, canvas;
 let gameSettings;
 let hasTurn = false;
 let loaded = false;
@@ -6,6 +6,10 @@ let ownNumber;
 let gameBoard;
 let currentTurn;
 let gameFinished = false;
+let spaceSize = 0;
+let ending;
+
+let boardShapes = [];
 
 // const cell = `<img class="cell" src="/tokens/${shape}.svg/${color}" />`;
 
@@ -21,35 +25,67 @@ function initializeGame() {
   // ).innerHTML = `Connect ${gameSettings.numToConnect} (${gameSettings.boardWidth}x${gameSettings.boardHeight})`;
 
   document.getElementById('game').classList.remove('hidden');
+  canvas = rough.canvas(document.getElementById('board'));
+  canvas.rectangle(10, 10, 200, 200); // x, y, width, height
+  board.addEventListener('mousemove', hover);
+  board.addEventListener('mouseout', () => {
+    if (!gameFinished) {
+      drawBoard();
+    }
+  });
+  board.addEventListener('click', click);
   createCells();
   createRulesList();
   createTurnIndicator();
 }
 
+function hexToRgb(h) {
+  return [
+    ('0x' + h[1] + h[2]) | 0,
+    ('0x' + h[3] + h[4]) | 0,
+    ('0x' + h[5] + h[6]) | 0,
+  ];
+}
+function rgbToHex(r, g, b) {
+  return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+function avgHex(h1, h2) {
+  a = hexToRgb(h1);
+  b = hexToRgb(h2);
+  return rgbToHex(
+    ~~((a[0] + b[0]) / 2),
+    ~~((a[1] + b[1]) / 2),
+    ~~((a[2] + b[2]) / 2)
+  );
+}
+
 function createCells() {
   let aspectRatio = gameSettings.boardWidth / gameSettings.boardHeight;
   board.style.width = aspectRatio * board.offsetHeight + 'px';
-  board.innerHTML = '<h1 id="result"></h1>';
-  for (let y = 0; y < gameSettings.boardHeight; y++) {
-    for (let x = 0; x < gameSettings.boardWidth; x++) {
-      board.innerHTML += `<button class="cell" onclick="placeToken(${x}, ${y})"><img class="cell-image" src="/tokens/empty.svg/000000" id="${x}-${y}" onmouseover="hover(${x}, ${y}, this)" onmouseout="unhover(${x}, ${y}, this)"/></button>`;
-    }
+  board.width = aspectRatio * board.offsetHeight;
+  board.height = board.offsetHeight;
+
+  spaceSize = board.width / gameSettings.boardWidth;
+
+  for (let i = 1; i < gameSettings.boardWidth; i++) {
+    boardShapes.push(
+      canvas.line(i * spaceSize, 0, i * spaceSize, board.height, {
+        strokeWidth: spaceSize / 15,
+        roughness: 1,
+        seed: 1,
+      })
+    );
   }
-  board.style.gridTemplateColumns = '1fr '
-    .repeat(gameSettings.boardWidth)
-    .trimEnd();
-  board.style.gridTemplateRows = '1fr '
-    .repeat(gameSettings.boardHeight)
-    .trimEnd();
-  // cellStyle.innerHTML = `#board .cell {
-  //       max-width: calc(calc(100vw - ${
-  //         document.getElementById('game-info').offsetWidth
-  //       }px) / ${gameSettings.boardWidth});
-  //       max-height: calc(calc(100vh - ${
-  //         document.getElementById('game-title').offsetHeight
-  //       }px) / ${gameSettings.boardHeight});
-  //     }`;
-  console.log('cells instantiated');
+
+  for (let i = 1; i < gameSettings.boardHeight; i++) {
+    boardShapes.push(
+      canvas.line(0, i * spaceSize, board.width, i * spaceSize, {
+        strokeWidth: spaceSize / 15,
+        roughness: 1,
+        seed: 1,
+      })
+    );
+  }
 }
 
 function createTurnIndicator() {
@@ -81,22 +117,91 @@ function drawTurns() {
 }
 
 function drawBoard() {
+  let padding = spaceSize / 20;
+  board.getContext('2d').clearRect(0, 0, board.width, board.height);
+  for (let i = 0; i < boardShapes.length; i++) {
+    canvas.draw(boardShapes[i]);
+  }
   for (let y = 0; y < gameBoard.length; y++) {
     for (let x = 0; x < gameBoard[0].length; x++) {
       if (gameBoard[y][x] > -1) {
-        document.getElementById(`${x}-${y}`).src = `/tokens/${
-          SHAPES[gameSettings.turnPattern[gameBoard[y][x]].player]
-        }.svg/${COLORS[gameSettings.turnPattern[gameBoard[y][x]].piece]}`;
-      } else {
-        document.getElementById(`${x}-${y}`).src = `/tokens/empty.svg/000000`;
+        DRAWERS[gameSettings.turnPattern[gameBoard[y][x]].player](
+          x * spaceSize + padding,
+          y * spaceSize + padding,
+          spaceSize - padding * 2,
+          `#${COLORS[gameSettings.turnPattern[gameBoard[y][x]].piece]}`,
+          canvas
+        );
       }
     }
+  }
+  if (gameFinished) {
+    drawGameEnd(ending);
   }
 }
 
 function drawGameEnd(arg) {
   console.log('game-end', arg);
   gameFinished = true;
+  ending = arg;
+  switch (arg.direction) {
+    case 'h':
+      canvas.line(
+        arg.position.x * spaceSize,
+        arg.position.y * spaceSize + spaceSize / 2,
+        (arg.position.x + gameSettings.numToConnect) * spaceSize,
+        arg.position.y * spaceSize + spaceSize / 2,
+        {
+          strokeWidth: 5,
+          roughness: 5,
+          stroke: `#${COLORS[arg.turn.piece.index]}`,
+        }
+      );
+      break;
+    case 'v':
+      canvas.line(
+        arg.position.x * spaceSize + spaceSize / 2,
+        arg.position.y * spaceSize,
+        arg.position.x * spaceSize + spaceSize / 2,
+        (arg.position.y + gameSettings.numToConnect) * spaceSize,
+        {
+          strokeWidth: 5,
+          roughness: 5,
+          stroke: `#${COLORS[arg.turn.piece.index]}`,
+        }
+      );
+      break;
+    case 'd1':
+      canvas.line(
+        arg.position.x * spaceSize + spaceSize / 2,
+        arg.position.y * spaceSize + spaceSize / 2,
+        (arg.position.x + gameSettings.numToConnect) * spaceSize -
+          spaceSize / 2,
+        (arg.position.y + gameSettings.numToConnect) * spaceSize -
+          spaceSize / 2,
+        {
+          strokeWidth: 5,
+          roughness: 5,
+          stroke: `#${COLORS[arg.turn.piece.index]}`,
+        }
+      );
+      break;
+    case 'd2':
+      canvas.line(
+        arg.position.x * spaceSize + spaceSize / 2,
+        arg.position.y * spaceSize + spaceSize / 2,
+        (arg.position.x - gameSettings.numToConnect) * spaceSize +
+          spaceSize * 1.5,
+        (arg.position.y + gameSettings.numToConnect) * spaceSize -
+          spaceSize / 2,
+        {
+          strokeWidth: 5,
+          roughness: 5,
+          stroke: `#${COLORS[arg.turn.piece.index]}`,
+        }
+      );
+      break;
+  }
   if (arg['outcome'] === 2) {
     document.getElementById('result').innerHTML = 'DRAW';
   } else {
@@ -109,33 +214,45 @@ function drawGameEnd(arg) {
   }
 }
 
-function hover(x, y, obj) {
-  if (!gameFinished && hasTurn && gameBoard && gameBoard[y][x] === -1) {
-    if (gameSettings.hasGravity) {
-      let computeResult = computeGravity(x, y);
-      if (computeResult !== null) {
-        let computedX = computeResult.x;
-        let computedY = computeResult.y;
-        let gravityObj = document.getElementById(`${computedX}-${computedY}`);
-        gravityObj.src = `/tokens/${SHAPES[ownNumber]}.svg/${
-          COLORS[gameSettings.turnPattern[currentTurn].piece]
-        }`;
-        gravityObj.classList.add('trans');
+function hover(e) {
+  let padding = spaceSize / 20;
+  if (!gameFinished && hasTurn && gameBoard) {
+    let squareX = Math.floor((e.clientX - board.offsetLeft) / spaceSize);
+    let squareY = Math.floor((e.clientY - board.offsetTop) / spaceSize);
+    if (
+      squareX >= 0 &&
+      squareX < gameSettings.boardWidth &&
+      squareY >= 0 &&
+      squareY < gameSettings.boardHeight
+    ) {
+      drawBoard();
+      let piecePos = { x: squareX, y: squareY };
+      if (gameSettings.hasGravity) {
+        piecePos = computeGravity(squareX, squareY);
       }
-    } else {
-      obj.src = `/tokens/${SHAPES[ownNumber]}.svg/${
-        COLORS[gameSettings.turnPattern[currentTurn].piece]
-      }`;
-      obj.classList.add('trans');
+      DRAWERS[gameSettings.turnPattern[currentTurn].player](
+        piecePos.x * spaceSize + padding,
+        piecePos.y * spaceSize + padding,
+        spaceSize - padding * 2,
+        `#${COLORS[gameSettings.turnPattern[currentTurn].piece]}55`,
+        canvas
+      );
     }
   }
 }
 
-function unhover(x, y, obj) {
-  drawBoard();
-  transObjs = document.querySelectorAll('.cell-image.trans');
-  for (let i = 0; i < transObjs.length; i++) {
-    transObjs[i].classList.remove('trans');
+function click(e) {
+  if (!gameFinished && hasTurn && gameBoard) {
+    let squareX = Math.floor((e.clientX - board.offsetLeft) / spaceSize);
+    let squareY = Math.floor((e.clientY - board.offsetTop) / spaceSize);
+    if (
+      squareX >= 0 &&
+      squareX < gameSettings.boardWidth &&
+      squareY >= 0 &&
+      squareY < gameSettings.boardHeight
+    ) {
+      placeToken(squareX, squareY);
+    }
   }
 }
 
@@ -183,3 +300,29 @@ function computeGravity(x, y) {
   }
   return null;
 }
+
+/*const ASSET_NAMES = ['circle.svg', 'cross.svg', 'triangle.svg', 'square.svg'];
+
+let assets = {};
+
+const downloadPromise = Promise.all(ASSET_NAMES.map(downloadAsset));
+
+function downloadAsset(assetName) {
+  return new Promise(function (resolve) {
+    const asset = new Image();
+    asset.onload = function () {
+      console.log('Downloaded '.concat(assetName));
+      assets[assetName] = asset;
+      resolve();
+    };
+    asset.src = '/assets/'.concat(assetName);
+  });
+}
+const downloadAssets = function () {
+  return downloadPromise;
+};
+
+const getAsset = function (assetName) {
+  return assets[assetName];
+};
+ */

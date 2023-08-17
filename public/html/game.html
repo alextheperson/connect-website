@@ -19,6 +19,7 @@
     <meta property="og:image" content="/assets/icon1200.png" />
     <link rel="stylesheet" href="../../css/main.css" type="text/css" />
     <link rel="stylesheet" href="../../css/game.css" type="text/css" />
+    <script src="../../scripts/rough.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="../../scripts/constants.js"></script>
     <script src="../../scripts/graphics.js"></script>
@@ -26,7 +27,8 @@
   </head>
   <body>
     <div id="game" class="hidden">
-      <div id="board"></div>
+      <canvas id="board"></canvas>
+      <div id="result"></div>
       <div id="game-info">
         <div id="turns"></div>
       </div>
