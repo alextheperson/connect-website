@@ -205,7 +205,7 @@ function parseGameSettings(body: Object): GameSetting {
     'extraRulesets'
   ) as Rulesets;
 
-  if (body['pieces'] !== undefined && body['pieces'].match(/^[0-1]{2,}$/)) {
+  if (body['pieces'] !== undefined && body['pieces'].match(/^[0-1]+$/)) {
     let pieceList = body['pieces'].split('');
     pieceList = pieceList.map((el) => el == 1);
     pieces = pieceList;

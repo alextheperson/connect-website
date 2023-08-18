@@ -65,23 +65,20 @@ function createPieceRow(index, canWin) {
   return `<tr><td><code style="color: #${COLORS[index]}">${
     index + 1
   }.</code></td><td${
-    index < 2 ? ' colspan="2"' : ''
+    index < 1 ? ' colspan="2"' : ''
   }><input type="checkbox" oninput="changePieceCanWin(${index},this.checked)"${
     canWin ? ' checked' : ''
   } /></td>${
-    index > 1
-      ? `<td><input type="button" onclick="removePiece(${index})" value="X" /></td>`
+    index > 0
+      ? `<td><input type="button" onclick="removePiece(${index})" value="⛌" /></td>`
       : ''
   }</tr>`;
 }
 
 function createPlayerRow(index) {
   let playerOptions = '';
-  for (let i = 0; i < document.getElementById('numPlayers').value; i++) {
-    turns[index].player = Math.min(
-      turns[index].player,
-      document.getElementById('numPlayers').value
-    );
+  for (let i = 0; i < numPlayers; i++) {
+    turns[index].player = Math.min(turns[index].player, numPlayers - 1);
     playerOptions += `<option value="${i}"${
       i == turns[index].player ? ' selected="selected" ' : ''
     }>${i + 1}</option>`;
@@ -97,7 +94,7 @@ function createPlayerRow(index) {
     index + 1
   }.</code></td><td><select oninput="changeTurnPlayer(${index},this.value)">${playerOptions}</select></td><td><select oninput="changeTurnPiece(${index},this.value)" style="color: #${
     COLORS[turns[index].piece]
-  }">${pieceOptions}</select></td><td><input type="button" onclick="removeTurn(${index})" value="X" /></td></tr>`;
+  }">${pieceOptions}</select></td><td><input type="button" onclick="removeTurn(${index})" value="⛌" /></td></tr>`;
 }
 
 function addPiece() {
@@ -118,7 +115,7 @@ function addTurn() {
 }
 
 function removePiece(index) {
-  if (pieces.length > 2) {
+  if (pieces.length > 1) {
     pieces.splice(index, 1);
     drawTables();
   }
