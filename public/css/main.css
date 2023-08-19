@@ -216,3 +216,32 @@ tr:hover {
 tfoot tr:hover {
   background: transparent;
 } */
+
+.error,
+.warning,
+.message,
+.success {
+  padding: 5px 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+
+.error {
+  background: #d1105a55;
+  border-left: 3px solid #d1105a;
+}
+
+.warning {
+  background: #d1841055;
+  border-left: 3px solid #d18410;
+}
+
+.message {
+  background: #10b7d155;
+  border-left: 3px solid #10b7d1;
+}
+
+.success {
+  background: #08b93a55;
+  border-left: 3px solid #08b93a;
+}

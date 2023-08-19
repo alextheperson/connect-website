@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Connect 𝑛</title>
+    <title>Connect 𝑘</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
@@ -11,7 +11,7 @@
       property="description"
       content="A website that lets you play games about connecting shapes. Connect 4 meets Tic Tac Toe!"
     />
-    <meta property="og:title" content="Connect 𝑛" />
+    <meta property="og:title" content="Connect 𝑘" />
     <meta
       property="og:description"
       content="A website that lets you play games about connecting shapes. Connect 4 meets Tic Tac Toe!"
@@ -19,6 +19,7 @@
     <meta property="og:image" content="/assets/icon1200.png" />
     <link rel="stylesheet" href="../css/main.css" type="text/css" />
     <script src="../../scripts/constants.js"></script>
+    <script src="../../scripts/issue-detector.js"></script>
     <script src="../../scripts/configuration-validation.js" defer></script>
   </head>
   <body class="center">
@@ -52,7 +53,8 @@
           in a row<br />
           <input type="checkbox" name="allowDiagonals" checked /> Allow
           Diagonals <br />
-          <input type="checkbox" name="hasGravity" /> Gravity<br />
+          <input type="checkbox" name="hasGravity" id="hasGravity" />
+          Gravity<br />
           <select name="gravityDirection">
             <option value="0,-1">&UpArrow;</option>
             <option value="1,0">&RightArrow;</option>
@@ -122,6 +124,7 @@
           Extra Rulesets<br />
           <input type="checkbox" name="allowSpectators" /> Allow Spectators<br />
         </fieldset>
+        <fieldset id="issues"></fieldset>
         <fieldset class="no-text buttons">
           <a href="./" class="button half-width">&larr; Cancel</a>
           <input

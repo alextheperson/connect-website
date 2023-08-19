@@ -95,9 +95,7 @@ export class Game {
       this.namespace.emit('invalid-move');
     }
     let result = this.gameEngine.checkForEnd();
-    console.log(result);
     if (result['outcome'] === TurnResults.WIN) {
-      console.log('win!!!');
       this.namespace.emit('game-end', result);
     } else if (result['outcome'] === TurnResults.DRAW) {
       this.namespace.emit('game-end', result);

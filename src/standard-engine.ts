@@ -122,12 +122,6 @@ export class StandardEngine implements GameEngine {
             hasWonDiagonal2 = false;
           }
         }
-        console.log(
-          hasWonHorizontal,
-          hasWonVertical,
-          hasWonDiagonal1,
-          hasWonDiagonal2
-        );
         if (
           hasWonHorizontal ||
           hasWonVertical ||

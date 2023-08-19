@@ -18,7 +18,7 @@ if (savedTurns !== null) {
 let numPlayers;
 
 document.getElementById('numPlayers').addEventListener('input', () => {
-  numPlayers = document.getElementById('numPlayers').value;
+  numPlayers = parseInt(document.getElementById('numPlayers').value);
   drawTables();
 });
 
@@ -27,6 +27,15 @@ document.getElementById('boardWidth').addEventListener('input', () => {
     document.getElementById('boardWidth').value,
     document.getElementById('boardHeight').value
   );
+  displayProblemList({
+    numPlayers: numPlayers,
+    turns: turns,
+    pieces: pieces,
+    boardHeight: parseInt(document.getElementById('boardHeight').value),
+    boardWidth: parseInt(document.getElementById('boardWidth').value),
+    numToConnect: parseInt(document.getElementById('numToConnect').value),
+    hasGravity: document.getElementById('hasGravity').checked,
+  });
 });
 
 document.getElementById('boardHeight').addEventListener('input', () => {
@@ -34,6 +43,27 @@ document.getElementById('boardHeight').addEventListener('input', () => {
     document.getElementById('boardWidth').value,
     document.getElementById('boardHeight').value
   );
+  displayProblemList({
+    numPlayers: numPlayers,
+    turns: turns,
+    pieces: pieces,
+    boardHeight: parseInt(document.getElementById('boardHeight').value),
+    boardWidth: parseInt(document.getElementById('boardWidth').value),
+    numToConnect: parseInt(document.getElementById('numToConnect').value),
+    hasGravity: document.getElementById('hasGravity').checked,
+  });
+});
+
+document.getElementById('numToConnect').addEventListener('input', () => {
+  displayProblemList({
+    numPlayers: numPlayers,
+    turns: turns,
+    pieces: pieces,
+    boardHeight: parseInt(document.getElementById('boardHeight').value),
+    boardWidth: parseInt(document.getElementById('boardWidth').value),
+    numToConnect: parseInt(document.getElementById('numToConnect').value),
+    hasGravity: document.getElementById('hasGravity').checked,
+  });
 });
 
 document.getElementById('form').addEventListener('submit', (e) => {
@@ -64,15 +94,11 @@ document.getElementById('form').addEventListener('submit', (e) => {
 function createPieceRow(index, canWin) {
   return `<tr><td><code style="color: #${COLORS[index]}">${
     index + 1
-  }.</code></td><td${
-    index < 1 ? ' colspan="2"' : ''
-  }><input type="checkbox" oninput="changePieceCanWin(${index},this.checked)"${
+  }.</code></td><td><input type="checkbox" oninput="changePieceCanWin(${index},this.checked)"${
     canWin ? ' checked' : ''
-  } /></td>${
-    index > 0
-      ? `<td><input type="button" onclick="removePiece(${index})" value="⛌" /></td>`
-      : ''
-  }</tr>`;
+  } /></td><td><input ${
+    index < 1 ? 'disabled ' : ''
+  }type="button" onclick="removePiece(${index})" value="⛌" /></td></tr>`;
 }
 
 function createPlayerRow(index) {
@@ -94,11 +120,13 @@ function createPlayerRow(index) {
     index + 1
   }.</code></td><td><select oninput="changeTurnPlayer(${index},this.value)">${playerOptions}</select></td><td><select oninput="changeTurnPiece(${index},this.value)" style="color: #${
     COLORS[turns[index].piece]
-  }">${pieceOptions}</select></td><td><input type="button" onclick="removeTurn(${index})" value="⛌" /></td></tr>`;
+  }">${pieceOptions}</select></td><td><input ${
+    index < numPlayers ? 'disabled ' : ''
+  }type="button" onclick="removeTurn(${index})" value="⛌" /></td></tr>`;
 }
 
 function addPiece() {
-  if (pieces.length < 5) {
+  if (pieces.length < COLORS.length) {
     pieces.push({
       canWin: true,
     });
@@ -157,7 +185,17 @@ function drawTables() {
       turns[i].piece
     );
   }
+
+  displayProblemList({
+    numPlayers: numPlayers,
+    turns: turns,
+    pieces: pieces,
+    boardHeight: parseInt(document.getElementById('boardHeight').value),
+    boardWidth: parseInt(document.getElementById('boardWidth').value),
+    numToConnect: parseInt(document.getElementById('numToConnect').value),
+    hasGravity: document.getElementById('hasGravity').checked,
+  });
 }
 
-numPlayers = document.getElementById('numPlayers').value;
+numPlayers = parseInt(document.getElementById('numPlayers').value);
 drawTables();
