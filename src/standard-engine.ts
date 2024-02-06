@@ -13,7 +13,10 @@ export class StandardEngine implements GameEngine {
 
   currentTurnNumber: number;
 
+  settings: GameSetting;
+
   constructor(settings: GameSetting) {
+    this.settings = settings;
     settings.turnPattern.forEach((el, i) => {
       this.turns[i] = new Turn(
         i,
@@ -131,7 +134,7 @@ export class StandardEngine implements GameEngine {
           hasDrawn = false;
           winMessage = {
             outcome: TurnResults.WIN,
-            turn: content,
+            turn: this.turns.at(this.currentTurn.index - 1),
             position: {
               x: x,
               y: y,

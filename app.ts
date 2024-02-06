@@ -76,14 +76,25 @@ gameNamespaces.on('connection', (socket) => {
   const gameId = socket.nsp.name.slice(1);
   let currentGame = games.get(gameId);
   if (currentGame) {
-    if (currentGame.addPlayer(socket.id)) {
+    let joinStatus;
+    if ((joinStatus = currentGame.addPlayer(socket.id)) === 'success') {
       // socket.emit('join-success');
+      console.log(joinStatus);
+      socket.nsp.emit('players', {
+        'current-players': currentGame.numPlayers,
+        'max-players': currentGame.settings.numPlayers,
+      });
+    } else if (
+      currentGame.settings.allowSpectators &&
+      (joinStatus = currentGame.addSpectator(socket.id)) === 'success'
+    ) {
       socket.nsp.emit('players', {
         'current-players': currentGame.numPlayers,
         'max-players': currentGame.settings.numPlayers,
       });
     } else {
-      socket.emit('join-failure');
+      console.log(joinStatus);
+      socket.emit('join-failure', { reason: joinStatus });
     }
   } else {
     socket.emit('bad-code');
@@ -93,7 +104,11 @@ gameNamespaces.on('connection', (socket) => {
   // socket.on(Constants.MSG_TYPES.INPUT, handleInput);
   socket.on('disconnect', () => {
     if (currentGame) {
-      currentGame.removePlayer(socket.id);
+      if (currentGame.hasPlayer(socket.id)) {
+        currentGame.removePlayer(socket.id);
+      } else if (currentGame.hasSpectator(socket.id)) {
+        currentGame.removeSpectator(socket.id);
+      }
       cullGames();
     }
     console.log(

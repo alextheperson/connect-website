@@ -29,6 +29,14 @@ export enum TurnResults {
   'DRAW',
 }
 
+export type JoinStatus =
+  | 'full'
+  | 'finished'
+  | 'unknown'
+  | 'success'
+  | 'duplicate'
+  | 'spectate';
+
 export class Game {
   id: string;
   settings: GameSetting;
@@ -55,23 +63,56 @@ export class Game {
     return this.players.includes(id);
   }
 
-  addPlayer(id: string) {
-    if (
-      this.numPlayers < this.settings.numPlayers &&
-      !this.players.includes(id)
-    ) {
-      this.players.push(id);
-      if (this.numPlayers === this.settings.numPlayers) {
-        this.initializeGame();
-      }
-      return true;
+  addPlayer(id: string): JoinStatus {
+    if (this.hasPlayer(id)) {
+      return 'duplicate';
     }
-    return false;
+    if (this.numPlayers >= this.settings.numPlayers) {
+      return 'full';
+    }
+    if (this.gameFinished) {
+      return 'finished';
+    }
+    this.players.push(id);
+    if (this.numPlayers === this.settings.numPlayers) {
+      this.initializeGame();
+    }
+    return 'success';
   }
 
   removePlayer(id: string) {
-    if (this.players.includes(id)) {
+    if (this.hasPlayer(id)) {
       this.players.splice(this.players.indexOf(id), 1);
+    }
+  }
+
+  hasSpectator(id: string) {
+    return this.spectators.includes(id);
+  }
+
+  addSpectator(id: string): JoinStatus {
+    if (this.hasSpectator(id)) {
+      return 'duplicate';
+    }
+
+    if (!this.settings.allowSpectators) {
+      return 'spectate';
+    }
+    if (!this.gameFinished) {
+      return 'finished';
+    }
+
+    this.spectators.push(id);
+    this.namespace
+      .to(id)
+      .emit('start-game', { 'own-number': -1, settings: this.settings });
+    this.namespace.to(id).emit('game-state', this.gameEngine.sendGameState());
+    return 'success';
+  }
+
+  removeSpectator(id: string) {
+    if (this.hasSpectator(id)) {
+      this.spectators.splice(this.spectators.indexOf(id), 1);
     }
   }
 
@@ -97,8 +138,10 @@ export class Game {
     let result = this.gameEngine.checkForEnd();
     if (result['outcome'] === TurnResults.WIN) {
       this.namespace.emit('game-end', result);
+      this.gameFinished = true;
     } else if (result['outcome'] === TurnResults.DRAW) {
       this.namespace.emit('game-end', result);
+      this.gameFinished = true;
     }
     this.namespace.emit('game-state', this.gameEngine.sendGameState());
   }

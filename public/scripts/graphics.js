@@ -256,6 +256,12 @@ function click(e) {
   }
 }
 
+/**
+ * Determines the position that a token would fall if gravity were applied to it.
+ * @param {number} x The X position of the token
+ * @param {number} y The Y position of the token
+ * @returns The position after applying gravity.
+ */
 function computeGravity(x, y) {
   let { gravityDirection } = gameSettings;
   let localX = x;

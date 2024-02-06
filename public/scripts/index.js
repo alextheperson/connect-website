@@ -27,12 +27,12 @@ socket.on('players', (arg) => {
 });
 
 socket.on('game-state', (arg) => {
+  console.log('game-state', arg);
   gameBoard = arg.board;
   currentTurn = arg.currentTurn;
   hasTurn = gameSettings.turnPattern[arg.currentTurn].player == ownNumber;
   drawBoard();
   drawTurns();
-  console.log('game-state', arg);
 });
 
 socket.on('start-game', (arg) => {
@@ -45,9 +45,19 @@ socket.on('start-game', (arg) => {
   initializeGame();
 });
 
-socket.on('join-failure', () => {
-  document.getElementById('error').innerHTML =
-    "<h2>Couldn't join the game. It is probably full.</h2>";
+socket.on('join-failure', (arg) => {
+  console.log('join-failure', arg);
+  let reason = "Couldn't join the game.";
+  if (arg.reason == 'full') {
+    reason = 'That game is full.';
+  } else if (arg.reason == 'finished') {
+    reason = 'That game has already ended.';
+  } else if (arg.reason == 'duplicate') {
+    reason = 'You have already joined this game.';
+  } else if (arg.reason == 'spectate') {
+    reason = 'Spectators are not allowed in this game.';
+  }
+  document.getElementById('error').innerHTML = `<h2>${reason}</h2>`;
 });
 
 socket.on('bad-code', () => {
