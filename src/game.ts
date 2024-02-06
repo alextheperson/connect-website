@@ -98,7 +98,7 @@ export class Game {
     if (!this.settings.allowSpectators) {
       return 'spectate';
     }
-    if (!this.gameFinished) {
+    if (this.gameFinished) {
       return 'finished';
     }
 
