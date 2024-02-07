@@ -1,16 +1,18 @@
 const SHAPES = ['cross', 'circle', 'triangle', 'square', 'diamond'];
+const SYMBOLS = ['⤫', '○', '△', '□', '⬦'];
 const DRAWERS = [drawCross, drawCircle, drawTriangle, drawSquare, drawDiamond];
 
 const COLORS = [
-  'c37d4d',
-  '29ab48',
-  '733eaf',
-  'c42860',
-  '2caec0',
-  'bfa12c',
-  '2c60bf',
-  'ba2cbf',
-  '2cbf7f',
+  'c37d4d', // Orange
+  '29ab48', // Green
+  '733eaf', // Purple
+  'c42860', // Red
+  '2caec0', // Teal
+  'bfa12c', // Gold
+  '2cbf7f', // Mint
+  'ba2cbf', // Pink
+  'e0572f', // Safety Orange
+  '2c60bf', // Blue
 ]; //These are Hex-Codes
 
 let pieceShapes = {};

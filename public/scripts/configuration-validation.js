@@ -94,11 +94,13 @@ document.getElementById('form').addEventListener('submit', (e) => {
 function createPieceRow(index, canWin) {
   return `<tr><td><code style="color: #${COLORS[index]}">${
     index + 1
-  }.</code></td><td><input type="checkbox" oninput="changePieceCanWin(${index},this.checked)"${
+  }.</code></td><td><input type="checkbox" style="accent-color: #${
+    COLORS[index]
+  }" oninput="changePieceCanWin(${index},this.checked)"${
     canWin ? ' checked' : ''
   } /></td><td><input ${
     index < 1 ? 'disabled ' : ''
-  }type="button" onclick="removePiece(${index})" value="⛌" /></td></tr>`;
+  }type="button" onclick="removePiece(${index})" value="⤫" /></td></tr>`;
 }
 
 function createPlayerRow(index) {
@@ -107,7 +109,7 @@ function createPlayerRow(index) {
     turns[index].player = Math.min(turns[index].player, numPlayers - 1);
     playerOptions += `<option value="${i}"${
       i == turns[index].player ? ' selected="selected" ' : ''
-    }>${i + 1}</option>`;
+    }>${SYMBOLS[i]}</option>`;
   }
   let pieceOptions = '';
   for (let i = 0; i < pieces.length; i++) {
@@ -116,13 +118,13 @@ function createPlayerRow(index) {
       i == turns[index].piece ? ' selected="selected" ' : ''
     }>${i + 1}</option>`;
   }
-  return `<tr><td><code>${
-    index + 1
-  }.</code></td><td><select oninput="changeTurnPlayer(${index},this.value)">${playerOptions}</select></td><td><select oninput="changeTurnPiece(${index},this.value)" style="color: #${
+  return `<tr><td><code>${index + 1}.</code></td><td><select style="color: #${
+    COLORS[turns[index].piece]
+  }" oninput="changeTurnPlayer(${index},this.value)">${playerOptions}</select></td><td><select oninput="changeTurnPiece(${index},this.value)" style="color: #${
     COLORS[turns[index].piece]
   }">${pieceOptions}</select></td><td><input ${
     index < numPlayers ? 'disabled ' : ''
-  }type="button" onclick="removeTurn(${index})" value="⛌" /></td></tr>`;
+  }type="button" onclick="removeTurn(${index})" value="⤫" /></td></tr>`;
 }
 
 function addPiece() {
@@ -199,3 +201,5 @@ function drawTables() {
 
 numPlayers = parseInt(document.getElementById('numPlayers').value);
 drawTables();
+
+// ⨉ ○ △ □ ◇

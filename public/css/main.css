@@ -209,6 +209,11 @@ tr:hover {
   background: rgba(117, 116, 122, 0.25);
 }
 
+tbody tr td:nth-child(3) input,
+tbody tr td:nth-child(3) select {
+  font-family: monospace;
+}
+
 /* tfoot td {
   border-style: none;
 }
