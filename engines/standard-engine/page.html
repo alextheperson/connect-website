@@ -17,21 +17,23 @@
       content="A website that lets you play games about connecting shapes. Connect 4 meets Tic Tac Toe!"
     />
     <meta property="og:image" content="/assets/icon1200.png" />
-    <link rel="stylesheet" href="../../css/main.css" type="text/css" />
-    <link rel="stylesheet" href="../../css/game.css" type="text/css" />
-    <script src="../../scripts/rough.js"></script>
+    <link rel="stylesheet" href="/css/main.css" type="text/css" />
+    <link rel="stylesheet" href="/css/game.css" type="text/css" />
+    <script src="/scripts/rough.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="../../scripts/constants.js"></script>
-    <script src="../../scripts/graphics.js"></script>
-    <script src="../../scripts/index.js" defer></script>
+    <script src="/scripts/constants.js"></script>
+    <script src="/scripts/graphics.js"></script>
+    <script src="/scripts/turns.js"></script>
+    <script src="/engine/standard-engine/client.js"></script>
+    <script src="/scripts/index.js" defer></script>
   </head>
   <body>
     <div id="game" class="hidden">
-      <canvas id="board"></canvas>
-      <div id="result"></div>
-      <div id="game-info">
-        <div id="turns"></div>
+      <div id="board-container">
+        <canvas id="board"></canvas>
       </div>
+      <div id="result"></div>
+      <div id="turns"></div>
     </div>
     <div id="lobby">
       <h1 id="title">Game Code: .........</h1>

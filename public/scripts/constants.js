@@ -1,6 +1,5 @@
 const SHAPES = ['cross', 'circle', 'triangle', 'square', 'diamond'];
 const SYMBOLS = ['⤫', '○', '△', '□', '⬦'];
-const DRAWERS = [drawCross, drawCircle, drawTriangle, drawSquare, drawDiamond];
 
 const COLORS = [
   'c37d4d', // Orange
@@ -23,55 +22,10 @@ function generateCrossPath(x, y, size) {
   } ${y}`;
 }
 
-function drawCross(x, y, size, color, canvas) {
-  let piece = pieceShapes[`${x}-${y}-${size}-${color}`];
-  if (piece === undefined) {
-    piece = [];
-    piece.push(
-      canvas.line(x, y, x + size, y + size, {
-        stroke: color,
-        strokeWidth: spaceSize / 7,
-        roughness: 2,
-      })
-    );
-    piece.push(
-      canvas.line(x + size, y, x, y + size, {
-        stroke: color,
-        strokeWidth: spaceSize / 7,
-        roughness: 2,
-      })
-    );
-    pieceShapes[`${x}-${y}-${size}-${color}`] = piece;
-  } else {
-    for (let i = 0; i < piece.length; i++) {
-      canvas.draw(piece[i]);
-    }
-  }
-}
-
 function generateCirclePath(x, y, size) {
   return `M ${x} ${y + size / 2} A ${size / 2} ${size / 2} 0 0 1 ${x + size} ${
     y + size / 2
   } A ${size / 2} ${size / 2} 0 0 1 ${x} ${y + size / 2}`;
-}
-
-function drawCircle(x, y, size, color, canvas) {
-  let piece = pieceShapes[`${x}-${y}-${size}-${color}`];
-  if (piece === undefined) {
-    piece = [];
-    piece.push(
-      canvas.circle(x + size / 2, y + size / 2, size, {
-        stroke: color,
-        strokeWidth: spaceSize / 7,
-        roughness: 2,
-      })
-    );
-    pieceShapes[`${x}-${y}-${size}-${color}`] = piece;
-  } else {
-    for (let i = 0; i < piece.length; i++) {
-      canvas.draw(piece[i]);
-    }
-  }
 }
 
 function generateTrianglePath(x, y, size) {
@@ -80,54 +34,8 @@ function generateTrianglePath(x, y, size) {
   } Z`;
 }
 
-function drawTriangle(x, y, size, color, canvas) {
-  let piece = pieceShapes[`${x}-${y}-${size}-${color}`];
-  if (piece === undefined) {
-    piece = [];
-    piece.push(
-      canvas.polygon(
-        [
-          [x + size / 2, y],
-          [x, y + size],
-          [x + size, y + size],
-        ],
-        {
-          stroke: color,
-          strokeWidth: spaceSize / 7,
-          roughness: 2,
-          seed: (x + y) * size,
-        }
-      )
-    );
-    pieceShapes[`${x}-${y}-${size}-${color}`] = piece;
-  } else {
-    for (let i = 0; i < piece.length; i++) {
-      canvas.draw(piece[i]);
-    }
-  }
-}
-
 function generateSquarePath(x, y, size) {
   return `M ${x} ${y} H ${size} V ${size} H ${x} Z`;
-}
-
-function drawSquare(x, y, size, color, canvas) {
-  let piece = pieceShapes[`${x}-${y}-${size}-${color}`];
-  if (piece === undefined) {
-    piece = [];
-    piece.push(
-      canvas.rectangle(x, y, size, size, {
-        stroke: color,
-        strokeWidth: spaceSize / 7,
-        roughness: 2,
-      })
-    );
-    pieceShapes[`${x}-${y}-${size}-${color}`] = piece;
-  } else {
-    for (let i = 0; i < piece.length; i++) {
-      canvas.draw(piece[i]);
-    }
-  }
 }
 
 function generateDiamondPath(x, y, size) {
@@ -136,30 +44,22 @@ function generateDiamondPath(x, y, size) {
   } ${y + size} L ${x} ${y + size / 2} Z`;
 }
 
-function drawDiamond(x, y, size, color, canvas) {
-  let piece = pieceShapes[`${x}-${y}-${size}-${color}`];
-  if (piece === undefined) {
-    piece = [];
-    piece.push(
-      canvas.polygon(
-        [
-          [x + size / 2, y],
-          [x + size, y + size / 2],
-          [x + size / 2, y + size],
-          [x, y + size / 2],
-        ],
-        {
-          stroke: color,
-          strokeWidth: spaceSize / 7,
-          roughness: 2,
-          seed: (x + y) * size,
-        }
-      )
-    );
-    pieceShapes[`${x}-${y}-${size}-${color}`] = piece;
-  } else {
-    for (let i = 0; i < piece.length; i++) {
-      canvas.draw(piece[i]);
-    }
-  }
+function hexToRgb(h) {
+  return [
+    ('0x' + h[1] + h[2]) | 0,
+    ('0x' + h[3] + h[4]) | 0,
+    ('0x' + h[5] + h[6]) | 0,
+  ];
+}
+function rgbToHex(r, g, b) {
+  return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+function avgHex(h1, h2) {
+  a = hexToRgb(h1);
+  b = hexToRgb(h2);
+  return rgbToHex(
+    ~~((a[0] + b[0]) / 2),
+    ~~((a[1] + b[1]) / 2),
+    ~~((a[2] + b[2]) / 2)
+  );
 }

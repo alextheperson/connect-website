@@ -1,0 +1,16 @@
+server.ts
+
+client.js
+  functions:
+    handleConnect(arg)
+    handlePlayers(arg)
+    handleGameState(arg)
+    handleStartGame(arg)
+    handleJoinFailure(arg)
+    handleGameEnd(arg)
+    handleInvalidMove(arg)
+
+    handleHover(e)
+    handleClick(e)
+
+page.html

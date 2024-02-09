@@ -1,0 +1,77 @@
+{
+  "sections": [
+    {
+      "name": "Board",
+      "options": [
+        {
+          "xName": "boardWidth",
+          "yName": "boardHeight",
+          "label": "Board Size",
+          "type": "vector",
+          "separator": " x ",
+          "defaultX": 3,
+          "minimumX": 3,
+          "defaultY": 3,
+          "minimumY": 3
+        },
+        {
+          "name": "numToConnect",
+          "label": "Line Length",
+          "type": "number",
+          "default": 3,
+          "minimum": ["boardWidth", "boardHeight"]
+        },
+        {
+          "name": "allowDiagonals",
+          "label": "Allow Diagonals",
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "name": "doGravity",
+          "label": "Do Gravity",
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "name": "gravityDirection",
+          "label": "Gravity Direction",
+          "type": "enum",
+          "choices": [
+            { "displayName": "0,-1", "value": "&UpArrow;" },
+            { "displayName": "1,0", "value": "&RightArrow;" },
+            { "displayName": "0,1", "value": "&DownArrow;" },
+            { "displayName": "-1,0", "value": "&LeftArrow;" },
+            { "displayName": "-1,-1", "value": "&UpperLeftArrow;" },
+            { "displayName": "1,-1", "value": "&UpperRightArrow;" },
+            { "displayName": "1,1", "value": "&LowerRightArrow;" },
+            { "displayName": "-1,1", "value": "&LowerLeftArrow;" }
+          ],
+          "default": "-1,0"
+        }
+      ]
+    },
+    {
+      "name": "Pieces & Turns",
+      "options": [
+        {
+          "name": "pieces",
+          "label": "Pieces",
+          "type": "pieces",
+          "default": "11",
+          "minimumPieces": 1,
+          "maximumPieces": 10,
+          "canWinDefault": true
+        },
+        {
+          "name": "turnPattern",
+          "label": "Turns",
+          "type": "turns",
+          "default": "0-0,1-1",
+          "minimumTurns": ["numPlayers"]
+        }
+      ]
+    }
+  ],
+  "issueDetection": true
+}

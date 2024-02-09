@@ -1,5 +1,5 @@
-import { GameSetting, TurnResults, Vector } from './game';
-import { Board, GameEngine, Piece, Player, Turn } from './game-engine';
+import { GameSetting, TurnResults, Vector } from '../../src/game';
+import { Board, GameEngine, Piece, Player, Turn } from '../../src/game-engine';
 
 export class StandardEngine implements GameEngine {
   board: Board;

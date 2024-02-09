@@ -159,11 +159,10 @@ fieldset.no-text {
 
 input.big {
   display: block;
-  width: 100%;
   height: 2em;
   margin-inline: 2px;
   border-radius: 8px;
-  padding-inline: 0.375em;
+  padding-inline: 0.5em;
   font-size: 2em;
   border-color: color-mix(in srgb, currentColor 50%, #000 50%);
   border-width: 1px;
@@ -171,8 +170,14 @@ input.big {
   background: transparent;
 }
 
-input.big[type='number'] {
+input.big {
   font-family: monospace;
+}
+
+.code-input {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1em;
 }
 
 @media (prefers-color-scheme: light) {

@@ -1,334 +1,298 @@
-let board, cellStyle, rulesList, turnList, turnIndicator, canvas;
-let gameSettings;
-let hasTurn = false;
-let loaded = false;
-let ownNumber;
-let gameBoard;
-let currentTurn;
-let gameFinished = false;
-let spaceSize = 0;
-let ending;
+class BoardDisplay {
+  _canvas;
+  _element;
+  _pieceShapes = {};
+  _drawnShapes = {};
 
-let boardShapes = [];
-
-// const cell = `<img class="cell" src="/tokens/${shape}.svg/${color}" />`;
-
-function initializeGame() {
-  board = document.getElementById('board');
-  cellStyle = document.getElementById('cell-style');
-  rulesList = document.getElementById('rules');
-  turnList = document.getElementById('turns');
-  turnIndicator = document.getElementById('turn-indicator');
-
-  // document.getElementById(
-  //   'game-title'
-  // ).innerHTML = `Connect ${gameSettings.numToConnect} (${gameSettings.boardWidth}x${gameSettings.boardHeight})`;
-
-  document.getElementById('game').classList.remove('hidden');
-  canvas = rough.canvas(document.getElementById('board'));
-  canvas.rectangle(10, 10, 200, 200); // x, y, width, height
-  board.addEventListener('mousemove', hover);
-  board.addEventListener('mouseout', () => {
-    if (!gameFinished) {
-      drawBoard();
-    }
-  });
-  board.addEventListener('click', click);
-  createCells();
-  createRulesList();
-  createTurnIndicator();
-}
-
-function hexToRgb(h) {
-  return [
-    ('0x' + h[1] + h[2]) | 0,
-    ('0x' + h[3] + h[4]) | 0,
-    ('0x' + h[5] + h[6]) | 0,
+  DRAWERS = [
+    this.drawCrossPiece,
+    this.drawCirclePiece,
+    this.drawTrianglePiece,
+    this.drawSquarePiece,
+    this.drawDiamondPiece,
   ];
-}
-function rgbToHex(r, g, b) {
-  return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
-function avgHex(h1, h2) {
-  a = hexToRgb(h1);
-  b = hexToRgb(h2);
-  return rgbToHex(
-    ~~((a[0] + b[0]) / 2),
-    ~~((a[1] + b[1]) / 2),
-    ~~((a[2] + b[2]) / 2)
-  );
-}
 
-function createCells() {
-  let aspectRatio = gameSettings.boardWidth / gameSettings.boardHeight;
-  board.style.width = aspectRatio * board.offsetHeight + 'px';
-  board.width = aspectRatio * board.offsetHeight;
-  board.height = board.offsetHeight;
-
-  spaceSize = board.width / gameSettings.boardWidth;
-
-  for (let i = 1; i < gameSettings.boardWidth; i++) {
-    boardShapes.push(
-      canvas.line(i * spaceSize, 0, i * spaceSize, board.height, {
-        strokeWidth: spaceSize / 15,
-        roughness: 1,
-        seed: 1,
-      })
-    );
+  constructor(canvasId) {
+    this._canvas = rough.canvas(document.getElementById(canvasId));
+    this._element = document.getElementById(canvasId);
   }
 
-  for (let i = 1; i < gameSettings.boardHeight; i++) {
-    boardShapes.push(
-      canvas.line(0, i * spaceSize, board.width, i * spaceSize, {
-        strokeWidth: spaceSize / 15,
-        roughness: 1,
-        seed: 1,
-      })
-    );
+  /**
+   * Draws a line on the board
+   * @param {number} x1 X position of the first point
+   * @param {number} y1 Y position of the first point
+   * @param {number} x2 X position of the second point
+   * @param {number} y2 Y position of the second point
+   * @param {object} opts Options
+   */
+  line(x1, y1, x2, y2, opts) {
+    let id = `l-${x1}-${y1}-${x2}-${y2}-${opts.stroke}-${opts.strokeWidth}-${opts.fill}-${opts.roughness}`;
+    if (this._drawnShapes[id] === undefined) {
+      const shape = this._canvas.line(x1, y1, x2, y2, {
+        hachureGap: 8,
+        ...opts,
+      });
+      this._drawnShapes = {
+        [id]: shape,
+        ...this._drawnShapes,
+      };
+      return shape;
+    } else {
+      this._canvas.draw(this._drawnShapes[id]);
+    }
   }
-}
-
-function createTurnIndicator() {
-  turnList.innerHTML = '';
-  for (let i = 0; i < gameSettings.turnPattern.length; i++) {
-    let { player, piece } = gameSettings.turnPattern[i];
-    let tokenOwned = player == ownNumber;
-    let canWin = gameSettings.pieces[piece];
-    // <div class="turn-indicator hidden" id="turn-${i}"></div>
-    turnList.innerHTML += `<div id="turn-${i}" class="current-turn turn${
-      tokenOwned ? ' owned' : ''
-    }${canWin ? '' : ' no-win'}" title="${
-      tokenOwned ? 'You' : 'Other players'
-    } can ${canWin ? '' : 'not '}use this token to win."><img src="/tokens/${
-      SHAPES[player]
-    }.svg/${COLORS[piece]}" /></div>`;
+  /**
+   * Draws a circle on the board
+   * @param {number} x X position of the circle
+   * @param {number} y Y position of the circle
+   * @param {number} r Radius of the circle
+   * @param {object} opts Options
+   */
+  circle(x, y, r, opts) {
+    let id = `c-${x}-${y}-${r}-${opts.stroke}-${opts.strokeWidth}-${opts.fill}-${opts.roughness}`;
+    if (this._drawnShapes[id] === undefined) {
+      const shape = this._canvas.circle(x, y, r, {
+        hachureGap: 8,
+        ...opts,
+      });
+      this._drawnShapes = {
+        [id]: shape,
+        ...this._drawnShapes,
+      };
+      return shape;
+    } else {
+      this._canvas.draw(this._drawnShapes[id]);
+    }
   }
-}
 
-function createRulesList() {
-  // rulesList.innerHTML = JSON.stringify(gameSettings, null, 4);
-}
-
-function drawTurns() {
-  Array.from(document.getElementsByClassName('turn')).map((el) =>
-    el.classList.remove('current-turn')
-  );
-  document.getElementById(`turn-${currentTurn}`).classList.add('current-turn');
-}
-
-function drawBoard() {
-  let padding = spaceSize / 20;
-  board.getContext('2d').clearRect(0, 0, board.width, board.height);
-  for (let i = 0; i < boardShapes.length; i++) {
-    canvas.draw(boardShapes[i]);
+  /**
+   * Draws a polygon on the board
+   * @param {number[][]} points The vertices of the polygon
+   * @param {object} opts Options
+   */
+  polygon(points, opts) {
+    let id = `p-${JSON.stringify(points)}-${opts.stroke}-${opts.strokeWidth}-${
+      opts.fill
+    }-${opts.roughness}`;
+    if (this._drawnShapes[id] === undefined) {
+      const shape = this._canvas.polygon(points, {
+        hachureGap: 8,
+        ...opts,
+      });
+      this._drawnShapes = {
+        [id]: shape,
+        ...this._drawnShapes,
+      };
+      return shape;
+    } else {
+      this._canvas.draw(this._drawnShapes[id]);
+    }
   }
-  for (let y = 0; y < gameBoard.length; y++) {
-    for (let x = 0; x < gameBoard[0].length; x++) {
-      if (gameBoard[y][x] > -1) {
-        DRAWERS[gameSettings.turnPattern[gameBoard[y][x]].player](
-          x * spaceSize + padding,
-          y * spaceSize + padding,
-          spaceSize - padding * 2,
-          `#${COLORS[gameSettings.turnPattern[gameBoard[y][x]].piece]}`,
-          canvas
+
+  /**
+   *
+   * @param {number} x X position of the rectangle
+   * @param {number} y Y position of the rectangle
+   * @param {number} w Width of the rectangle
+   * @param {number} h Height of the rectangle
+   * @param {object} opts Options
+   */
+  rectangle(x, y, w, h, opts) {
+    let id = `r-${x}-${y}-${w}-${h}-${opts.stroke}-${opts.strokeWidth}-${opts.fill}-${opts.roughness}`;
+    if (this._drawnShapes[id] === undefined) {
+      const shape = this._canvas.rectangle(x, y, w, h, {
+        hachureGap: 8,
+        ...opts,
+      });
+      this._drawnShapes = {
+        [id]: shape,
+        ...this._drawnShapes,
+      };
+      return shape;
+    } else {
+      this._canvas.draw(this._drawnShapes[id]);
+    }
+  }
+
+  erase() {
+    this._element
+      .getContext('2d')
+      .clearRect(0, 0, this._canvas.width, this._canvas.height);
+  }
+
+  drawCrossPiece(x, y, size, color, canvas) {
+    if (canvas === undefined) {
+      canvas = this;
+    }
+    let piece = canvas._pieceShapes[`cross-${x}-${y}-${size}-${color}`];
+    if (piece === undefined) {
+      piece = [];
+      piece.push(
+        canvas.line(x, y, x + size, y + size, {
+          stroke: color,
+          strokeWidth: spaceSize / 7,
+          roughness: 2,
+        })
+      );
+      piece.push(
+        canvas.line(x + size, y, x, y + size, {
+          stroke: color,
+          strokeWidth: spaceSize / 7,
+          roughness: 2,
+        })
+      );
+      canvas._pieceShapes[`cross-${x}-${y}-${size}-${color}`] = piece;
+    } else {
+      for (let i = 0; i < piece.length; i++) {
+        canvas._canvas.draw(piece[i]);
+      }
+    }
+  }
+
+  drawCirclePiece(x, y, size, color, canvas) {
+    if (canvas === undefined) {
+      canvas = this;
+    }
+    let piece = canvas._pieceShapes[`circle-${x}-${y}-${size}-${color}`];
+    if (piece === undefined) {
+      piece = [];
+      piece.push(
+        canvas.circle(x + size / 2, y + size / 2, size, {
+          stroke: color,
+          strokeWidth: spaceSize / 7,
+          roughness: 2,
+        })
+      );
+      canvas._pieceShapes[`circle-${x}-${y}-${size}-${color}`] = piece;
+    } else {
+      for (let i = 0; i < piece.length; i++) {
+        canvas._canvas.draw(piece[i]);
+      }
+    }
+  }
+
+  drawTrianglePiece(x, y, size, color, canvas) {
+    if (canvas === undefined) {
+      canvas = this;
+    }
+    let piece = canvas._pieceShapes[`triangle-${x}-${y}-${size}-${color}`];
+    if (piece === undefined) {
+      piece = [];
+      piece.push(
+        canvas.polygon(
+          [
+            [x + size / 2, y],
+            [x, y + size],
+            [x + size, y + size],
+          ],
+          {
+            stroke: color,
+            strokeWidth: spaceSize / 7,
+            roughness: 2,
+            seed: (x + y) * size,
+          }
+        )
+      );
+      canvas._pieceShapes[`triangle-${x}-${y}-${size}-${color}`] = piece;
+    } else {
+      for (let i = 0; i < piece.length; i++) {
+        canvas._canvas.draw(piece[i]);
+      }
+    }
+  }
+
+  drawSquarePiece(x, y, size, color, canvas) {
+    if (canvas === undefined) {
+      canvas = this;
+    }
+    let piece = canvas._pieceShapes[`square-${x}-${y}-${size}-${color}`];
+    if (piece === undefined) {
+      piece = [];
+      piece.push(
+        canvas.rectangle(x, y, size, size, {
+          stroke: color,
+          strokeWidth: spaceSize / 7,
+          roughness: 2,
+        })
+      );
+      canvas._pieceShapes[`square-${x}-${y}-${size}-${color}`] = piece;
+    } else {
+      for (let i = 0; i < piece.length; i++) {
+        canvas._canvas.draw(piece[i]);
+      }
+    }
+  }
+
+  drawDiamondPiece(x, y, size, color, canvas) {
+    if (canvas === undefined) {
+      canvas = canvas;
+    }
+    let piece = canvas._pieceShapes[`diamond-${x}-${y}-${size}-${color}`];
+    if (piece === undefined) {
+      piece = [];
+      piece.push(
+        canvas.polygon(
+          [
+            [x + size / 2, y],
+            [x + size, y + size / 2],
+            [x + size / 2, y + size],
+            [x, y + size / 2],
+          ],
+          {
+            stroke: color,
+            strokeWidth: spaceSize / 7,
+            roughness: 2,
+            seed: (x + y) * size,
+          }
+        )
+      );
+      canvas._pieceShapes[`diamond-${x}-${y}-${size}-${color}`] = piece;
+    } else {
+      for (let i = 0; i < piece.length; i++) {
+        canvas._canvas.draw(piece[i]);
+      }
+    }
+  }
+
+  grid(x, y, w, h, cellSize) {
+    const id = `grid-${x}-${y}-${w}-${h}-${cellSize}`;
+    if (this._pieceShapes[id] === undefined) {
+      this._pieceShapes[id] = [];
+      for (let i = 1; i < w; i++) {
+        this._pieceShapes[id].push(
+          this.line(i * spaceSize, 0, i * spaceSize, this._element.height, {
+            strokeWidth: spaceSize / 15,
+            roughness: 1,
+            seed: 1,
+            stroke: '#000000',
+          })
         );
       }
-    }
-  }
-  if (gameFinished) {
-    drawGameEnd(ending);
-  }
-}
 
-function drawGameEnd(arg) {
-  console.log('game-end', arg);
-  gameFinished = true;
-  ending = arg;
-  switch (arg.direction) {
-    case 'h':
-      canvas.line(
-        arg.position.x * spaceSize,
-        arg.position.y * spaceSize + spaceSize / 2,
-        (arg.position.x + gameSettings.numToConnect) * spaceSize,
-        arg.position.y * spaceSize + spaceSize / 2,
-        {
-          strokeWidth: 5,
-          roughness: 5,
-          stroke: `#${COLORS[arg.turn.piece.index]}`,
-        }
-      );
-      break;
-    case 'v':
-      canvas.line(
-        arg.position.x * spaceSize + spaceSize / 2,
-        arg.position.y * spaceSize,
-        arg.position.x * spaceSize + spaceSize / 2,
-        (arg.position.y + gameSettings.numToConnect) * spaceSize,
-        {
-          strokeWidth: 5,
-          roughness: 5,
-          stroke: `#${COLORS[arg.turn.piece.index]}`,
-        }
-      );
-      break;
-    case 'd1':
-      canvas.line(
-        arg.position.x * spaceSize + spaceSize / 2,
-        arg.position.y * spaceSize + spaceSize / 2,
-        (arg.position.x + gameSettings.numToConnect) * spaceSize -
-          spaceSize / 2,
-        (arg.position.y + gameSettings.numToConnect) * spaceSize -
-          spaceSize / 2,
-        {
-          strokeWidth: 5,
-          roughness: 5,
-          stroke: `#${COLORS[arg.turn.piece.index]}`,
-        }
-      );
-      break;
-    case 'd2':
-      canvas.line(
-        arg.position.x * spaceSize + spaceSize / 2,
-        arg.position.y * spaceSize + spaceSize / 2,
-        (arg.position.x - gameSettings.numToConnect) * spaceSize +
-          spaceSize * 1.5,
-        (arg.position.y + gameSettings.numToConnect) * spaceSize -
-          spaceSize / 2,
-        {
-          strokeWidth: 5,
-          roughness: 5,
-          stroke: `#${COLORS[arg.turn.piece.index]}`,
-        }
-      );
-      break;
-  }
-  if (arg['outcome'] === 2) {
-    document.getElementById('result').innerHTML = 'DRAW';
-  } else {
-    document.getElementById(
-      'result'
-    ).innerHTML = `<img class="cell-image" src="/tokens/${
-      SHAPES[arg.turn.player.index]
-    }.svg/ffffff"/> <span>Wins!</span>
-    `;
-  }
-}
-
-function hover(e) {
-  let padding = spaceSize / 20;
-  if (!gameFinished && hasTurn && gameBoard) {
-    let squareX = Math.floor((e.clientX - board.offsetLeft) / spaceSize);
-    let squareY = Math.floor((e.clientY - board.offsetTop) / spaceSize);
-    if (
-      squareX >= 0 &&
-      squareX < gameSettings.boardWidth &&
-      squareY >= 0 &&
-      squareY < gameSettings.boardHeight
-    ) {
-      drawBoard();
-      let piecePos = { x: squareX, y: squareY };
-      if (gameSettings.hasGravity) {
-        piecePos = computeGravity(squareX, squareY);
+      for (let i = 1; i < h; i++) {
+        this._pieceShapes[id].push(
+          this.line(0, i * spaceSize, this._element.width, i * spaceSize, {
+            strokeWidth: spaceSize / 15,
+            roughness: 1,
+            seed: 1,
+            stroke: '#000000',
+          })
+        );
       }
-      DRAWERS[gameSettings.turnPattern[currentTurn].player](
-        piecePos.x * spaceSize + padding,
-        piecePos.y * spaceSize + padding,
-        spaceSize - padding * 2,
-        `#${COLORS[gameSettings.turnPattern[currentTurn].piece]}55`,
-        canvas
-      );
-    }
-  }
-}
-
-function click(e) {
-  if (!gameFinished && hasTurn && gameBoard) {
-    let squareX = Math.floor((e.clientX - board.offsetLeft) / spaceSize);
-    let squareY = Math.floor((e.clientY - board.offsetTop) / spaceSize);
-    if (
-      squareX >= 0 &&
-      squareX < gameSettings.boardWidth &&
-      squareY >= 0 &&
-      squareY < gameSettings.boardHeight
-    ) {
-      placeToken(squareX, squareY);
-    }
-  }
-}
-
-/**
- * Determines the position that a token would fall if gravity were applied to it.
- * @param {number} x The X position of the token
- * @param {number} y The Y position of the token
- * @returns The position after applying gravity.
- */
-function computeGravity(x, y) {
-  let { gravityDirection } = gameSettings;
-  let localX = x;
-  if (gravityDirection.x === 1) {
-    localX = 0;
-  } else if (gravityDirection.x === -1) {
-    localX = gameSettings.boardWidth - 1;
-  }
-  let localY = y;
-  if (gravityDirection.y === 1) {
-    localY = 0;
-  } else if (gravityDirection.y === -1) {
-    localY = gameSettings.boardHeight - 1;
-  }
-
-  if (gravityDirection.x !== 0 && gravityDirection.y !== 0) {
-    let delta = Math.min(Math.abs(x - localX), Math.abs(y - localY));
-    localX = x + delta * -gravityDirection.x;
-    localY = y + delta * -gravityDirection.y;
-  }
-  if (gameBoard[localY][localX] === -1) {
-    for (
-      let i = 0;
-      i < Math.ceil(gameBoard.length ** 2 + (gameBoard[1].length ** 2) ** 0.5); // Length of the diagonal
-      i++
-    ) {
-      if (
-        gameBoard[(i + 1) * gravityDirection.y + localY] === undefined ||
-        gameBoard[(i + 1) * gravityDirection.y + localY][
-          (i + 1) * gravityDirection.x + localX
-        ] === undefined ||
-        gameBoard[(i + 1) * gravityDirection.y + localY][
-          (i + 1) * gravityDirection.x + localX
-        ] > -1
-      ) {
-        return {
-          x: i * gravityDirection.x + localX,
-          y: i * gravityDirection.y + localY,
-        };
+    } else {
+      for (let i = 0; i < this._pieceShapes[id].length; i++) {
+        this._canvas.draw(this._pieceShapes[id][i]);
       }
     }
   }
-  return null;
+
+  set width(val) {
+    this._element.style.width = val + 'px';
+    this._element.width = val;
+  }
+
+  set height(val) {
+    this._element.style.height = val + 'px';
+    this._element.height = val;
+  }
 }
-
-/*const ASSET_NAMES = ['circle.svg', 'cross.svg', 'triangle.svg', 'square.svg'];
-
-let assets = {};
-
-const downloadPromise = Promise.all(ASSET_NAMES.map(downloadAsset));
-
-function downloadAsset(assetName) {
-  return new Promise(function (resolve) {
-    const asset = new Image();
-    asset.onload = function () {
-      console.log('Downloaded '.concat(assetName));
-      assets[assetName] = asset;
-      resolve();
-    };
-    asset.src = '/assets/'.concat(assetName);
-  });
-}
-const downloadAssets = function () {
-  return downloadPromise;
-};
-
-const getAsset = function (assetName) {
-  return assets[assetName];
-};
- */

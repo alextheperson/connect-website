@@ -1,7 +1,7 @@
 import { Namespace } from 'socket.io';
 import { GameEngine } from './game-engine';
 import { GameEngineFactory } from './game-engine-factory';
-export type Rulesets = 'fractal' | 'gravity-rotate' | 'none';
+export type Rulesets = 'fractal-engine' | 'gravity-engine' | 'standard-engine';
 export type Vector = {
   x: 0 | 1 | -1;
   y: 0 | 1 | -1;
@@ -15,7 +15,7 @@ export type GameSetting = {
   gravityDirection: Vector;
   numPlayers: number;
   allowSpectators: boolean;
-  extraRulesets: Rulesets;
+  engine: Rulesets;
   pieces: boolean[];
   turnPattern: {
     player: number;
@@ -35,7 +35,8 @@ export type JoinStatus =
   | 'unknown'
   | 'success'
   | 'duplicate'
-  | 'spectate';
+  | 'spectate'
+  | 'badCode';
 
 export class Game {
   id: string;

@@ -17,17 +17,47 @@
       content="A website that lets you play games about connecting shapes. Connect 4 meets Tic Tac Toe!"
     />
     <meta property="og:image" content="/assets/icon1200.png" />
-    <link rel="stylesheet" href="../css/main.css" type="text/css" />
-    <script src="../../scripts/constants.js"></script>
-    <script src="../../scripts/issue-detector.js"></script>
-    <script src="../../scripts/configuration-validation.js" defer></script>
+    <link rel="stylesheet" href="/css/main.css" type="text/css" />
+    <script src="/scripts/constants.js"></script>
+    <script src="/scripts/issue-detector.js"></script>
+    <script src="/scripts/configuration-validation.js" defer></script>
   </head>
   <body class="center">
     <div class="configuration-panel">
       <h1>Configure Game</h1>
       <form action="" method="get" id="form">
         <fieldset>
+          <legend>Preset</legend>
+          <select name="preset">
+            <option value="-">Custom</option>
+            <option value="tictactoe">Tic Tac Toe</option>
+            <option value="gomoku">Gomoku</option>
+          </select>
+          <input type="button" value="Load" />
+          <input type="button" value="Delete" />
+          <br />
+          <input type="text" placeholder="Name" />
+          <input type="button" value="Save" />
+        </fieldset>
+        <fieldset>
           <legend>General</legend>
+          <select name="engine">
+            <option value="standard-engine">Standard Engine</option>
+            <option value="fractal-engine">Fractal Engine</option>
+            <option value="gravity-engine">Gravity Engine</option>
+          </select>
+          <br />
+          <select name="numPlayers" id="numPlayers">
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+          </select>
+          Players<br />
+          <input type="checkbox" name="allowSpectators" /> Allow Spectators
+        </fieldset>
+        <fieldset>
+          <legend>Board</legend>
           <input
             type="number"
             value="3"
@@ -65,14 +95,7 @@
             <option value="1,1">&LowerRightArrow;</option>
             <option value="-1,1">&LowerLeftArrow;</option>
           </select>
-          Gravity Direction<br />
-          <select name="numPlayers" id="numPlayers">
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-          </select>
-          Players<br />
+          Gravity Direction
         </fieldset>
         <fieldset>
           <legend>Pieces & Turns</legend>
@@ -113,16 +136,6 @@
               </tr>
             </tfoot>
           </table>
-        </fieldset>
-        <fieldset>
-          <legend>Miscellaneous</legend>
-          <select name="extraRulesets">
-            <option value="none">None</option>
-            <option value="fractal">Fractal</option>
-            <option value="gravity-rotate">Gravity Rotation</option>
-          </select>
-          Extra Rulesets<br />
-          <input type="checkbox" name="allowSpectators" /> Allow Spectators<br />
         </fieldset>
         <fieldset id="issues"></fieldset>
         <fieldset class="no-text buttons">

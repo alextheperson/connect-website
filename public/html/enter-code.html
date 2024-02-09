@@ -17,27 +17,92 @@
       content="A website that lets you play games about connecting shapes. Connect 4 meets Tic Tac Toe!"
     />
     <meta property="og:image" content="/assets/icon1200.png" />
-    <link rel="stylesheet" href="../css/main.css" type="text/css" />
+    <link rel="stylesheet" href="/css/main.css" type="text/css" />
   </head>
   <body class="center">
     <div class="main-panel">
       <h2>Enter Game Code</h2>
-      <input id="code" placeholder="000000000" class="big" pattern="[0-9]{9}" />
-      <div class="no-text buttons fieldset">
-        <a href="./" class="button half-width">&larr; Cancel</a>
-        <button class="primary half-width" id="join">Join &rarr;</button>
+      <div class="no-text fieldset">
+        <div class="code-input">
+          <input
+            id="code1"
+            placeholder="0"
+            class="big"
+            pattern="[0-9]"
+            inputmode="numeric"
+            maxlength="1"
+            minlength="0"
+            size="1"
+            data-number="1"
+            autocomplete="off"
+            autofocus
+          />
+          <input
+            id="code2"
+            placeholder="0"
+            class="big"
+            pattern="[0-9]{3}"
+            inputmode="numeric"
+            maxlength="1"
+            minlength="0"
+            size="1"
+            data-number="2"
+            autocomplete="off"
+          />
+          <input
+            id="code3"
+            placeholder="0"
+            class="big"
+            pattern="[0-9]"
+            inputmode="numeric"
+            maxlength="1"
+            minlength="0"
+            size="1"
+            data-number="3"
+            autocomplete="off"
+          />
+        </div>
+        <div class="buttons">
+          <a href="./" class="button half-width" tabindex="0">&larr; Cancel</a>
+          <button class="primary half-width" id="join">Join &rarr;</button>
+        </div>
       </div>
     </div>
 
     <script>
-      document.querySelector('#join').addEventListener('click', () => {
-        const codeInput = document.querySelector('#code');
-        if (codeInput?.validity.valid) {
-          window.location.pathname = `game/${codeInput.value ?? '000000000'}`;
-        } else {
-          alert('The game code should be a 9-digit number');
-        }
+      const inputs = Array.from(document.getElementsByClassName('big'));
+      document.querySelector('#join').addEventListener('click', handleEnter);
+      inputs.forEach((el, index) => {
+        el.addEventListener('input', (e) => {
+          console.log(e);
+          if (e.inputType === 'insertText' && e.data.match(/^[0-9]$/)) {
+            if (index + 1 === inputs.length) {
+              document.querySelector('#join').focus();
+            } else {
+              inputs[Math.min(inputs.length - 1, index + 1)].focus();
+            }
+          } else if (e.inputType === 'deleteContentBackward') {
+            inputs[Math.max(0, index - 1)].focus();
+          } else {
+            e.target.value = e.target.value.replace(/[^0-9]/, '');
+          }
+        });
+        el.addEventListener('keyup', (e) => {
+          if (['ArrowLeft', 'Delete', 'Backspace'].includes(e.key)) {
+            inputs[Math.max(0, index - 1)].focus();
+          } else if (['ArrowRight'].includes(e.key)) {
+            inputs[Math.min(inputs.length - 1, index + 1)].focus();
+          }
+        });
       });
+      function handleEnter() {
+        const codeInput = inputs.map((val) => val.value).join('');
+        if (codeInput.match(/[0-9]{3}/)) {
+          window.location.pathname = `game/${codeInput}/`;
+        } else {
+          alert('The game code should be a 3-digit number');
+        }
+      }
     </script>
   </body>
 </html>

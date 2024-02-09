@@ -34,8 +34,21 @@ app.get('/game', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/html/enter-code.html'));
 });
 
-app.get('/game/:code([0-9]{9})', (req, res) => {
-  res.sendFile(path.join(__dirname + '/public/html/game.html'));
+app.get('/game/:code([0-9]{3})/', (req, res) => {
+  let selectedEngine =
+    games.get(req.params.code)?.settings.engine ?? 'standard-engine';
+  res.sendFile(path.join(__dirname + `/engines/${selectedEngine}/page.html`));
+});
+
+app.get('/engine/:engine(*)/:resource(*)', (req, res) => {
+  let selectedEngine = req.params.engine ?? 'standard-engine';
+  if (['server.ts', 'server.js'].includes(req.params.resource)) {
+    res.status(400);
+    res.send('The requested resource could not be accessed.');
+  }
+  res.sendFile(
+    path.join(__dirname + `/engines/${selectedEngine}/${req.params.resource}`)
+  );
 });
 
 app.post('/game', upload.none(), (req, res) => {
@@ -68,7 +81,7 @@ console.log(`Server listening on port ${port}`);
 
 const io = new Server(server);
 
-const gameNamespaces = io.of(/^\/[0-9]{9}$/);
+const gameNamespaces = io.of(/^\/[0-9]{3}$/);
 
 // Listen for socket.io connections
 gameNamespaces.on('connection', (socket) => {
@@ -97,7 +110,7 @@ gameNamespaces.on('connection', (socket) => {
       socket.emit('join-failure', { reason: joinStatus });
     }
   } else {
-    socket.emit('bad-code');
+    socket.emit('join-failure', { reason: 'badCode' });
   }
 
   // socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
@@ -176,7 +189,7 @@ function parseGameSettings(body: Object): GameSetting {
     gravityDirection: Vector,
     numPlayers: number,
     allowSpectators: boolean,
-    extraRulesets: Rulesets,
+    engine: Rulesets,
     pieces: boolean[],
     turnPattern: { player: number; piece: number }[];
 
@@ -214,9 +227,9 @@ function parseGameSettings(body: Object): GameSetting {
     throw new Error("'numPlayers' out of the range [2:5]");
   }
   allowSpectators = validateToBool(body['allowSpectators'], 'allowSpectators');
-  extraRulesets = validateToEnum(
-    body['extraRulesets'],
-    ['fractal', 'gravity-rotate', 'none'],
+  engine = validateToEnum(
+    body['engine'],
+    ['fractal-engine', 'gravity-engine', 'standard-engine'],
     'extraRulesets'
   ) as Rulesets;
 
@@ -258,7 +271,7 @@ function parseGameSettings(body: Object): GameSetting {
     gravityDirection: gravityDirection,
     numPlayers: numPlayers,
     allowSpectators: allowSpectators,
-    extraRulesets: extraRulesets,
+    engine: engine,
     pieces: pieces,
     turnPattern: turnPattern,
   };
@@ -276,13 +289,13 @@ function newId() {
   let code;
   do {
     code = '';
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < 3; i++) {
       code += Math.floor(Math.random() * 9);
     }
   } while (
     Array.from(games.keys()).includes(code) ||
-    !code.match(/^[0-9]{9}$/) ||
-    code.length !== 9
+    !code.match(/^[0-9]{3}$/) ||
+    code.length !== 3
   );
 
   return code;
