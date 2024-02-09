@@ -94,3 +94,5 @@ dist/
 app.js
 
 dist/
+
+.VSCodeCounter/**/*.*

@@ -33,7 +33,6 @@
             maxlength="1"
             minlength="0"
             size="1"
-            data-number="1"
             autocomplete="off"
             autofocus
           />
@@ -46,7 +45,6 @@
             maxlength="1"
             minlength="0"
             size="1"
-            data-number="2"
             autocomplete="off"
           />
           <input
@@ -58,7 +56,6 @@
             maxlength="1"
             minlength="0"
             size="1"
-            data-number="3"
             autocomplete="off"
           />
         </div>
@@ -81,8 +78,6 @@
             } else {
               inputs[Math.min(inputs.length - 1, index + 1)].focus();
             }
-          } else if (e.inputType === 'deleteContentBackward') {
-            inputs[Math.max(0, index - 1)].focus();
           } else {
             e.target.value = e.target.value.replace(/[^0-9]/, '');
           }
