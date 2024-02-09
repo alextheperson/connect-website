@@ -36,51 +36,104 @@
   flex-direction: column;
 }
 
-#game.row #turns {
+#game.row .timeline {
   flex-direction: column;
   display: flex;
 }
 
-#game.column #turns {
+#game.column .timeline {
   flex-direction: row;
   display: flex;
 }
 
-#turns {
-  grid-area: turns;
-  /* display: none; */
+.timeline {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   flex-shrink: 1;
   align-content: start;
   justify-content: start;
+  position: relative;
 }
 
-.turn-indicator {
-  /* position: absolute;
-  top: 0;
-  left: 0; */
-  height: 10px;
-  border-radius: 5px;
-  background-color: var(--text-color);
+.timeline-indicator {
+  --position: 1;
+  width: 75px;
+  height: 75px;
+  border-radius: 1em;
+  outline: 3px solid var(--primary-color);
+  outline-offset: 1px;
+  position: absolute;
+  transition: ease-in-out 0.1s;
 }
 
-.turn {
+#game.row .timeline-indicator {
+  top: calc(var(--position) * 85px);
+}
+
+#game.column .timeline-indicator {
+  left: calc(var(--position) * 85px);
+}
+
+.timeline-indicator::after {
+  --size: 10px;
+  position: absolute;
+  display: block;
+  content: '';
+  width: 0;
+  height: 0;
+}
+
+#game.row .timeline-indicator::after {
+  border-top: calc(var(--size) / 2) solid transparent;
+  border-bottom: calc(var(--size) / 2) solid transparent;
+  border-right: var(--size) solid var(--primary-color);
+  right: calc(calc(-1 * var(--size)) - 6px);
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+#game.column .timeline-indicator::after {
+  border-left: calc(var(--size) / 2) solid transparent;
+  border-right: calc(var(--size) / 2) solid transparent;
+  border-bottom: var(--size) solid var(--primary-color);
+
+  bottom: calc(calc(-1 * var(--size)) - 6px);
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.timeline-item {
   width: 75px;
   border-radius: 1em;
 }
 
-.turn img,
-.turn-indicator {
+.timeline-item img,
+.timeline-indicator {
   width: 100%;
   display: block;
 }
 
-div.turn-indicator.hidden {
-  opacity: 0;
-  display: block;
+.timeline-item {
+  border: 1px solid color-mix(in srgb, var(--text-color) 20%, transparent 80%);
 }
+
+.owned {
+  border: 1px solid var(--text-color);
+}
+
+.owned.no-win {
+  border: 1px dashed var(--text-color);
+}
+
+.no-win {
+  border: 1px dashed color-mix(in srgb, var(--text-color) 20%, transparent 80%);
+}
+
+/* .current-turn {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 1px;
+} */
 
 #error h2 {
   color: rgb(185, 58, 92);
@@ -106,29 +159,4 @@ div.turn-indicator.hidden {
   width: 1em;
   aspect-ratio: 1 / 1;
   display: inline;
-}
-
-.trans {
-  opacity: 0.5;
-}
-
-.turn {
-  border: 1px solid color-mix(in srgb, var(--text-color) 20%, transparent 80%);
-}
-
-.owned {
-  border: 1px solid var(--text-color);
-}
-
-.owned.no-win {
-  border: 1px dashed var(--text-color);
-}
-
-.no-win {
-  border: 1px dashed color-mix(in srgb, var(--text-color) 20%, transparent 80%);
-}
-
-.current-turn {
-  outline: 3px solid var(--primary-color);
-  outline-offset: 1px;
 }

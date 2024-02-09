@@ -7,13 +7,14 @@ class TurnManager {
     this._ownNumber = ownNumber;
     this._element = document.getElementById(id);
 
-    this._element.innerHTML = '';
+    this._element.innerHTML =
+      '<div id="turn-indicator" class="timeline-indicator"></div>';
     for (let i = 0; i < gameSettings.turnPattern.length; i++) {
       let { player, piece } = gameSettings.turnPattern[i];
       let tokenOwned = player == ownNumber;
       let canWin = gameSettings.pieces[piece];
       // <div class="turn-indicator hidden" id="turn-${i}"></div>
-      this._element.innerHTML += `<div id="turn-${i}" class="current-turn turn${
+      this._element.innerHTML += `<div id="turn-${i}" class="timeline-item${
         tokenOwned ? ' owned' : ''
       }${canWin ? '' : ' no-win'}" title="${
         tokenOwned ? 'You' : 'Other players'
@@ -25,12 +26,9 @@ class TurnManager {
 
   update(turnNumber) {
     this._turnNumber = turnNumber;
-    Array.from(document.getElementsByClassName('turn')).map((el) =>
-      el.classList.remove('current-turn')
-    );
     document
-      .getElementById(`turn-${this.currentTurn}`)
-      .classList.add('current-turn');
+      .getElementById('turn-indicator')
+      .style.setProperty('--position', turnNumber);
   }
 
   get hasTurn() {
