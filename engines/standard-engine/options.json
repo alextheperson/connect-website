@@ -6,6 +6,7 @@
         {
           "name": "numPlayers",
           "label": "Players",
+          "multiline": false,
           "type": "enum",
           "defaultValue": 2,
           "options": [

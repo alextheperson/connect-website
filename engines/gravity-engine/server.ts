@@ -79,21 +79,30 @@ export class GravityEngine implements GameEngine {
       );
       this.board.setSpace(newPos?.x ?? x, newPos?.y ?? y, turn);
       this.currentTurnNumber += 1;
+      if (this.settings.gravityChangeFrequency === 'turn') {
+        this.changeGravity();
+      }
       if (this.currentTurnNumber >= this.turns.length) {
         this.currentTurnNumber = 0;
-        this.gravityIndex += 1;
-        if (this.gravityIndex >= this.gravityAngles.length) {
-          this.gravityIndex = 0;
+        if (this.settings.gravityChangeFrequency === 'round') {
+          this.changeGravity();
         }
-        this.applyGravityToBoard(
-          this.gravityAngles[this.gravityIndex].x,
-          this.gravityAngles[this.gravityIndex].y
-        );
       }
       return true;
     } else {
       return false;
     }
+  }
+
+  changeGravity() {
+    this.gravityIndex += 1;
+    if (this.gravityIndex >= this.gravityAngles.length) {
+      this.gravityIndex = 0;
+    }
+    this.applyGravityToBoard(
+      this.gravityAngles[this.gravityIndex].x,
+      this.gravityAngles[this.gravityIndex].y
+    );
   }
 
   validateMove(x: number, y: number, turn: Turn): boolean {

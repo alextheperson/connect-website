@@ -6,6 +6,7 @@
         {
           "name": "numPlayers",
           "label": "Players",
+          "multiline": false,
           "type": "enum",
           "defaultValue": 2,
           "options": [
@@ -53,6 +54,23 @@
           "label": "Allow Diagonals",
           "type": "boolean",
           "defaultValue": true
+        },
+        {
+          "name": "gravityChangeFrequency",
+          "label": "Change Gravity",
+          "multiline": true,
+          "type": "enum",
+          "defaultValue": "round",
+          "options": [
+            {
+              "value": "turn",
+              "displayName": "Every Turn"
+            },
+            {
+              "value": "round",
+              "displayName": "Every Round"
+            }
+          ]
         }
       ]
     },

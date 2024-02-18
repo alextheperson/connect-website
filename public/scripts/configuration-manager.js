@@ -226,7 +226,7 @@ class EnumInput {
 
   _listeners = [];
 
-  constructor(name, label, defaultValue, options, parent) {
+  constructor(name, label, defaultValue, multiline, options, parent) {
     this._name = name;
     this._label = label;
     this._defaultValue = defaultValue;
@@ -241,17 +241,23 @@ class EnumInput {
 
     this.value = this._defaultValue;
 
-    parent.appendChild(this._input);
-
-    if (label === undefined) {
-      return;
+    if (!multiline) {
+      parent.appendChild(this._input);
     }
-    const labelElement = document.createElement('label');
-    labelElement.id = `${name}-label`;
-    labelElement.innerHTML = label;
-    labelElement.htmlFor = name;
 
-    parent.appendChild(labelElement);
+    if (label !== undefined) {
+      const labelElement = document.createElement('label');
+      labelElement.id = `${name}-label`;
+      labelElement.innerHTML = label;
+      labelElement.htmlFor = name;
+
+      parent.appendChild(labelElement);
+    }
+
+    if (multiline) {
+      parent.appendChild(document.createElement('br'));
+      parent.appendChild(this._input);
+    }
   }
 
   update() {
@@ -310,6 +316,7 @@ class EnumInput {
       config.name,
       config.label,
       config.defaultValue,
+      config.multiline,
       config.options,
       parent
     );
@@ -324,6 +331,7 @@ class VectorInput extends EnumInput {
       name,
       label,
       defaultValue,
+      false,
       [
         { value: '0,-1', displayName: '&uarr;' },
         { value: '1,-1', displayName: '&nwarr;' },
@@ -714,6 +722,7 @@ class TurnsInput {
       `player-${index}`,
       undefined,
       player,
+      false,
       Array(this.players)
         .fill(1)
         .map((_, i) => ({
@@ -736,6 +745,7 @@ class TurnsInput {
       `piece-${index}`,
       undefined,
       player,
+      false,
       Array(this.pieces)
         .fill(1)
         .map((_, i) => ({
