@@ -1,20 +1,23 @@
-const express = require('express');
+import * as express from 'express';
 import { Namespace, Server } from 'socket.io';
-const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
+import * as multer from 'multer';
+import * as fs from 'fs';
+import * as path from 'path';
+
+import {
+  Game,
+  TurnResults,
+  type GameSetting,
+  EngineSelection,
+  Vector,
+} from './src/game';
+import { ConfigurationValidator } from './src/configuration-validator';
+
 const upload = multer();
 
 const Constants = require(path.join(
   __dirname + '/public/scripts/constants.js'
 ));
-import {
-  Game,
-  TurnResults,
-  type GameSetting,
-  Rulesets,
-  Vector,
-} from './src/game';
 const games: Map<string, Game> = new Map<string, Game>();
 
 // Setup an Express server
@@ -44,7 +47,10 @@ app.get('/engine/:engine(*)/:resource(*)', (req, res) => {
   let selectedEngine = req.params.engine ?? 'standard-engine';
   if (['server.ts', 'server.js'].includes(req.params.resource)) {
     res.status(400);
-    res.send('The requested resource could not be accessed.');
+    res.send(
+      `The requested resource (${req.params.resource}) could not be accessed at the requested engine (${selectedEngine}).`
+    );
+    return;
   }
   res.sendFile(
     path.join(__dirname + `/engines/${selectedEngine}/${req.params.resource}`)
@@ -53,16 +59,14 @@ app.get('/engine/:engine(*)/:resource(*)', (req, res) => {
 
 app.post('/game', upload.none(), (req, res) => {
   const newId = createNewGame(parseGameSettings(req.body)).id;
-  console.log(newId);
   res.send(newId);
   // res.sendFile(path.join(__dirname + '/public/html/game.html'));
 });
 
 app.get('/tokens/:filename([a-z]+.svg)/:color([0-9a-f]{6})', (req, res) => {
-  console.log(req.params.color, req.params.filename);
   fs.readFile(
     path.join(__dirname + '/public/assets/tokens/' + req.params.filename),
-    'UTF-8',
+    'utf8',
     (err, data) => {
       if (err) {
         throw err;
@@ -91,8 +95,6 @@ gameNamespaces.on('connection', (socket) => {
   if (currentGame) {
     let joinStatus;
     if ((joinStatus = currentGame.addPlayer(socket.id)) === 'success') {
-      // socket.emit('join-success');
-      console.log(joinStatus);
       socket.nsp.emit('players', {
         'current-players': currentGame.numPlayers,
         'max-players': currentGame.settings.numPlayers,
@@ -106,7 +108,6 @@ gameNamespaces.on('connection', (socket) => {
         'max-players': currentGame.settings.numPlayers,
       });
     } else {
-      console.log(joinStatus);
       socket.emit('join-failure', { reason: joinStatus });
     }
   } else {
@@ -136,145 +137,9 @@ gameNamespaces.on('connection', (socket) => {
   });
 });
 
-function validateToInt(input: string | undefined, name: string) {
-  if (input !== undefined && input.match(/^([1-9][0-9]*)|([0-9])$/)) {
-    return parseInt(input);
-  } else {
-    throw new Error(`'${name}' in not an Integer`);
-  }
-}
-
-function validateToBool(input: string | undefined, name: string) {
-  if (input === undefined || input === 'on') {
-    return input === 'on';
-  } else {
-    throw new Error(`'${name}' in not a Boolean`);
-  }
-}
-
-function validateToEnum(
-  input: string | undefined,
-  allowed: string[],
-  name: string
-) {
-  if (input !== undefined && allowed.includes(input)) {
-    return input;
-  } else {
-    throw new Error(
-      `'${name}' does not have one of the allowed values: '${allowed.join(
-        "', '"
-      )}'`
-    );
-  }
-}
-
-function validateToVector(input: string | undefined, name: string) {
-  if (input !== undefined && input.match(/[-0-1],[-0-1]/)) {
-    let values = input.split(',');
-    return {
-      x: parseInt(values[0]),
-      y: parseInt(values[1]),
-    };
-  } else {
-    throw new Error(`'${name}' does not have the right format (#,#)`);
-  }
-}
-
-function parseGameSettings(body: Object): GameSetting {
-  let width: number,
-    height: number,
-    numberToConnect: number,
-    diagonals: boolean,
-    gravity: boolean,
-    gravityDirection: Vector,
-    numPlayers: number,
-    allowSpectators: boolean,
-    engine: Rulesets,
-    pieces: boolean[],
-    turnPattern: { player: number; piece: number }[];
-
-  if (validateToInt(body['boardWidth'], 'boardWidth') > 2) {
-    width = parseInt(body['boardWidth']);
-  } else {
-    throw new Error("'boardWidth' is less than 2");
-  }
-  if (validateToInt(body['boardHeight'], 'boardHeight') > 2) {
-  } else {
-    throw new Error("'boardHeight' is less than 2");
-  }
-  height = parseInt(body['boardHeight']);
-  if (
-    validateToInt(body['numToConnect'], 'numToConnect') <=
-    Math.max(width, height)
-  ) {
-    // TODO: Add minimum too
-    numberToConnect = parseInt(body['numToConnect']);
-  } else {
-    throw new Error("'numToConnect' is greater than the size of the board");
-  }
-  diagonals = validateToBool(body['allowDiagonals'], 'allowDiagonals');
-  gravity = validateToBool(body['hasGravity'], 'hasGravity');
-  gravityDirection = validateToVector(
-    body['gravityDirection'],
-    'gravityDirection'
-  ) as Vector;
-  if (
-    validateToInt(body['numPlayers'], 'numPlayers') > 1 &&
-    parseInt(body['numPlayers']) <= 5
-  ) {
-    numPlayers = parseInt(body['numPlayers']);
-  } else {
-    throw new Error("'numPlayers' out of the range [2:5]");
-  }
-  allowSpectators = validateToBool(body['allowSpectators'], 'allowSpectators');
-  engine = validateToEnum(
-    body['engine'],
-    ['fractal-engine', 'gravity-engine', 'standard-engine'],
-    'extraRulesets'
-  ) as Rulesets;
-
-  if (body['pieces'] !== undefined && body['pieces'].match(/^[0-1]+$/)) {
-    let pieceList = body['pieces'].split('');
-    pieceList = pieceList.map((el) => el == 1);
-    pieces = pieceList;
-  } else {
-    throw new Error(
-      `'pieces' is not in the right format (it can only contain 0 and 1).`
-    );
-  }
-
-  if (
-    body['turnPattern'] !== undefined &&
-    body['turnPattern'].match(/^([0-9]+-[0-9]+,){2,}$/)
-  ) {
-    let turns = body['turnPattern'].slice(0, -1).split(',');
-    turns = turns.map((el) => {
-      let split = el.split('-');
-      return {
-        player: validateToInt(split[0], 'turnPattern'),
-        piece: validateToInt(split[1], 'turnPattern'),
-      };
-    });
-    turnPattern = turns;
-  } else {
-    throw new Error(
-      `'turnPattern' is not in the right format (player#-piece#,player#-piece#,).`
-    );
-  }
-
-  return {
-    boardWidth: width,
-    boardHeight: height,
-    numToConnect: numberToConnect,
-    allowDiagonals: diagonals,
-    hasGravity: gravity,
-    gravityDirection: gravityDirection,
-    numPlayers: numPlayers,
-    allowSpectators: allowSpectators,
-    engine: engine,
-    pieces: pieces,
-    turnPattern: turnPattern,
-  };
+function parseGameSettings(body: any) {
+  let sett = new ConfigurationValidator(body).validate();
+  return sett;
 }
 
 function createNewGame(settings: GameSetting) {
@@ -305,8 +170,8 @@ function cullGames() {
   const gameList = Array.from(games.values());
   for (let i = 0; i < gameList.length; i++) {
     if (gameList[i].numPlayers <= 0) {
-      // games.delete(gameList[i].id);
-      // console.log(`deleted game ${gameList[i].id} because it had no players`);
+      games.delete(gameList[i].id);
+      console.log(`deleted game ${gameList[i].id} because it had no players`);
     }
   }
 }

@@ -36,14 +36,28 @@
   flex-direction: column;
 }
 
+#sidebar {
+  display: flex;
+}
+
+#game.row #sidebar {
+  flex-direction: row;
+}
+
+#game.column #sidebar {
+  flex-direction: column;
+}
+
 #game.row .timeline {
   flex-direction: column;
   display: flex;
+  margin-right: 22px;
 }
 
 #game.column .timeline {
   flex-direction: row;
   display: flex;
+  margin-bottom: 22px;
 }
 
 .timeline {
@@ -57,7 +71,7 @@
 }
 
 .timeline-indicator {
-  --position: 1;
+  --position: 0;
   width: 75px;
   height: 75px;
   border-radius: 1em;
@@ -106,12 +120,19 @@
 .timeline-item {
   width: 75px;
   border-radius: 1em;
+  aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.timeline-item img,
-.timeline-indicator {
+.timeline-item img {
   width: 100%;
   display: block;
+}
+
+.timeline-item span {
+  font-size: 30px;
 }
 
 .timeline-item {

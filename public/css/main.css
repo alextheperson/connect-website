@@ -68,6 +68,7 @@ select {
 .configuration-panel {
   width: 500px;
   margin: auto;
+  line-height: 1.75em;
 }
 
 button,
@@ -254,4 +255,8 @@ tfoot tr:hover {
 .success {
   background: #08b93a55;
   border-left: 3px solid #08b93a;
+}
+
+label {
+  margin-left: 0.5em;
 }

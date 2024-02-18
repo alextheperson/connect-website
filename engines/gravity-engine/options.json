@@ -53,18 +53,6 @@
           "label": "Allow Diagonals",
           "type": "boolean",
           "defaultValue": true
-        },
-        {
-          "name": "doGravity",
-          "label": "Do Gravity",
-          "type": "boolean",
-          "defaultValue": false
-        },
-        {
-          "name": "gravityAngle",
-          "label": "Gravity Angle",
-          "type": "vector",
-          "defaultValue": "0,1"
         }
       ]
     },
@@ -88,6 +76,13 @@
           "minimumTurns": ["numPlayers"],
           "players": 3,
           "pieces": 5
+        },
+        {
+          "name": "gravityPattern",
+          "label": "Gravity Angles",
+          "type": "directions",
+          "defaultValue": "0,1",
+          "minimumTurns": 1
         }
       ]
     }

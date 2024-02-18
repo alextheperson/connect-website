@@ -11,8 +11,8 @@ export class GameEngineFactory {
         return new StandardEngine(settings);
       // case 'fractal-engine':
       //   return new FractalEngine(settings);
-      // case 'gravity-engine':
-      //   return new GravityEngine(settings);
+      case 'gravity-engine':
+        return new GravityEngine(settings);
       default:
         return new StandardEngine(settings);
     }

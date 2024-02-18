@@ -1,26 +1,31 @@
 import { Namespace } from 'socket.io';
 import { GameEngine } from './game-engine';
 import { GameEngineFactory } from './game-engine-factory';
-export type Rulesets = 'fractal-engine' | 'gravity-engine' | 'standard-engine';
+export type EngineSelection = 'gravity-engine' | 'standard-engine';
 export type Vector = {
   x: 0 | 1 | -1;
   y: 0 | 1 | -1;
 };
+export type TurnPattern = {
+  player: number;
+  piece: number;
+}[];
+export type PieceSet = boolean[];
+export type GravitySequence = Vector[];
+
 export type GameSetting = {
-  boardWidth: number;
-  boardHeight: number;
-  numToConnect: number;
-  allowDiagonals: boolean;
-  hasGravity: boolean;
-  gravityDirection: Vector;
   numPlayers: number;
+  engine: EngineSelection;
   allowSpectators: boolean;
-  engine: Rulesets;
-  pieces: boolean[];
-  turnPattern: {
-    player: number;
-    piece: number;
-  }[];
+
+  [index: string]:
+    | number
+    | boolean
+    | string
+    | TurnPattern
+    | PieceSet
+    | GravitySequence
+    | Vector;
 };
 
 export enum TurnResults {

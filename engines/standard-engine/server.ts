@@ -1,4 +1,4 @@
-import { GameSetting, TurnResults, Vector } from '../../src/game';
+import { GameSetting, TurnPattern, TurnResults, Vector } from '../../src/game';
 import { Board, GameEngine, Piece, Player, Turn } from '../../src/game-engine';
 
 export class StandardEngine implements GameEngine {
@@ -8,8 +8,8 @@ export class StandardEngine implements GameEngine {
 
   numToConnect: number;
   allowDiagonals: boolean;
-  hasGravity: boolean;
-  gravityDirection: Vector;
+  doGravity: boolean;
+  gravityAngle: Vector;
 
   currentTurnNumber: number;
 
@@ -17,7 +17,7 @@ export class StandardEngine implements GameEngine {
 
   constructor(settings: GameSetting) {
     this.settings = settings;
-    settings.turnPattern.forEach((el, i) => {
+    (settings.turnPattern as TurnPattern).forEach((el, i) => {
       this.turns[i] = new Turn(
         i,
         new Piece(el.piece, settings.pieces[el.piece]),
@@ -25,14 +25,17 @@ export class StandardEngine implements GameEngine {
       );
     });
 
-    this.numToConnect = settings.numToConnect;
-    this.allowDiagonals = settings.allowDiagonals;
-    this.hasGravity = settings.hasGravity;
-    this.gravityDirection = settings.gravityDirection;
+    this.numToConnect = settings.numToConnect as number;
+    this.allowDiagonals = settings.allowDiagonals as boolean;
+    this.doGravity = settings.doGravity as boolean;
+    this.gravityAngle = settings.gravityAngle as Vector;
 
     this.currentTurnNumber = 0;
 
-    this.board = new Board(settings.boardWidth, settings.boardHeight);
+    this.board = new Board(
+      settings.boardWidth as number,
+      settings.boardHeight as number
+    );
   }
 
   get currentTurn(): Turn {
@@ -77,9 +80,14 @@ export class StandardEngine implements GameEngine {
   }
 
   validateMove(x: number, y: number, turn: Turn): boolean {
+    let gravityPosition = this.computeGravity(x, y, this.gravityAngle);
     return (
       turn.index == this.currentTurnNumber &&
-      (this.board.isEmpty(x, y) ?? false)
+      (this.board.isEmpty(x, y) ?? false) &&
+      (!this.doGravity ||
+        (gravityPosition !== null &&
+          gravityPosition.x === x &&
+          gravityPosition.y === y))
     );
   }
 
@@ -89,10 +97,10 @@ export class StandardEngine implements GameEngine {
       return false;
     }
     if (
-      this.board.getSpace(x1, y1)?.piece.index !==
-        this.board.getSpace(x2, y2)?.piece.index ||
-      !this.board.getSpace(x1, y1)?.piece.canWin ||
-      !this.board.getSpace(x2, y2)?.piece.canWin
+      this.board.getSpace(x1, y1)?.turn.piece.index !==
+        this.board.getSpace(x2, y2)?.turn.piece.index ||
+      !this.board.getSpace(x1, y1)?.turn.piece.canWin ||
+      !this.board.getSpace(x2, y2)?.turn.piece.canWin
     ) {
       // check if they are the same player and the pieces can win
       return false;
@@ -134,7 +142,7 @@ export class StandardEngine implements GameEngine {
           hasDrawn = false;
           winMessage = {
             outcome: TurnResults.WIN,
-            turn: this.turns.at(this.currentTurn.index - 1),
+            turn: this.turns.at(this.currentTurn.index - 1) ?? 0,
             position: {
               x: x,
               y: y,
@@ -187,10 +195,10 @@ export class StandardEngine implements GameEngine {
         i++
       ) {
         if (
-          this.board.getSpace(
+          this.board.isEmpty(
             (i + 1) * direction.x + localX,
             (i + 1) * direction.y + localY
-          ) === undefined ||
+          ) ||
           !this.board.isEmpty(
             (i + 1) * direction.x + localX,
             (i + 1) * direction.y + localY

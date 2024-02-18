@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "module": "system",
     "noImplicitAny": true,
@@ -7,7 +8,10 @@
     "outFile": "../../built/local/tsc.js",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true
+    "strict": true,
+    "lib": ["ES2022"],
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["public/**/*", "src/**/*", "app.ts"],
   "exclude": ["**/*.spec.ts"]

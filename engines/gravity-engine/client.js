@@ -1,4 +1,4 @@
-let rulesList, canvas, boardContainer;
+let rulesList, canvas, boardContainer, sidebar;
 let gameSettings;
 let loaded = false;
 let gameBoard;
@@ -6,6 +6,17 @@ let gameFinished = false;
 let spaceSize = 0;
 let ending;
 let turnManager;
+let gravityIndex = 0;
+let gravitySymbol = {
+  '0,-1': '&uarr;',
+  '1,-1': '&nearr;',
+  '1,0': '&rarr;',
+  '1,1': '&searr;',
+  '0,1': '&darr;',
+  '-1,1': '&swarr;',
+  '-1,0': '&larr;',
+  '-1,-1': '&nwarr;',
+};
 
 let boardShapes = [];
 
@@ -17,6 +28,7 @@ function handleStartGame(arg) {
 
   gameSettings = arg['settings'];
   rulesList = document.getElementById('rules');
+  sidebar = document.getElementById('sidebar');
   turnManager = new TurnManager('turns', arg['own-number']);
 
   document.getElementById('game').classList.remove('hidden');
@@ -30,11 +42,35 @@ function handleStartGame(arg) {
     }
   });
   canvas._element.addEventListener('click', click);
+  drawGravityDisplay();
   createCells();
   createRulesList();
   turnManager.update(0);
 
   window.addEventListener('resize', createCells);
+}
+
+function drawGravityDisplay() {
+  const gravityTimeline = document.getElementById('gravity');
+  gravityTimeline.innerHTML = '';
+  const gravityIndicator = document.createElement('div');
+  gravityIndicator.classList.add('timeline-indicator');
+  gravityIndicator.id = 'gravity-indicator';
+  gravityTimeline.appendChild(gravityIndicator);
+
+  for (let i = 0; i < gameSettings.gravityPattern.length; i++) {
+    const timelineItem = document.createElement('div');
+    timelineItem.classList.add('timeline-item');
+    const timelineText = document.createElement('span');
+    timelineText.innerHTML =
+      gravitySymbol[
+        gameSettings.gravityPattern[i].x +
+          ',' +
+          gameSettings.gravityPattern[i].y
+      ];
+    timelineItem.appendChild(timelineText);
+    gravityTimeline.appendChild(timelineItem);
+  }
 }
 
 function createCells() {
@@ -44,8 +80,8 @@ function createCells() {
   document.getElementById('game').classList.remove('row', 'column');
   document.getElementById('game').classList.add(isWide ? 'row' : 'column');
   const sidePanelWidth = isWide
-    ? turnManager._element.offsetWidth + 60
-    : turnManager._element.offsetHeight + 60;
+    ? sidebar.offsetWidth + 60
+    : sidebar.offsetHeight + 60;
   const aspectRatio = gameSettings.boardWidth / gameSettings.boardHeight;
   const areaWidth = boardContainer.offsetWidth;
   const areaHeight = boardContainer.offsetHeight;
@@ -116,6 +152,9 @@ function drawBoard() {
   if (gameFinished) {
     drawGameEnd(ending);
   }
+  document
+    .getElementById('gravity-indicator')
+    .style.setProperty('--position', gravityIndex);
 }
 
 function drawGameEnd(arg) {
@@ -210,9 +249,7 @@ function hover(e) {
     ) {
       drawBoard();
       let piecePos = { x: squareX, y: squareY };
-      if (gameSettings.doGravity) {
-        piecePos = computeGravity(squareX, squareY);
-      }
+      piecePos = computeGravity(squareX, squareY);
 
       canvas.rectangle(
         squareX * spaceSize,
@@ -257,53 +294,26 @@ function click(e) {
 
 /**
  * Determines the position that a token would fall if gravity were applied to it.
- * @param {number} x The X position of the token
- * @param {number} y The Y position of the token
+ * @param {number} initialX The X position of the token
+ * @param {number} initialY The Y position of the token
  * @returns The position after applying gravity.
  */
-function computeGravity(x, y) {
-  let { gravityAngle } = gameSettings;
-  let localX = x;
-  if (gravityAngle.x === 1) {
-    localX = 0;
-  } else if (gravityAngle.x === -1) {
-    localX = gameSettings.boardWidth - 1;
-  }
-  let localY = y;
-  if (gravityAngle.y === 1) {
-    localY = 0;
-  } else if (gravityAngle.y === -1) {
-    localY = gameSettings.boardHeight - 1;
+function computeGravity(initialX, initialY) {
+  let dx = gameSettings.gravityPattern[gravityIndex].x;
+  let dy = gameSettings.gravityPattern[gravityIndex].y;
+  let x = initialX;
+  let y = initialY;
+
+  while (x >= 0 && x < gameBoard[0].length && y >= 0 && y < gameBoard.length) {
+    const currentSpace = gameBoard[y][x];
+    if (currentSpace !== -1) {
+      return { x: x - dx, y: y - dy };
+    }
+    x += dx;
+    y += dy;
   }
 
-  if (gravityAngle.x !== 0 && gravityAngle.y !== 0) {
-    let delta = Math.min(Math.abs(x - localX), Math.abs(y - localY));
-    localX = x + delta * -gravityAngle.x;
-    localY = y + delta * -gravityAngle.y;
-  }
-  if (gameBoard[localY][localX] === -1) {
-    for (
-      let i = 0;
-      i < Math.ceil(gameBoard.length ** 2 + (gameBoard[1].length ** 2) ** 0.5); // Length of the diagonal
-      i++
-    ) {
-      if (
-        gameBoard[(i + 1) * gravityAngle.y + localY] === undefined ||
-        gameBoard[(i + 1) * gravityAngle.y + localY][
-          (i + 1) * gravityAngle.x + localX
-        ] === undefined ||
-        gameBoard[(i + 1) * gravityAngle.y + localY][
-          (i + 1) * gravityAngle.x + localX
-        ] > -1
-      ) {
-        return {
-          x: i * gravityAngle.x + localX,
-          y: i * gravityAngle.y + localY,
-        };
-      }
-    }
-  }
-  return null;
+  return { x: x - dx, y: y - dy };
 }
 
 function handleConnect(arg) {
@@ -323,6 +333,7 @@ function handlePlayers(arg) {
 function handleGameState(arg) {
   console.log('game-state', arg);
   gameBoard = arg.board;
+  gravityIndex = arg.gravityIndex;
   drawBoard();
   turnManager.update(arg.currentTurn);
 }
@@ -355,7 +366,7 @@ function handleInvalidMove(arg) {
 
 function placeToken(x, y) {
   if (!gameFinished && turnManager.hasTurn) {
-    if (gameSettings.doGravity) {
+    if (gameSettings.hasGravity) {
       let gravity = computeGravity(x, y);
       if (gravity !== null) {
         socket.emit('place-token', {

@@ -20,15 +20,16 @@
     <link rel="stylesheet" href="/css/main.css" type="text/css" />
     <script src="/scripts/constants.js"></script>
     <script src="/scripts/issue-detector.js"></script>
+    <script src="/scripts/configuration-manager.js"></script>
     <script src="/scripts/configuration-validation.js" defer></script>
   </head>
-  <body class="center">
+  <body>
     <div class="configuration-panel">
       <h1>Configure Game</h1>
       <form action="" method="get" id="form">
-        <fieldset>
+        <fieldset id="presets">
           <legend>Preset</legend>
-          <select name="preset">
+          <select>
             <option value="-">Custom</option>
             <option value="tictactoe">Tic Tac Toe</option>
             <option value="gomoku">Gomoku</option>
@@ -39,104 +40,7 @@
           <input type="text" placeholder="Name" />
           <input type="button" value="Save" />
         </fieldset>
-        <fieldset>
-          <legend>General</legend>
-          <select name="engine">
-            <option value="standard-engine">Standard Engine</option>
-            <option value="fractal-engine">Fractal Engine</option>
-            <option value="gravity-engine">Gravity Engine</option>
-          </select>
-          <br />
-          <select name="numPlayers" id="numPlayers">
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-          </select>
-          Players<br />
-          <input type="checkbox" name="allowSpectators" /> Allow Spectators
-        </fieldset>
-        <fieldset>
-          <legend>Board</legend>
-          <input
-            type="number"
-            value="3"
-            min="3"
-            name="boardWidth"
-            id="boardWidth"
-          />
-          X
-          <input
-            type="number"
-            value="3"
-            min="3"
-            name="boardHeight"
-            id="boardHeight"
-          />
-          <input
-            type="number"
-            value="3"
-            min="3"
-            name="numToConnect"
-            id="numToConnect"
-          />
-          in a row<br />
-          <input type="checkbox" name="allowDiagonals" checked /> Allow
-          Diagonals <br />
-          <input type="checkbox" name="hasGravity" id="hasGravity" />
-          Gravity<br />
-          <select name="gravityDirection">
-            <option value="0,-1">&UpArrow;</option>
-            <option value="1,0">&RightArrow;</option>
-            <option selected value="0,1">&DownArrow;</option>
-            <option value="-1,0">&LeftArrow;</option>
-            <option value="-1,-1">&UpperLeftArrow;</option>
-            <option value="1,-1">&UpperRightArrow;</option>
-            <option value="1,1">&LowerRightArrow;</option>
-            <option value="-1,1">&LowerLeftArrow;</option>
-          </select>
-          Gravity Direction
-        </fieldset>
-        <fieldset>
-          <legend>Pieces & Turns</legend>
-          <table>
-            <thead>
-              <tr>
-                <th colspan="3">Pieces</th>
-              </tr>
-              <tr>
-                <th>#</th>
-                <th colspan="2">Can Win?</th>
-              </tr>
-            </thead>
-            <tbody id="pieces"></tbody>
-            <tfoot>
-              <td colspan="3">
-                <input type="button" onclick="addPiece()" value="+ Add Piece" />
-              </td>
-            </tfoot>
-          </table>
-          <table>
-            <thead>
-              <tr>
-                <th colspan="4">Turns</th>
-              </tr>
-              <tr>
-                <th>#</th>
-                <th>Player</th>
-                <th colspan="2">Piece</th>
-              </tr>
-            </thead>
-            <tbody id="turns"></tbody>
-            <tfoot>
-              <tr>
-                <td colspan="4">
-                  <input type="button" onclick="addTurn()" value="+ Add Turn" />
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </fieldset>
+        <div id="sections"></div>
         <fieldset id="issues"></fieldset>
         <fieldset class="no-text buttons">
           <a href="./" class="button half-width">&larr; Cancel</a>

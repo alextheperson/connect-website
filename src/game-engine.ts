@@ -124,11 +124,18 @@ export class Turn {
   }
 }
 
+export type BoardSpace = { turn: Turn; age: number };
+
 /**
  * Represents a game board
  */
 export class Board {
-  private content: (Turn | undefined)[][];
+  private content: (BoardSpace | undefined)[][];
+
+  /**
+   * Incremented every time a piece is placed on the board.
+   */
+  currentAge: number = 0;
 
   /**
    * The width of the game board
@@ -158,7 +165,7 @@ export class Board {
    * @param y The y coordinate of the space
    * @returns The value of the space, or `undefined` if the space is not on the board
    */
-  getSpace(x: number, y: number): Turn | undefined {
+  getSpace(x: number, y: number): BoardSpace | undefined {
     if (this.isInBounds(x, y)) {
       return this.content[y][x];
     } else {
@@ -189,7 +196,8 @@ export class Board {
    */
   setSpace(x: number, y: number, value: Turn): void | undefined {
     if (this.isInBounds(x, y)) {
-      this.content[y][x] = value;
+      this.content[y][x] = { turn: value, age: this.currentAge };
+      this.currentAge += 1;
     } else {
       return undefined;
     }
@@ -213,16 +221,16 @@ export class Board {
    * Runs a callback function on every space of the board. It runs them sequentially from left to right and top to bottom
    * @param cb The callback function to execute
    */
-  forEachSpace(cb: (x: number, y: number, content: Turn) => void) {
+  forEachSpace(cb: (x: number, y: number, content: BoardSpace) => void) {
     for (let y = 0; y < this.content.length; y++) {
       for (let x = 0; x < this.content[y].length; x++) {
-        cb(x, y, this.getSpace(x, y) as Turn);
+        cb(x, y, this.getSpace(x, y) as BoardSpace);
       }
     }
   }
 
   /**
-   * Packs the contents of the board so that each item is the index of the turn and empty squares are `-1`. This is what the client handles
+   * Packs the contents of the board so that each item is the index of the turn and empty squares are `-1`. This is what the client can handle.
    * @returns The packed board
    */
   //TODO: Rewrite the client code so this isn't needed
@@ -230,7 +238,7 @@ export class Board {
     return this.content.map((el) => {
       return el.map((el) => {
         if (el !== undefined) {
-          return el.index;
+          return el.turn.index;
         } else {
           return -1;
         }
