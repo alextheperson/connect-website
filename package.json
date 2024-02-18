@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "npx tsc src/*.ts app.ts --resolveJsonModule; node app.js",
-    "build": "npx tsc src/*.ts app.ts;mkdir dist;cp -a public dist;cp -a src dist;cp app.js dist;cp package.json dist;cp .htaccess dist"
+    "build": "npx tsc src/*.ts app.ts;mkdir dist;cp -a engines dist;cp -a public dist;cp -a src dist;cp app.js dist;cp package.json dist;cp .htaccess dist"
   },
   "dependencies": {
     "@types/express": "^4.17.21",
