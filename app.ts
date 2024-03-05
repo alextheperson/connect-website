@@ -25,25 +25,27 @@ const app = express();
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
+const router = express.Router();
+
+router.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/html/home.html'));
 });
 
-app.get('/configure', (req, res) => {
+router.get('/configure', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/html/configuration.html'));
 });
 
-app.get('/game', (req, res) => {
+router.get('/game', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/html/enter-code.html'));
 });
 
-app.get('/game/:code([0-9]{3})/', (req, res) => {
+router.get('/game/:code([0-9]{3})/', (req, res) => {
   let selectedEngine =
     games.get(req.params.code)?.settings.engine ?? 'standard-engine';
   res.sendFile(path.join(__dirname + `/engines/${selectedEngine}/page.html`));
 });
 
-app.get('/engine/:engine(*)/:resource(*)', (req, res) => {
+router.get('/engine/:engine(*)/:resource(*)', (req, res) => {
   let selectedEngine = req.params.engine ?? 'standard-engine';
   if (['server.ts', 'server.js'].includes(req.params.resource)) {
     res.status(400);
@@ -57,13 +59,13 @@ app.get('/engine/:engine(*)/:resource(*)', (req, res) => {
   );
 });
 
-app.post('/game', upload.none(), (req, res) => {
+router.post('/game', upload.none(), (req, res) => {
   const newId = createNewGame(parseGameSettings(req.body)).id;
   res.send(newId);
   // res.sendFile(path.join(__dirname + '/public/html/game.html'));
 });
 
-app.get('/tokens/:filename([a-z]+.svg)/:color([0-9a-f]{6})', (req, res) => {
+router.get('/tokens/:filename([a-z]+.svg)/:color([0-9a-f]{6})', (req, res) => {
   fs.readFile(
     path.join(__dirname + '/public/assets/tokens/' + req.params.filename),
     'utf8',
@@ -77,6 +79,8 @@ app.get('/tokens/:filename([a-z]+.svg)/:color([0-9a-f]{6})', (req, res) => {
     }
   );
 });
+
+app.use(process.env.BASE_URL ?? '/', router);
 
 // Listen on port
 const port = process.env.PORT || 3000;
