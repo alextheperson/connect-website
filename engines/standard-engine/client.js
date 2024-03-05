@@ -185,7 +185,7 @@ function drawGameEnd(arg) {
   } else {
     document.getElementById(
       'result'
-    ).innerHTML = `<img class="cell-image" src="/tokens/${
+    ).innerHTML = `<img class="cell-image" src="../../tokens/${
       SHAPES[arg.turn.player.index]
     }.svg/ffffff"/> <span>Wins!</span>
     `;

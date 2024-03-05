@@ -18,9 +18,11 @@ class TurnManager {
         tokenOwned ? ' owned' : ''
       }${canWin ? '' : ' no-win'}" title="${
         tokenOwned ? 'You' : 'Other players'
-      } can ${canWin ? '' : 'not '}use this token to win."><img src="/tokens/${
-        SHAPES[player]
-      }.svg/${COLORS[piece]}" /></div>`;
+      } can ${
+        canWin ? '' : 'not '
+      }use this token to win."><img src="../../tokens/${SHAPES[player]}.svg/${
+        COLORS[piece]
+      }" /></div>`;
     }
   }
 
