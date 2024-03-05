@@ -1,5 +1,6 @@
 import { GameSetting, TurnPattern, TurnResults, Vector } from '../../src/game';
 import { Board, GameEngine, Piece, Player, Turn } from '../../src/game-engine';
+import { StandardEngine } from '../standard-engine/server';
 
 export class GravityEngine implements GameEngine {
   board: Board;

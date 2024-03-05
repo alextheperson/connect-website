@@ -258,7 +258,11 @@ tfoot tr:hover {
 }
 
 input + label,
-select + label {
+select + label,
+input + input,
+select + input,
+input + select,
+select + select {
   margin-left: 0.5em;
 }
 

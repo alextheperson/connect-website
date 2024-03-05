@@ -68,7 +68,7 @@ router.post('/game', upload.none(), (req, res) => {
 router.get('/tokens/:filename([a-z]+.svg)/:color([0-9a-f]{6})', (req, res) => {
   fs.readFile(
     path.join(__dirname + '/public/assets/tokens/' + req.params.filename),
-    'utf8',
+    'utf-8',
     (err, data) => {
       if (err) {
         throw err;

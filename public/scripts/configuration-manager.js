@@ -1,8 +1,85 @@
 // types: 'number', 'boolean', 'enum', 'vector', 'pieces', 'turns'
 
+class TextInput {
+  _input;
+
+  _listeners = [];
+
+  constructor(name, label, defaultValue, placeholder, parent) {
+    this._input = document.createElement('input');
+    this._input.id = name;
+    this._input.value = defaultValue ?? '';
+    this._input.placeholder = placeholder ?? '';
+    this._input.addEventListener('input', () => {
+      this.update();
+    });
+
+    parent.appendChild(this._input);
+
+    if (label !== undefined) {
+      const labelElement = document.createElement('label');
+      labelElement.id = `${name}-label`;
+      labelElement.innerHTML = label;
+      labelElement.htmlFor = name;
+
+      parent.appendChild(labelElement);
+    }
+  }
+
+  update() {
+    this._listeners.forEach((cb) => {
+      cb(this.value);
+    });
+  }
+
+  /**
+   * Add a function to the called when the value changes.
+   * @param {(val: number) => void} cb The callback to call when the value changes.
+   */
+  subscribe(cb) {
+    this._listeners.push(cb);
+  }
+
+  get value() {
+    let rawValue = this._input.value;
+    return rawValue;
+  }
+
+  set value(val) {
+    this._input.value = val + '';
+    this.update();
+  }
+
+  get placeholder() {
+    return this._input.placeholder;
+  }
+
+  set placeholder(val) {
+    this._input.placeholder = val + '';
+  }
+
+  static parseConfig(config, parent) {
+    const placeholder =
+      typeof config.placeholder === 'string' ? config.placeholder : undefined;
+
+    const input = new TextInput(
+      config.name,
+      config.label,
+      config.defaultValue,
+      placeholder,
+      parent
+    );
+
+    if (typeof config.placeholder === 'object') {
+      getInput(config.placeholder[0]).subscribe((val) => {
+        getInput(config.name).placeholder = val.value;
+      });
+    }
+
+    addInput(config.name, input);
+  }
+}
 class NumberInput {
-  _name;
-  _label;
   _defaultValue;
   _minimum;
   _maximum;
@@ -12,8 +89,6 @@ class NumberInput {
   _listeners = [];
 
   constructor(name, label, defaultValue, minimum, maximum, parent) {
-    this._name = name;
-    this._label = label;
     this._defaultValue = defaultValue;
     this._minimum = minimum;
     this._maximum = maximum;
@@ -29,7 +104,7 @@ class NumberInput {
     if (maximum !== undefined) {
       this._input.max = maximum;
     }
-    this._input.addEventListener('change', () => {
+    this._input.addEventListener('input', () => {
       this.update();
     });
 
@@ -73,6 +148,7 @@ class NumberInput {
 
   set value(val) {
     this._input.value = Math.min(Math.max(val, this.minimum), this.maximum);
+    this.update();
   }
 
   get minimum() {
@@ -142,8 +218,6 @@ class NumberInput {
 }
 
 class BooleanInput {
-  _name;
-  _label;
   _defaultValue;
 
   _input;
@@ -151,14 +225,12 @@ class BooleanInput {
   _listeners = [];
 
   constructor(name, label, defaultValue, parent) {
-    this._name = name;
-    this._label = label;
     this._defaultValue = defaultValue;
 
     this._input = document.createElement('input');
     this._input.id = name;
     this._input.type = 'checkbox';
-    this._input.addEventListener('change', () => {
+    this._input.addEventListener('input', () => {
       this.update();
     });
 
@@ -201,6 +273,7 @@ class BooleanInput {
 
   set value(val) {
     this._input.checked = val;
+    this.update();
   }
 
   static parseConfig(config, parent) {
@@ -217,8 +290,6 @@ class BooleanInput {
 }
 
 class EnumInput {
-  _name;
-  _label;
   _defaultValue;
   _options;
 
@@ -227,15 +298,13 @@ class EnumInput {
   _listeners = [];
 
   constructor(name, label, defaultValue, multiline, options, parent) {
-    this._name = name;
-    this._label = label;
     this._defaultValue = defaultValue;
     this._options = options;
 
     this._input = document.createElement('select');
     this._input.id = name;
     this.drawOptions();
-    this._input.addEventListener('change', () => {
+    this._input.addEventListener('input', () => {
       this.update();
     });
 
@@ -297,6 +366,7 @@ class EnumInput {
 
   set value(val) {
     this._input.value = val;
+    this.update();
   }
 
   get options() {
@@ -360,8 +430,6 @@ class VectorInput extends EnumInput {
 }
 
 class PiecesInput {
-  _name;
-  _label;
   _defaultValue;
   _minimumPieces;
   _maximumPieces;
@@ -381,8 +449,6 @@ class PiecesInput {
     canWinDefault,
     parent
   ) {
-    this._name = name;
-    this._label = label;
     this._defaultValue = defaultValue;
     this._minimumPieces = minimumPieces;
     this._maximumPieces = maximumPieces;
@@ -393,10 +459,12 @@ class PiecesInput {
       .map((val) => (val === '1' ? true : false));
 
     const table = document.createElement('table');
+    table.id = name;
+
     const header = document.createElement('thead');
     const headerRow1 = document.createElement('tr');
     const title = document.createElement('th');
-    title.innerHTML = this._label;
+    title.innerHTML = label;
     title.colSpan = 3;
     headerRow1.appendChild(title);
     header.appendChild(headerRow1);
@@ -523,6 +591,7 @@ class PiecesInput {
         .slice(0, this.maximumPieces);
       this.drawRows();
     }
+    this.update();
   }
 
   get minimumPieces() {
@@ -625,8 +694,6 @@ class PiecesInput {
 }
 
 class TurnsInput {
-  _name;
-  _label;
   _defaultValue;
   _players;
   _pieces;
@@ -648,8 +715,6 @@ class TurnsInput {
     maximumTurns,
     parent
   ) {
-    this._name = name;
-    this._label = label;
     this._defaultValue = defaultValue;
     this._players = players;
     this._pieces = pieces;
@@ -661,10 +726,12 @@ class TurnsInput {
     }));
 
     const table = document.createElement('table');
+    table.id = name;
+
     const header = document.createElement('thead');
     const headerRow1 = document.createElement('tr');
     const title = document.createElement('th');
-    title.innerHTML = this._label;
+    title.innerHTML = label;
     title.colSpan = 4;
     headerRow1.appendChild(title);
     header.appendChild(headerRow1);
@@ -744,7 +811,7 @@ class TurnsInput {
     const pieceInput = new EnumInput(
       `piece-${index}`,
       undefined,
-      player,
+      piece,
       false,
       Array(this.pieces)
         .fill(1)
@@ -757,7 +824,6 @@ class TurnsInput {
     pieceInput._input.style.color = '#' + COLORS[piece];
     pieceInput._input.style.accentColor = '#' + COLORS[piece];
     pieceInput.subscribe((val) => {
-      console.log(val);
       this._rowValues[index].piece = parseInt(val);
       this.drawRows();
     });
@@ -840,6 +906,7 @@ class TurnsInput {
       });
       this.drawRows();
     }
+    this.update();
   }
 
   get minimumTurns() {
@@ -850,7 +917,7 @@ class TurnsInput {
     this._minimumTurns = val;
 
     while (this._rowValues.length < this._minimumTurns) {
-      this._rowValues.push(this._rowValues.at(-1));
+      this._rowValues.push(structuredClone(this._rowValues.at(-1)));
     }
 
     this.drawRows();
@@ -872,7 +939,7 @@ class TurnsInput {
   }
 
   get players() {
-    return this._players ?? Infinity;
+    return this._players ?? '1'; //.split(',').length;
   }
 
   set players(val) {
@@ -882,7 +949,7 @@ class TurnsInput {
   }
 
   get pieces() {
-    return this._pieces ?? Infinity;
+    return (this._pieces ?? '1').split(',').length;
   }
 
   set pieces(val) {
@@ -959,8 +1026,6 @@ class TurnsInput {
 }
 
 class DirectionsInput {
-  _name;
-  _label;
   _defaultValue;
   _minimumTurns;
   _maximumTurns;
@@ -971,18 +1036,18 @@ class DirectionsInput {
   _listeners = [];
 
   constructor(name, label, defaultValue, minimumTurns, maximumTurns, parent) {
-    this._name = name;
-    this._label = label;
     this._defaultValue = defaultValue;
     this._minimumTurns = minimumTurns;
     this._maximumTurns = maximumTurns;
     this._rows = defaultValue.split('|');
 
     const table = document.createElement('table');
+    table.id = name;
+
     const header = document.createElement('thead');
     const headerRow1 = document.createElement('tr');
     const title = document.createElement('th');
-    title.innerHTML = this._label;
+    title.innerHTML = label;
     title.colSpan = 3;
     headerRow1.appendChild(title);
     header.appendChild(headerRow1);
@@ -1096,6 +1161,7 @@ class DirectionsInput {
       this._rows = val.split('|');
       this.drawRows();
     }
+    this.update();
   }
 
   get minimumTurns() {
@@ -1177,6 +1243,204 @@ class DirectionsInput {
   }
 }
 
+class PresetInput {
+  _selection;
+  _nameInput;
+  _loadButton;
+  _deleteButton;
+  _saveButton;
+
+  presets;
+
+  isEditing = false;
+
+  currentPreset;
+
+  constructor(name, defaultValue, parent) {
+    this.presets = JSON.parse(localStorage.getItem('presets') ?? '[]');
+
+    this._selection = new EnumInput(
+      name + '-presetSelection',
+      undefined,
+      defaultValue,
+      false,
+      this.presets.map((val) => ({ value: val.id, displayName: val.name })),
+      parent
+    );
+
+    this.currentPreset = defaultValue;
+
+    this._selection.subscribe((val) => {
+      if (val === 'custom') {
+        this._loadButton.disabled = true;
+      } else {
+        this._loadButton.disabled = false;
+      }
+    });
+
+    this._loadButton = document.createElement('input');
+    this._loadButton.type = 'button';
+    this._loadButton.value = 'Load';
+    this._loadButton.disabled = true;
+    this._loadButton.addEventListener('click', () => {
+      this.load();
+    });
+    parent.appendChild(this._loadButton);
+
+    this._deleteButton = document.createElement('input');
+    this._deleteButton.type = 'button';
+    this._deleteButton.value = 'Delete';
+    this._deleteButton.addEventListener('click', () => {
+      this.delete();
+    });
+    parent.appendChild(this._deleteButton);
+    parent.appendChild(document.createElement('br'));
+
+    this._nameInput = new TextInput(
+      name + '-presetName',
+      undefined,
+      '',
+      'Name',
+      parent
+    );
+    this._nameInput._input.disabled = true;
+    this._nameInput.subscribe((val) => {
+      console.log(val);
+      if ((val ?? '') === '') {
+        this._saveButton.disabled = true;
+      } else {
+        this._saveButton.disabled = false;
+      }
+    });
+
+    this._saveButton = document.createElement('input');
+    this._saveButton.type = 'button';
+    this._saveButton.value = 'Save';
+    this._saveButton.disabled = true;
+    this._saveButton.addEventListener('click', () => {
+      this.save();
+    });
+    parent.appendChild(this._saveButton);
+  }
+
+  updateDisplay() {
+    this.presets = JSON.parse(localStorage.getItem('presets') ?? '[]');
+    if (this.isEditing) {
+      this._nameInput._input.disabled = false;
+      this._saveButton.disabled = this._nameInput.value === '';
+      this._deleteButton.disabled = true;
+      this._selection.options = [
+        { value: 'custom', displayName: 'Custom' },
+      ].concat(
+        this.presets.map((val) => ({
+          value: val.id,
+          displayName: val.name,
+        }))
+      );
+      this._selection.value = 'custom';
+    } else {
+      this._nameInput._input.disabled = true;
+      this._saveButton.disabled = true;
+      this._loadButton.disabled = this._selection.value === this.currentPreset;
+      this._deleteButton.disabled = false;
+      this._selection.options = this.presets.map((val) => ({
+        value: val.id,
+        displayName: val.name,
+      }));
+    }
+  }
+
+  load() {
+    const preset = this.presets
+      .filter((val) => {
+        return val.id === this._selection.value;
+      })
+      .at(0);
+
+    this.currentPreset = this._selection.value;
+
+    inputs['engine'].value = preset.options['engine'];
+  }
+
+  applyPreset() {
+    if (this.currentPreset === '-') {
+      return;
+    }
+
+    const inputNames = Object.keys(inputs);
+    const preset = this.presets
+      .filter((val) => {
+        return val.id === this.currentPreset;
+      })
+      .at(0);
+    for (let i = 0; i < inputNames.length; i++) {
+      if (inputNames[i] === 'engine') {
+        continue;
+      }
+      console.log(preset.options[inputNames[i]], inputs[inputNames[i]].value);
+      inputs[inputNames[i]].value = preset.options[inputNames[i]];
+    }
+    this.isEditing = false;
+    this._selection.value = this.currentPreset;
+    this.updateDisplay();
+    this._selection.value = this.currentPreset;
+  }
+
+  save() {
+    let preset = {};
+    const inputNames = Object.keys(inputs);
+    for (let i = 0; i < inputNames.length; i++) {
+      preset = { ...preset, [inputNames[i]]: inputs[inputNames[i]].value };
+    }
+
+    localStorage.setItem(
+      'presets',
+      JSON.stringify([
+        ...this.presets,
+        {
+          id: this._nameInput.value.replaceAll(/[^a-zA-Z]*/g, '').toLowerCase(),
+          name: this._nameInput.value,
+          options: preset,
+        },
+      ])
+    );
+    this.isEditing = false;
+    this.updateDisplay();
+  }
+
+  delete() {
+    localStorage.setItem(
+      'presets',
+      JSON.stringify(
+        this.presets.filter((val) => {
+          return val.id !== this._selection.value;
+        })
+      )
+    );
+    this.updateDisplay();
+  }
+
+  edit() {
+    this.isEditing = true;
+    this.updateDisplay();
+  }
+
+  update() {}
+
+  receiveUpdate(inputName, value) {
+    this.edit();
+  }
+
+  get value() {
+    return this._selection.value;
+  }
+
+  set value(val) {
+    this._selection.value = val;
+    this.update();
+  }
+}
+
 let inputs = {};
 let sectionIds = [];
 
@@ -1244,4 +1508,13 @@ function initConfig() {
   Object.values(inputs).forEach((val) => {
     val.update();
   });
+}
+
+class ConfigurationIssue {
+  /**
+   *
+   * @param {string} message The content of the issue
+   * @param {"message"|"warning"|"error"} level The level of the issue.
+   */
+  constructor(message, level) {}
 }
