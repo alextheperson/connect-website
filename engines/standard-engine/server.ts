@@ -1,6 +1,14 @@
 import { GameSetting, TurnPattern, TurnResults, Vector } from '../../src/game';
 import { Board, GameEngine, Piece, Player, Turn } from '../../src/game-engine';
 
+Array.prototype.at = function (index) {
+  if (index >= 0) {
+    return this[index];
+  } else {
+    return this[this.length + index];
+  }
+};
+
 export class StandardEngine implements GameEngine {
   board: Board;
 
