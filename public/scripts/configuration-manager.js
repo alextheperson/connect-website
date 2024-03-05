@@ -1256,7 +1256,7 @@ class PresetInput {
 
   currentPreset;
 
-  defaultPresets = [
+  defaultPresets = `[
     {
       id: 'tictactoe',
       name: 'Tic Tac Toe',
@@ -1309,7 +1309,7 @@ class PresetInput {
         engine: 'standard-engine',
       },
     },
-  ];
+  ]`;
 
   constructor(name, defaultValue, parent) {
     this.presets = JSON.parse(
