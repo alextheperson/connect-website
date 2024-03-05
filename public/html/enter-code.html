@@ -93,7 +93,7 @@
       function handleEnter() {
         const codeInput = inputs.map((val) => val.value).join('');
         if (codeInput.match(/[0-9]{3}/)) {
-          window.location.pathname = `game/${codeInput}/`;
+          window.location.pathname += `/${codeInput}/`;
         } else {
           alert('The game code should be a 3-digit number');
         }

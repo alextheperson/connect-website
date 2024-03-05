@@ -1256,60 +1256,7 @@ class PresetInput {
 
   currentPreset;
 
-  defaultPresets = `[
-    {
-      id: 'tictactoe',
-      name: 'Tic Tac Toe',
-      options: {
-        allowDiagonals: true,
-        allowSpectators: false,
-        boardHeight: 3,
-        boardWidth: 3,
-        doGravity: false,
-        engine: 'standard-engine',
-        gravityAngle: '0,1',
-        numPlayers: '2',
-        numToConnect: 3,
-        pieces: '1,1',
-        preset: 'tictactoe',
-        turnPattern: '0-0,1-1',
-      },
-    },
-    {
-      id: 'gomomku',
-      name: 'Gomomku',
-      options: {
-        turnPattern: '0-0,1-1',
-        pieces: '1,1',
-        gravityAngle: '0,1',
-        doGravity: false,
-        allowDiagonals: true,
-        numToConnect: 5,
-        boardHeight: 15,
-        boardWidth: 15,
-        allowSpectators: false,
-        numPlayers: '2',
-        engine: 'standard-engine',
-      },
-    },
-    {
-      id: 'playertictactoe',
-      name: '3 Player Tic Tac Toe',
-      options: {
-        turnPattern: '0-0,1-1,2-2',
-        pieces: '1,1,1',
-        gravityAngle: '0,1',
-        doGravity: false,
-        allowDiagonals: true,
-        numToConnect: 3,
-        boardHeight: 6,
-        boardWidth: 6,
-        allowSpectators: false,
-        numPlayers: '2',
-        engine: 'standard-engine',
-      },
-    },
-  ]`;
+  defaultPresets = `[{"id":"tictactoe","name":"Tic Tac Toe","options":{"allowDiagonals":true,"allowSpectators":false,"boardHeight":3,"boardWidth":3,"doGravity":false,"engine":"standard-engine","gravityAngle":"0,1","numPlayers":"2","numToConnect":3,"pieces":"1,1","preset":"tictactoe","turnPattern":"0-0,1-1"}},{"id":"gomomku","name":"Gomomku","options":{"turnPattern":"0-0,1-1","pieces":"1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":5,"boardHeight":15,"boardWidth":15,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}},{"id":"playertictactoe","name":"3 Player Tic Tac Toe","options":{"turnPattern":"0-0,1-1,2-2","pieces":"1,1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":3,"boardHeight":6,"boardWidth":6,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}}]`;
 
   constructor(name, defaultValue, parent) {
     this.presets = JSON.parse(
