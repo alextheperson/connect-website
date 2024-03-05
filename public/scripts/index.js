@@ -7,6 +7,11 @@ const socket = io(
     .concat('/' + window.location.pathname.split('/').at(-2)),
   {
     reconnection: false,
+    path: window.location.pathname
+      .split('/')
+      .slice(0, -3)
+      .join('/')
+      .concat('/socket.io/'),
   }
 );
 

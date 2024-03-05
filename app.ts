@@ -90,6 +90,12 @@ console.log(`Server listening on port ${port}`);
 const io = new Server(server, {
   path: path.join(process.env.BASE_URL ?? '/', '/socket.io/'),
 });
+console.log(
+  `Socket.io initialized at '${path.join(
+    process.env.BASE_URL ?? '/',
+    '/socket.io/'
+  )}'`
+);
 
 const gameNamespaces = io.of(/^\/[0-9]{3}$/);
 
