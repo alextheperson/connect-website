@@ -63,7 +63,9 @@ document.getElementById('form').addEventListener('submit', (e) => {
   const request = new XMLHttpRequest();
   request.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
-      window.location.pathname += `/${this.responseText}/`;
+      window.location.pathname =
+        window.location.pathname.split('/').slice(0, -1).join('/') +
+        `/game/${this.responseText}/`;
     }
   };
   request.open('POST', 'game');
