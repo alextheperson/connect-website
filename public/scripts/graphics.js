@@ -1,7 +1,44 @@
 class BoardDisplay {
+  /**
+   * @typedef Options
+   * @type {object}
+   * @property {number} roughness
+   * @property {number} bowing
+   * @property {number} seed
+   * @property {string} stroke
+   * @property {number} strokeWidth
+   * @property {string} fill
+   * @property {"hachure"|"solid"|"zigzag"|"cross-hatch"|"dots"|"dashed"|"zigzag-line"} fillStyle
+   * @property {number} fillWeight
+   * @property {number} hachureAngle
+   * @property {number} hachureGap
+   * @property {number} curveStepCount
+   * @property {number} curveFitting
+   * @property {} strokeLineDash
+   * @property {number} strokeLineDashOffset
+   * @property {} fillLineDash
+   * @property {number} fillLineDashOffset
+   * @property {boolean} disableMultiStroke
+   * @property {boolean} disableMultiStrokeFill
+   * @property {number} simplification
+   * @property {number} dashOffset
+   * @property {number} dashGap
+   * @property {number} zigzagOffset
+   * @property {boolean} preserveVertices
+   */
+
   _canvas;
+  /**
+   * @type {HTMLCanvasElement}
+   */
   _element;
+  /**
+   * @type {Object.<string, number>}
+   */
   _pieceShapes = {};
+  /**
+   * @type {Object.<string, number>}
+   */
   _drawnShapes = {};
 
   DRAWERS = [
@@ -23,7 +60,7 @@ class BoardDisplay {
    * @param {number} y1 Y position of the first point
    * @param {number} x2 X position of the second point
    * @param {number} y2 Y position of the second point
-   * @param {object} opts Options
+   * @param {Options} opts Options
    */
   line(x1, y1, x2, y2, opts) {
     let id = `l-${x1}-${y1}-${x2}-${y2}-${opts.stroke}-${opts.strokeWidth}-${opts.fill}-${opts.roughness}`;
@@ -46,7 +83,7 @@ class BoardDisplay {
    * @param {number} x X position of the circle
    * @param {number} y Y position of the circle
    * @param {number} r Radius of the circle
-   * @param {object} opts Options
+   * @param {Options} opts Options
    */
   circle(x, y, r, opts) {
     let id = `c-${x}-${y}-${r}-${opts.stroke}-${opts.strokeWidth}-${opts.fill}-${opts.roughness}`;
@@ -68,7 +105,7 @@ class BoardDisplay {
   /**
    * Draws a polygon on the board
    * @param {number[][]} points The vertices of the polygon
-   * @param {object} opts Options
+   * @param {Options} opts Options
    */
   polygon(points, opts) {
     let id = `p-${JSON.stringify(points)}-${opts.stroke}-${opts.strokeWidth}-${
@@ -95,7 +132,7 @@ class BoardDisplay {
    * @param {number} y Y position of the rectangle
    * @param {number} w Width of the rectangle
    * @param {number} h Height of the rectangle
-   * @param {object} opts Options
+   * @param {Options} opts Options
    */
   rectangle(x, y, w, h, opts) {
     let id = `r-${x}-${y}-${w}-${h}-${opts.stroke}-${opts.strokeWidth}-${opts.fill}-${opts.roughness}`;
@@ -288,11 +325,11 @@ class BoardDisplay {
 
   set width(val) {
     this._element.style.width = val + 'px';
-    this._element.width = val;
+    this._element.width = this._element.offsetWidth;
   }
 
   set height(val) {
     this._element.style.height = val + 'px';
-    this._element.height = val;
+    this._element.height = this._element.offsetHeight;
   }
 }

@@ -19,7 +19,12 @@
 
 #board-container {
   overflow: hidden;
-  display: flex;
+  flex-grow: 1;
+  position: relative;
+}
+
+#board-container canvas {
+  position: absolute;
 }
 
 .cell-image {

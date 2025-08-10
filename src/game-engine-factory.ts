@@ -9,8 +9,8 @@ export class GameEngineFactory {
     switch (settings.engine) {
       case 'standard-engine':
         return new StandardEngine(settings);
-      // case 'fractal-engine':
-      //   return new FractalEngine(settings);
+      case 'fractal-engine':
+        return new FractalEngine(settings);
       case 'gravity-engine':
         return new GravityEngine(settings);
       default:
