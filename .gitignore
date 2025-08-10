@@ -91,8 +91,7 @@ dist/
 # We use TypeScript Here!
 /src/*.js
 /engines/*/server.js
+**/*.js.map
 app.js
 
 dist/
-
-.VSCodeCounter/**/*.*
