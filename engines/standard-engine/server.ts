@@ -1,7 +1,7 @@
-import { GameSetting, TurnPattern, TurnResults, Vector } from '../../src/game';
+import { GameSetting, TurnPattern, TurnResults, Vector, PieceSet } from '../../src/game';
 import { Board, GameEngine, Piece, Player, Turn } from '../../src/game-engine';
 
-Array.prototype.at = function (index) {
+Array.prototype.at = function(index) {
   if (index >= 0) {
     return this[index];
   } else {
@@ -28,7 +28,7 @@ export class StandardEngine implements GameEngine {
     (settings.turnPattern as TurnPattern).forEach((el, i) => {
       this.turns[i] = new Turn(
         i,
-        new Piece(el.piece, settings.pieces[el.piece]),
+        new Piece(el.piece, (settings.pieces as PieceSet)[el.piece]),
         new Player(el.player)
       );
     });
@@ -58,7 +58,7 @@ export class StandardEngine implements GameEngine {
     return this.currentTurn.piece;
   }
 
-  getTurn(playerIndex, pieceIndex): Turn | null {
+  getTurn(playerIndex: number, pieceIndex: number): Turn | null {
     this.turns.map((el) => {
       if (el.player.index === playerIndex && el.piece.index === pieceIndex) {
         return el;
@@ -106,7 +106,7 @@ export class StandardEngine implements GameEngine {
     }
     if (
       this.board.getSpace(x1, y1)?.turn.piece.index !==
-        this.board.getSpace(x2, y2)?.turn.piece.index ||
+      this.board.getSpace(x2, y2)?.turn.piece.index ||
       !this.board.getSpace(x1, y1)?.turn.piece.canWin ||
       !this.board.getSpace(x2, y2)?.turn.piece.canWin
     ) {
@@ -158,10 +158,10 @@ export class StandardEngine implements GameEngine {
             direction: hasWonHorizontal
               ? 'h'
               : hasWonVertical
-              ? 'v'
-              : hasWonDiagonal1
-              ? 'd1'
-              : 'd2',
+                ? 'v'
+                : hasWonDiagonal1
+                  ? 'd1'
+                  : 'd2',
           };
         }
       } else {
@@ -177,7 +177,7 @@ export class StandardEngine implements GameEngine {
     }
   }
 
-  computeGravity(x, y, direction) {
+  computeGravity(x: number, y: number, direction: Vector) {
     let localX = x;
     if (direction.x === 1) {
       localX = 0;

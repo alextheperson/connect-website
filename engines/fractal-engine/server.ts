@@ -1,3 +1,3 @@
-import { GameEngine } from '../../game-engine';
+import { GameEngine } from '../../src/game-engine';
 
-export class FractalEngine implements GameEngine {}
+// export class FractalEngine implements GameEngine { }

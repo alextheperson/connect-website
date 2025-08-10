@@ -1,15 +1,12 @@
-import * as express from 'express';
-import { Namespace, Server } from 'socket.io';
-import * as multer from 'multer';
-import * as fs from 'fs';
-import * as path from 'path';
+import express = require('express');
+import { Server } from 'socket.io';
+import multer = require('multer');
+import fs = require('fs')
+import path = require('path');
 
 import {
   Game,
-  TurnResults,
   type GameSetting,
-  EngineSelection,
-  Vector,
 } from './src/game';
 import { ConfigurationValidator } from './src/configuration-validator';
 
@@ -27,25 +24,41 @@ app.use(express.urlencoded({ extended: true }));
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', (_req, res) => {
   res.sendFile(path.join(__dirname + '/public/html/home.html'));
 });
 
-router.get('/configure', (req, res) => {
+router.get('/configure', (_req, res) => {
   res.sendFile(path.join(__dirname + '/public/html/configuration.html'));
 });
 
-router.get('/game', (req, res) => {
+router.get('/game', (_req, res) => {
   res.sendFile(path.join(__dirname + '/public/html/enter-code.html'));
 });
 
-router.get('/game/:code([0-9]{3})/', (req, res) => {
+router.get('/game/:code/', (req, res) => {
+  if (!req.params.code.match(/^[0-9]{3}$/)) {
+    res.status(400)
+    res.send("The game code is malformed. It should be a three digit numerical code (/[0-9]{3}/)")
+  }
+
   let selectedEngine =
     games.get(req.params.code)?.settings.engine ?? 'standard-engine';
-  res.sendFile(path.join(__dirname + `/engines/${selectedEngine}/page.html`));
+
+  fs.readFile(
+    path.join(__dirname + '/public/html/game.html'),
+    'utf-8',
+    (err, data) => {
+      if (err) {
+        throw err;
+      }
+      res.type('text/html');
+      res.send(data.replace('{{selected-engine}}', selectedEngine));
+    }
+  );
 });
 
-router.get('/engine/:engine(*)/:resource(*)', (req, res) => {
+router.get('/engine/:engine/:resource', (req, res) => {
   let selectedEngine = req.params.engine ?? 'standard-engine';
   if (['server.ts', 'server.js'].includes(req.params.resource)) {
     res.status(400);
@@ -65,7 +78,12 @@ router.post('/game', upload.none(), (req, res) => {
   // res.sendFile(path.join(__dirname + '/public/html/game.html'));
 });
 
-router.get('/tokens/:filename([a-z]+.svg)/:color([0-9a-f]{6})', (req, res) => {
+router.get('/tokens/:filename/:color', (req, res) => {
+  if (!req.params.filename.match(/^[a-z]+\.svg$/) || !req.params.color.match(/^[0-9a-f]{6}$/)) {
+    res.status(400)
+    res.send("The url parameters are malformed. It should be a filename (/[a-z]+\.svg/) and a hex code (/[0-9a-f]{6}/)")
+  }
+
   fs.readFile(
     path.join(__dirname + '/public/assets/tokens/' + req.params.filename),
     'utf-8',

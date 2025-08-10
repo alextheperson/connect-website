@@ -12,6 +12,8 @@ let boardShapes = [];
 function handleStartGame(arg) {
   console.log('start-game', arg);
 
+  document.getElementById("sidebar").innerHTML = `<div id="turns" class="timeline"></div>`;
+
   document.getElementById('lobby').classList.add('hidden');
   document.getElementById('error').classList.add('hidden');
 
@@ -154,9 +156,9 @@ function drawGameEnd(arg) {
         arg.position.x * spaceSize + spaceSize / 2,
         arg.position.y * spaceSize + spaceSize / 2,
         (arg.position.x + gameSettings.numToConnect) * spaceSize -
-          spaceSize / 2,
+        spaceSize / 2,
         (arg.position.y + gameSettings.numToConnect) * spaceSize -
-          spaceSize / 2,
+        spaceSize / 2,
         {
           strokeWidth: 5,
           roughness: 5,
@@ -169,9 +171,9 @@ function drawGameEnd(arg) {
         arg.position.x * spaceSize + spaceSize / 2,
         arg.position.y * spaceSize + spaceSize / 2,
         (arg.position.x - gameSettings.numToConnect) * spaceSize +
-          spaceSize * 1.5,
+        spaceSize * 1.5,
         (arg.position.y + gameSettings.numToConnect) * spaceSize -
-          spaceSize / 2,
+        spaceSize / 2,
         {
           strokeWidth: 5,
           roughness: 5,
@@ -185,8 +187,7 @@ function drawGameEnd(arg) {
   } else {
     document.getElementById(
       'result'
-    ).innerHTML = `<img class="cell-image" src="../../tokens/${
-      SHAPES[arg.turn.player.index]
+    ).innerHTML = `<img class="cell-image" src="../../tokens/${SHAPES[arg.turn.player.index]
     }.svg/ffffff"/> <span>Wins!</span>
     `;
   }
@@ -290,10 +291,10 @@ function computeGravity(x, y) {
       if (
         gameBoard[(i + 1) * gravityAngle.y + localY] === undefined ||
         gameBoard[(i + 1) * gravityAngle.y + localY][
-          (i + 1) * gravityAngle.x + localX
+        (i + 1) * gravityAngle.x + localX
         ] === undefined ||
         gameBoard[(i + 1) * gravityAngle.y + localY][
-          (i + 1) * gravityAngle.x + localX
+        (i + 1) * gravityAngle.x + localX
         ] > -1
       ) {
         return {

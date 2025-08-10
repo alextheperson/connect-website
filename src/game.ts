@@ -19,13 +19,13 @@ export type GameSetting = {
   allowSpectators: boolean;
 
   [index: string]:
-    | number
-    | boolean
-    | string
-    | TurnPattern
-    | PieceSet
-    | GravitySequence
-    | Vector;
+  | number
+  | boolean
+  | string
+  | TurnPattern
+  | PieceSet
+  | GravitySequence
+  | Vector;
 };
 
 export enum TurnResults {
@@ -47,7 +47,7 @@ export class Game {
   id: string;
   settings: GameSetting;
   gameFinished: boolean = false;
-  gameEngine: GameEngine;
+  gameEngine!: GameEngine;
   players: string[];
   spectators: string[];
 

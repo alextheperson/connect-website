@@ -77,8 +77,8 @@ export class ConfigurationValidator {
     'gravity-engine': this.parseOptions(GravityOption),
   };
   values: Record<string, string>;
-  currentEngine: EngineSelection;
-  currentConfiguration: OptionSet;
+  currentEngine!: EngineSelection;
+  currentConfiguration!: OptionSet;
 
   constructor(values: { [index: string]: string }) {
     this.values = values;
@@ -87,8 +87,8 @@ export class ConfigurationValidator {
   parseOptions(config: any) {
     let optionSet: OptionSet = {};
     if (config.sections instanceof Array) {
-      config.sections.forEach((val) => {
-        (val.options ?? []).forEach((option) => {
+      config.sections.forEach((val: any) => {
+        (val.options ?? []).forEach((option: any) => {
           optionSet = { [option.name ?? '_']: option, ...optionSet };
         });
       });
@@ -262,7 +262,7 @@ export class ConfigurationValidator {
   validate() {
     if (
       this.values.engine !== undefined &&
-      this.configurationSets[this.values.engine] !== undefined
+      this.configurationSets[this.values.engine as EngineSelection] !== undefined
     ) {
       this.currentEngine = this.values.engine as EngineSelection;
       this.currentConfiguration = this.configurationSets[this.currentEngine];

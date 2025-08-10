@@ -52,7 +52,7 @@ export interface GameEngine {
    * @param pieceIndex The piece that is played on the turn
    * @returns The turn or `null` if the turn does not exist
    */
-  getTurn(playerIndex, pieceIndex): Turn | null;
+  getTurn(playerIndex: number, pieceIndex: number): Turn | null;
 }
 
 /**
@@ -252,7 +252,7 @@ export class Board {
    * @param y The y coordinate of the space
    * @returns Whether the space is on the board
    */
-  isInBounds(x, y) {
+  isInBounds(x: number, y: number) {
     return y >= 0 && y < this.height && x >= 0 && x < this.width;
   }
 }
