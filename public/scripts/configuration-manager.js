@@ -95,6 +95,14 @@ class NumberInput {
 
   _listeners = [];
 
+  /**
+   * @param {string} name
+   * @param {string} label
+   * @param {number} defaultValue
+   * @param {number} minimum
+   * @param {number} maximum
+   * @param {HTMLElement} parent
+   */
   constructor(name, label, defaultValue, minimum, maximum, parent) {
     this._defaultValue = defaultValue;
     this._minimum = minimum;
@@ -411,6 +419,12 @@ class EnumInput {
 }
 
 class VectorInput extends EnumInput {
+  /**
+   * @param {string} name
+   * @param {string} label
+   * @param {0,-1'|'1,-1'|'1,0'|'1,1'|'0,1'|'-1,1'|'-1,0'|'-1,-1'} defaultValue
+   * @param {HTMLElement} parent
+  */
   constructor(name, label, defaultValue, parent) {
     super(
       name,
@@ -455,6 +469,15 @@ class PiecesInput {
 
   _listeners = [];
 
+  /**
+   * @param {string} name
+   * @param {string} label
+   * @param {string} defaultValue
+   * @param {number} minimumPieces
+   * @param {number} maximumPieces
+   * @param {boolean} canWinDefault
+   * @param {HTMLElement} parent
+   */
   constructor(
     name,
     label,
@@ -720,6 +743,16 @@ class TurnsInput {
 
   _listeners = [];
 
+  /**
+   * @param {string} name
+   * @param {string} label
+   * @param {string} defaultValue
+   * @param {number} players
+   * @param {number} pieces
+   * @param {number} minimumTurns
+   * @param {number} maximumTurns
+   * @param {HTMLElement} parent
+   */
   constructor(
     name,
     label,
@@ -1050,6 +1083,14 @@ class DirectionsInput {
 
   _listeners = [];
 
+  /**
+   * @param {string} name
+   * @param {string} label
+   * @param {string} defaultValue
+   * @param {number} minimumTurns
+   * @param {number} maximumTurns
+   * @param {HTMLElement} parent
+   */
   constructor(name, label, defaultValue, minimumTurns, maximumTurns, parent) {
     this._defaultValue = defaultValue;
     this._minimumTurns = minimumTurns;
