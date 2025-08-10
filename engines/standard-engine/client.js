@@ -30,35 +30,53 @@ function handleStartGame(arg) {
     }
   });
   canvas._element.addEventListener('click', click);
+  createCells();
   createRulesList();
   turnManager.update(0);
 
-  window.addEventListener('resize', drawBoard);
+  window.addEventListener('resize', createCells);
 }
 
-function sizeCanvas() {
-  const windowAspectRatio =
-    document.body.offsetWidth / document.body.offsetHeight;
-  const boardAspectRatio = gameSettings.boardWidth / gameSettings.boardHeight;
-
+function createCells() {
+  canvas.width = 1;
+  canvas.height = 1;
+  const isWide = document.body.offsetHeight < document.body.offsetWidth;
   document.getElementById('game').classList.remove('row', 'column');
-  document
-    .getElementById('game')
-    .classList.add(boardAspectRatio < windowAspectRatio ? 'row' : 'column');
-
-  canvas._element.style.aspectRatio = `${gameSettings.boardWidth} / ${gameSettings.boardHeight}`;
-
+  document.getElementById('game').classList.add(isWide ? 'row' : 'column');
+  const sidePanelWidth = isWide
+    ? turnManager._element.offsetWidth + 60
+    : turnManager._element.offsetHeight + 60;
+  const aspectRatio = gameSettings.boardWidth / gameSettings.boardHeight;
   const areaWidth = boardContainer.offsetWidth;
   const areaHeight = boardContainer.offsetHeight;
+  if (isWide) {
+    const targetWidth = aspectRatio * areaHeight;
+    const targetHeight = areaHeight;
+    let scaleOffset = 1;
+    if (targetWidth > document.body.offsetWidth - sidePanelWidth) {
+      scaleOffset = (document.body.offsetWidth - sidePanelWidth) / targetWidth;
+    }
+    canvas.width = targetWidth * scaleOffset;
+    canvas.height = targetHeight * scaleOffset;
+  } else {
+    const targetWidth = areaWidth;
+    const targetHeight = aspectRatio * areaWidth;
+    let scaleOffset = 1;
+    if (targetHeight > document.body.offsetHeight - sidePanelWidth) {
+      scaleOffset = (document.body.offsetHeight - sidePanelWidth) / targetWidth;
+    }
+    canvas.width = areaWidth * scaleOffset;
+    canvas.height = targetHeight * scaleOffset;
+  }
 
-  const horizontalScale = areaWidth / boardAspectRatio;
-  const verticalScale = areaHeight;
-  canvas.width = boardAspectRatio * Math.min(horizontalScale, verticalScale);
-  canvas.height = Math.min(horizontalScale, verticalScale);
+  spaceSize = canvas._element.offsetWidth / gameSettings.boardWidth;
 
-  spaceSize = Math.min(
-    canvas._element.offsetWidth / gameSettings.boardWidth,
-    canvas._element.offsetHeight / gameSettings.boardHeight
+  canvas.grid(
+    0,
+    0,
+    gameSettings.boardWidth,
+    gameSettings.boardHeight,
+    spaceSize
   );
 }
 
@@ -67,8 +85,13 @@ function createRulesList() {
 }
 
 function drawBoard() {
-  sizeCanvas();
   let padding = spaceSize / 20;
+  canvas.erase();
+  let aspectRatio = gameSettings.boardWidth / gameSettings.boardHeight;
+  canvas.width = aspectRatio * canvas._element.offsetHeight;
+  canvas.height = canvas._element.offsetHeight;
+
+  spaceSize = canvas._element.width / gameSettings.boardWidth;
 
   canvas.grid(
     0,
@@ -79,12 +102,12 @@ function drawBoard() {
   );
   for (let y = 0; y < gameBoard.length; y++) {
     for (let x = 0; x < gameBoard[0].length; x++) {
-      if (gameBoard[y][x] !== null) {
-        canvas.DRAWERS[gameBoard[y][x].player.index](
+      if (gameBoard[y][x] > -1) {
+        canvas.DRAWERS[gameSettings.turnPattern[gameBoard[y][x]].player](
           x * spaceSize + padding,
           y * spaceSize + padding,
           spaceSize - padding * 2,
-          `#${COLORS[gameBoard[y][x].piece.index]}`,
+          `#${COLORS[gameSettings.turnPattern[gameBoard[y][x]].piece]}`,
           canvas
         );
       }
@@ -99,26 +122,71 @@ function drawGameEnd(arg) {
   console.log('game-end', arg);
   gameFinished = true;
   ending = arg;
+  switch (arg.direction) {
+    case 'h':
+      canvas.line(
+        arg.position.x * spaceSize,
+        arg.position.y * spaceSize + spaceSize / 2,
+        (arg.position.x + gameSettings.numToConnect) * spaceSize,
+        arg.position.y * spaceSize + spaceSize / 2,
+        {
+          strokeWidth: 5,
+          roughness: 5,
+          stroke: `#${COLORS[arg.turn.piece.index]}`,
+        }
+      );
+      break;
+    case 'v':
+      canvas.line(
+        arg.position.x * spaceSize + spaceSize / 2,
+        arg.position.y * spaceSize,
+        arg.position.x * spaceSize + spaceSize / 2,
+        (arg.position.y + gameSettings.numToConnect) * spaceSize,
+        {
+          strokeWidth: 5,
+          roughness: 5,
+          stroke: `#${COLORS[arg.turn.piece.index]}`,
+        }
+      );
+      break;
+    case 'd1':
+      canvas.line(
+        arg.position.x * spaceSize + spaceSize / 2,
+        arg.position.y * spaceSize + spaceSize / 2,
+        (arg.position.x + gameSettings.numToConnect) * spaceSize -
+          spaceSize / 2,
+        (arg.position.y + gameSettings.numToConnect) * spaceSize -
+          spaceSize / 2,
+        {
+          strokeWidth: 5,
+          roughness: 5,
+          stroke: `#${COLORS[arg.turn.piece.index]}`,
+        }
+      );
+      break;
+    case 'd2':
+      canvas.line(
+        arg.position.x * spaceSize + spaceSize / 2,
+        arg.position.y * spaceSize + spaceSize / 2,
+        (arg.position.x - gameSettings.numToConnect) * spaceSize +
+          spaceSize * 1.5,
+        (arg.position.y + gameSettings.numToConnect) * spaceSize -
+          spaceSize / 2,
+        {
+          strokeWidth: 5,
+          roughness: 5,
+          stroke: `#${COLORS[arg.turn.piece.index]}`,
+        }
+      );
+      break;
+  }
   if (arg['outcome'] === 2) {
     document.getElementById('result').innerHTML = 'DRAW';
   } else {
-    let startPos = arg.lines.at(0).cells[0].coords;
-    let endPos = arg.lines.at(-1).cells[0].coords;
-    canvas.line(
-      startPos[0] * spaceSize,
-      startPos[1] * spaceSize + spaceSize / 2,
-      endPos[0] * spaceSize,
-      endPos[1] + spaceSize / 2,
-      {
-        strokeWidth: 5,
-        roughness: 5,
-        stroke: `#${COLORS[arg.turn.piece.index]}`,
-      }
-    );
     document.getElementById(
       'result'
     ).innerHTML = `<img class="cell-image" src="../../tokens/${
-      SHAPES[arg.player.index]
+      SHAPES[arg.turn.player.index]
     }.svg/ffffff"/> <span>Wins!</span>
     `;
   }

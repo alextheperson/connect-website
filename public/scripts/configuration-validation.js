@@ -23,7 +23,7 @@ function load(currentEngine) {
           options: [
             { value: 'standard-engine', displayName: 'Standard Engine' },
             { value: 'gravity-engine', displayName: 'Gravity Engine' },
-            { value: 'fractal-engine', displayName: 'Fractal Engine' },
+            // { value: 'fractal-engine', displayName: 'Fractal Engine' },
           ],
         },
       ],
@@ -31,7 +31,6 @@ function load(currentEngine) {
   ]);
 
   inputs['engine'].subscribe((val) => {
-    presetManager.currentPreset = '-';
     const req = new XMLHttpRequest();
     req.addEventListener('load', (req) => {
       load(val);
@@ -39,8 +38,8 @@ function load(currentEngine) {
       parseSections(JSON.parse(req.target.response).sections);
 
       for (let i = 0; i < Object.keys(inputs).length; i++) {
-        Object.values(inputs)[i].subscribe((val2) => {
-          presetManager.receiveUpdate(Object.keys(inputs)[i], val2);
+        Object.values(inputs)[i].subscribe((val) => {
+          presetManager.receiveUpdate(Object.keys(inputs)[i], val);
         });
       }
       presetManager.applyPreset();

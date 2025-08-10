@@ -90,11 +90,8 @@ dist/
 
 # We use TypeScript Here!
 /src/*.js
-/src/*.js.map
 /engines/*/server.js
-/engines/*/server.js.map
 app.js
-app.js.map
 
 dist/
 

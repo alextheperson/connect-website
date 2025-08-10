@@ -1,20 +1,18 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "module": "nodenext",
+    "module": "system",
     "noImplicitAny": true,
+    "removeComments": true,
     "preserveConstEnums": true,
-    "resolveJsonModule": true,
+    "outFile": "../../built/local/tsc.js",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "lib": ["ES2020"],
     "esModuleInterop": true,
-    "target": "esnext",
+    "skipLibCheck": true
   },
-  "include": [
-    "public/**/*",
-    "src/**/*",
-    "engines/**/*",
-    "app.ts"
-  ],
+  "include": ["public/**/*", "src/**/*", "app.ts"],
+  "exclude": ["**/*.spec.ts"]
 }

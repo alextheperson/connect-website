@@ -1,6 +1,7 @@
-import * as FractalOption from '../engines/fractal-engine/options.json';
-import * as GravityOption from '../engines/gravity-engine/options.json';
+import * as fs from 'fs';
+import * as path from 'path';
 import * as StandardOption from '../engines/standard-engine/options.json';
+import * as GravityOption from '../engines/gravity-engine/options.json';
 import {
   EngineSelection,
   GameSetting,
@@ -8,6 +9,7 @@ import {
   TurnPattern,
   Vector,
 } from './game';
+import { Piece } from './game-engine';
 
 export type OptionType =
   | 'number'
@@ -73,7 +75,6 @@ export class ConfigurationValidator {
   configurationSets: Record<EngineSelection, OptionSet> = {
     'standard-engine': this.parseOptions(StandardOption),
     'gravity-engine': this.parseOptions(GravityOption),
-    'fractal-engine': this.parseOptions(FractalOption),
   };
   values: Record<string, string>;
   currentEngine: EngineSelection;
@@ -81,15 +82,13 @@ export class ConfigurationValidator {
 
   constructor(values: { [index: string]: string }) {
     this.values = values;
-    this.currentEngine = values["engine"] as EngineSelection;
-    this.currentConfiguration = this.configurationSets[this.currentEngine]
   }
 
   parseOptions(config: any) {
     let optionSet: OptionSet = {};
     if (config.sections instanceof Array) {
-      config.sections.forEach((val: any) => {
-        (val.options ?? []).forEach((option: any) => {
+      config.sections.forEach((val) => {
+        (val.options ?? []).forEach((option) => {
           optionSet = { [option.name ?? '_']: option, ...optionSet };
         });
       });
@@ -263,7 +262,7 @@ export class ConfigurationValidator {
   validate() {
     if (
       this.values.engine !== undefined &&
-      this.configurationSets[this.values.engine as EngineSelection] !== undefined
+      this.configurationSets[this.values.engine] !== undefined
     ) {
       this.currentEngine = this.values.engine as EngineSelection;
       this.currentConfiguration = this.configurationSets[this.currentEngine];

@@ -1,12 +1,15 @@
-import express from 'express';
-import { Server } from 'socket.io';
-import multer from 'multer';
+import * as express from 'express';
+import { Namespace, Server } from 'socket.io';
+import * as multer from 'multer';
 import * as fs from 'fs';
 import * as path from 'path';
 
 import {
   Game,
+  TurnResults,
   type GameSetting,
+  EngineSelection,
+  Vector,
 } from './src/game';
 import { ConfigurationValidator } from './src/configuration-validator';
 
@@ -65,16 +68,14 @@ router.post('/game', upload.none(), (req, res) => {
 router.get('/tokens/:filename([a-z]+.svg)/:color([0-9a-f]{6})', (req, res) => {
   fs.readFile(
     path.join(__dirname + '/public/assets/tokens/' + req.params.filename),
-    'UTF-8',
+    'utf-8',
     (err, data) => {
       if (err) {
         throw err;
       }
       res.type('image/svg+xml');
       res.set('Cache-Control', 'public, max-age=31557600'); // one year
-      res.send(
-        (data as unknown as string).replace('{{color}}', '#' + req.params.color)
-      );
+      res.send(data.replace('{{color}}', '#' + req.params.color));
     }
   );
 });
@@ -143,7 +144,7 @@ gameNamespaces.on('connection', (socket) => {
 
   socket.on('place-token', (arg) => {
     if (currentGame) {
-      currentGame.placeToken(socket.id, arg);
+      let result = currentGame.placeToken(socket.id, arg.x, arg.y);
     }
   });
 });

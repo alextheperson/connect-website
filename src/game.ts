@@ -1,10 +1,7 @@
 import { Namespace } from 'socket.io';
 import { GameEngine } from './game-engine';
 import { GameEngineFactory } from './game-engine-factory';
-export type EngineSelection =
-  | 'fractal-engine'
-  | 'gravity-engine'
-  | 'standard-engine';
+export type EngineSelection = 'gravity-engine' | 'standard-engine';
 export type Vector = {
   x: 0 | 1 | -1;
   y: 0 | 1 | -1;
@@ -22,13 +19,13 @@ export type GameSetting = {
   allowSpectators: boolean;
 
   [index: string]:
-  | number
-  | boolean
-  | string
-  | TurnPattern
-  | PieceSet
-  | GravitySequence
-  | Vector;
+    | number
+    | boolean
+    | string
+    | TurnPattern
+    | PieceSet
+    | GravitySequence
+    | Vector;
 };
 
 export enum TurnResults {
@@ -50,7 +47,7 @@ export class Game {
   id: string;
   settings: GameSetting;
   gameFinished: boolean = false;
-  gameEngine!: GameEngine;
+  gameEngine: GameEngine;
   players: string[];
   spectators: string[];
 
@@ -136,11 +133,11 @@ export class Game {
     this.namespace.emit('game-state', this.gameEngine.sendGameState());
   }
 
-  placeToken(id: string, arg: any) {
+  placeToken(id: string, x: number, y: number) {
     if (
       // !this.gameFinished ||
       this.players.indexOf(id) !== this.gameEngine.currentPlayer.index ||
-      !this.gameEngine.placeToken(arg, this.gameEngine.currentTurn)
+      !this.gameEngine.placeToken(x, y, this.gameEngine.currentTurn)
     ) {
       this.namespace.emit('invalid-move');
     }
