@@ -10,10 +10,22 @@
           "type": "enum",
           "defaultValue": 2,
           "options": [
-            { "value": 2, "displayName": 2 },
-            { "value": 3, "displayName": 3 },
-            { "value": 4, "displayName": 4 },
-            { "value": 5, "displayName": 5 }
+            {
+              "value": 2,
+              "displayName": 2
+            },
+            {
+              "value": 3,
+              "displayName": 3
+            },
+            {
+              "value": 4,
+              "displayName": 4
+            },
+            {
+              "value": 5,
+              "displayName": 5
+            }
           ]
         },
         {
@@ -47,7 +59,10 @@
           "type": "number",
           "defaultValue": 3,
           "minimum": 3,
-          "maximum": ["boardWidth", "boardHeight"]
+          "maximum": [
+            "boardWidth",
+            "boardHeight"
+          ]
         },
         {
           "name": "allowDiagonals",
@@ -86,9 +101,15 @@
           "label": "Turns",
           "type": "turns",
           "defaultValue": "0-0,1-1",
-          "minimumTurns": ["numPlayers"],
-          "players": 3,
-          "pieces": ["pieces"]
+          "minimumTurns": [
+            "numPlayers"
+          ],
+          "players": [
+            "numPlayers"
+          ],
+          "pieces": [
+            "pieces"
+          ]
         }
       ]
     }

@@ -24,7 +24,6 @@ function handleStartGame(arg) {
   document.getElementById('game').classList.remove('hidden');
   boardContainer = document.getElementById('board-container');
   canvas = new BoardDisplay('board');
-  // canvas.rectangle(10, 10, 200, 200); // x, y, width, height
   canvas._element.addEventListener('mousemove', hover);
   canvas._element.addEventListener('mouseout', () => {
     if (!gameFinished) {

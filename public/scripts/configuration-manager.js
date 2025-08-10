@@ -5,6 +5,13 @@ class TextInput {
 
   _listeners = [];
 
+  /**
+   * @param {string} name
+   * @param {string} label
+   * @param {string} defaultValue
+   * @param {string} placeholder
+   * @param {HTMLElement} parent
+   */
   constructor(name, label, defaultValue, placeholder, parent) {
     this._input = document.createElement('input');
     this._input.id = name;
@@ -297,6 +304,14 @@ class EnumInput {
 
   _listeners = [];
 
+  /**
+   * @param {string} name
+   * @param {string?} label
+   * @param {string} defaultValue
+   * @param {boolean} multiline
+   * @param {{displayName:string|number,value:string|number}[]} options
+   * @param {HTMLElement} parent
+   */
   constructor(name, label, defaultValue, multiline, options, parent) {
     this._defaultValue = defaultValue;
     this._options = options;
@@ -849,7 +864,7 @@ class TurnsInput {
       this._tbody.appendChild(
         this.drawRow(
           i,
-          this._rowValues[i].player,
+          Math.min(this._rowValues[i].player, this.players - 1),
           this._rowValues[i].piece,
           i >= this.minimumTurns
         )
@@ -939,11 +954,11 @@ class TurnsInput {
   }
 
   get players() {
-    return this._players ?? '1'; //.split(',').length;
+    return this._players ?? '2';
   }
 
   set players(val) {
-    this._players = val;
+    this._players = parseInt(val);
 
     this.drawRows();
   }
@@ -1256,7 +1271,12 @@ class PresetInput {
 
   currentPreset;
 
-  defaultPresets = `[{"id":"tictactoe","name":"Tic Tac Toe","options":{"allowDiagonals":true,"allowSpectators":false,"boardHeight":3,"boardWidth":3,"doGravity":false,"engine":"standard-engine","gravityAngle":"0,1","numPlayers":"2","numToConnect":3,"pieces":"1,1","preset":"tictactoe","turnPattern":"0-0,1-1"}},{"id":"gomomku","name":"Gomomku","options":{"turnPattern":"0-0,1-1","pieces":"1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":5,"boardHeight":15,"boardWidth":15,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}},{"id":"playertictactoe","name":"3 Player Tic Tac Toe","options":{"turnPattern":"0-0,1-1,2-2","pieces":"1,1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":3,"boardHeight":6,"boardWidth":6,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}}]`;
+  defaultPresets = `[
+{"id":"tictactoe","name":"Tic Tac Toe","options":{"allowDiagonals":true,"allowSpectators":false,"boardHeight":3,"boardWidth":3,"doGravity":false,"engine":"standard-engine","gravityAngle":"0,1","numPlayers":"2","numToConnect":3,"pieces":"1,1","preset":"tictactoe","turnPattern":"0-0,1-1"}},
+{"id":"gomomku","name":"Gomomku","options":{"turnPattern":"0-0,1-1","pieces":"1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":5,"boardHeight":15,"boardWidth":15,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}},
+{"id":"connect4","name":"Connect 4","options":{"turnPattern":"0-0,1-1","pieces":"1,1","gravityAngle":"0,1","doGravity":true,"allowDiagonals":true,"numToConnect":4,"boardHeight":6,"boardWidth":7,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}},
+{"id":"3playertictactoe","name":"3 Player Tic Tac Toe","options":{"turnPattern":"0-0,1-1,2-2","pieces":"1,1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":3,"boardHeight":6,"boardWidth":6,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}}
+]`;
 
   constructor(name, defaultValue, parent) {
     this.presets = JSON.parse(
@@ -1404,7 +1424,7 @@ class PresetInput {
       JSON.stringify([
         ...this.presets,
         {
-          id: this._nameInput.value.replaceAll(/[^a-zA-Z]*/g, '').toLowerCase(),
+          id: this._nameInput.value.replaceAll(/[^a-zA-Z0-9]*/g, '').toLowerCase(),
           name: this._nameInput.value,
           options: preset,
         },
@@ -1431,7 +1451,7 @@ class PresetInput {
     this.updateDisplay();
   }
 
-  update() {}
+  update() { }
 
   receiveUpdate(inputName, value) {
     this.edit();
@@ -1522,5 +1542,5 @@ class ConfigurationIssue {
    * @param {string} message The content of the issue
    * @param {"message"|"warning"|"error"} level The level of the issue.
    */
-  constructor(message, level) {}
+  constructor(message, level) { }
 }
