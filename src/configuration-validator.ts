@@ -1,7 +1,9 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as StandardOption from '../engines/standard-engine/options.json';
-import * as GravityOption from '../engines/gravity-engine/options.json';
+import * as GeneralOptions from '../engines/general-options.json'
+import * as StandardOptions from '../engines/standard-engine/options.json';
+import * as GravityOptions from '../engines/gravity-engine/options.json';
+import * as FractalOptions from '../engines/standard-engine/options.json';
+import * as HexagonalOptions from '../engines/gravity-engine/options.json';
+
 import {
   EngineSelection,
   GameSetting,
@@ -9,7 +11,6 @@ import {
   TurnPattern,
   Vector,
 } from './game';
-import { Piece } from './game-engine';
 
 export type OptionType =
   | 'number'
@@ -40,7 +41,7 @@ export interface BooleanOption extends Option {
 export interface EnumOption extends Option {
   type: 'enum';
   options: {
-    value: string;
+    value: string | number;
     displayName: string;
   }[];
 }
@@ -73,8 +74,10 @@ export type OptionSet = { [index: string]: Option };
 
 export class ConfigurationValidator {
   configurationSets: Record<EngineSelection, OptionSet> = {
-    'standard-engine': this.parseOptions(StandardOption),
-    'gravity-engine': this.parseOptions(GravityOption),
+    'standard-engine': this.parseOptions(StandardOptions),
+    'gravity-engine': this.parseOptions(GravityOptions),
+    'fractal-engine': this.parseOptions(FractalOptions),
+    'hexagonal-engine': this.parseOptions(HexagonalOptions),
   };
   values: Record<string, string>;
   currentEngine!: EngineSelection;
@@ -86,6 +89,15 @@ export class ConfigurationValidator {
 
   parseOptions(config: any) {
     let optionSet: OptionSet = {};
+
+    if (GeneralOptions.sections instanceof Array) {
+      GeneralOptions.sections.forEach((val: any) => {
+        (val.options ?? []).forEach((option: any) => {
+          optionSet = { [option.name ?? '_']: option, ...optionSet };
+        });
+      });
+    }
+
     if (config.sections instanceof Array) {
       config.sections.forEach((val: any) => {
         (val.options ?? []).forEach((option: any) => {
@@ -93,6 +105,7 @@ export class ConfigurationValidator {
         });
       });
     }
+
     return optionSet;
   }
   /**

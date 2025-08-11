@@ -1,7 +1,7 @@
 import { Namespace } from 'socket.io';
 import { GameEngine } from './game-engine';
 import { GameEngineFactory } from './game-engine-factory';
-export type EngineSelection = 'gravity-engine' | 'standard-engine';
+export type EngineSelection = 'gravity-engine' | 'standard-engine' | "fractal-engine" | "hexagonal-engine";
 export type Vector = {
   x: 0 | 1 | -1;
   y: 0 | 1 | -1;
