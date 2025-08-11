@@ -5,18 +5,11 @@
       "name": "Board",
       "options": [
         {
-          "name": "boardWidth",
-          "label": "Board Width",
+          "name": "sideLength",
+          "label": "Side Length",
           "type": "number",
-          "defaultValue": 3,
-          "minimum": 3
-        },
-        {
-          "name": "boardHeight",
-          "label": "Board Height",
-          "type": "number",
-          "defaultValue": 3,
-          "minimum": 3
+          "defaultValue": 2,
+          "minimum": 2
         },
         {
           "name": "numToConnect",
@@ -25,27 +18,14 @@
           "defaultValue": 3,
           "minimum": 3,
           "maximum": [
-            "boardWidth",
-            "boardHeight"
+            "sideLength"
           ]
         },
         {
           "name": "allowDiagonals",
           "label": "Allow Diagonals",
           "type": "boolean",
-          "defaultValue": true
-        },
-        {
-          "name": "doGravity",
-          "label": "Do Gravity",
-          "type": "boolean",
           "defaultValue": false
-        },
-        {
-          "name": "gravityAngle",
-          "label": "Gravity Angle",
-          "type": "vector",
-          "defaultValue": "0,1"
         }
       ]
     },
@@ -69,9 +49,7 @@
           "minimumTurns": [
             "numPlayers"
           ],
-          "players": [
-            "numPlayers"
-          ],
+          "players": 3,
           "pieces": [
             "pieces"
           ]

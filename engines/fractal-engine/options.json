@@ -30,22 +30,55 @@
           ]
         },
         {
+          "name": "depth",
+          "label": "Depth",
+          "type": "number",
+          "defaultValue": 2,
+          "minimum": 2
+        },
+        {
           "name": "allowDiagonals",
           "label": "Allow Diagonals",
           "type": "boolean",
           "defaultValue": true
         },
         {
-          "name": "doGravity",
-          "label": "Do Gravity",
-          "type": "boolean",
-          "defaultValue": false
+          "name": "boardVictoryBehavior",
+          "label": "When a Board is Won,",
+          "type": "enum",
+          "multiline": true,
+          "options": [
+            {
+              "value": "block",
+              "displayName": "The other player cannot win or move there."
+            },
+            {
+              "value": "unwinnable",
+              "displayName": "The other player can move there, but not win."
+            },
+            {
+              "value": "superposition",
+              "displayName": "The other player can win the board too."
+            }
+          ],
+          "defaultValue": "block"
         },
         {
-          "name": "gravityAngle",
-          "label": "Gravity Angle",
-          "type": "vector",
-          "defaultValue": "0,1"
+          "name": "fullBoardBehavior",
+          "label": "When Moving to a Full Board,",
+          "type": "enum",
+          "multiline": true,
+          "options": [
+            {
+              "value": "anywhere",
+              "displayName": "You can move anywhere."
+            },
+            {
+              "value": "illegal",
+              "displayName": "The square cannot be played."
+            }
+          ],
+          "defaultValue": "anywhere"
         }
       ]
     },
@@ -69,15 +102,12 @@
           "minimumTurns": [
             "numPlayers"
           ],
-          "players": [
-            "numPlayers"
-          ],
+          "players": 3,
           "pieces": [
             "pieces"
           ]
         }
       ]
     }
-  ],
-  "issueDetection": true
+  ]
 }

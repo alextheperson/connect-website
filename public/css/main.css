@@ -40,6 +40,7 @@ h1 {
   line-height: 1.1;
   text-align: center;
 }
+
 h2 {
   font-size: 2.2em;
   line-height: 1.1;
@@ -53,6 +54,10 @@ select {
 
 select {
   min-width: 3em;
+}
+
+input[type='number'] {
+  width: 5em;
 }
 
 .main-panel {
@@ -87,11 +92,13 @@ input[type='submit'] {
   flex-grow: 1;
   text-align: center;
 }
+
 button:hover,
 a.button:hover,
 input[type='submit']:hover {
   border-color: var(--primary-color);
 }
+
 button:focus,
 a.button:focus,
 input[type='submit']:focus,
@@ -108,6 +115,7 @@ input[type='submit'].primary.primary {
   color: var(--primary-color);
   text-decoration: inherit;
 }
+
 a:hover,
 a.button.primary:hover,
 button.primary:hover,
@@ -188,6 +196,7 @@ input.big {
     --background: #eeeeee;
     --background-dark: #dddddd;
   }
+
   fieldset {
     border-color: color-mix(in srgb, currentColor 50%, #fff 50%);
   }
@@ -257,15 +266,15 @@ tfoot tr:hover {
   border-left: 3px solid #08b93a;
 }
 
-input + label,
-select + label,
-input + input,
-select + input,
-input + select,
-select + select {
+input+label,
+select+label,
+input+input,
+select+input,
+input+select,
+select+select {
   margin-left: 0.5em;
 }
 
-br + label + br + select {
+br+label+br+select {
   margin-left: 0.5em;
 }

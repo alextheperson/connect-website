@@ -58,6 +58,12 @@ router.get('/game/:code/', (req, res) => {
   );
 });
 
+router.get('/config/:resource', (req, res) => {
+  res.sendFile(
+    path.join(__dirname + `/engines/${req.params.resource}`)
+  );
+})
+
 router.get('/engine/:engine/:resource', (req, res) => {
   let selectedEngine = req.params.engine ?? 'standard-engine';
   if (['server.ts', 'server.js'].includes(req.params.resource)) {

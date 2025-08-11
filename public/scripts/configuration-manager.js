@@ -45,6 +45,8 @@ class TextInput {
    */
   subscribe(cb) {
     this._listeners.push(cb);
+
+    // this.update();
   }
 
   get value() {
@@ -151,6 +153,8 @@ class NumberInput {
    */
   subscribe(cb) {
     this._listeners.push(cb);
+
+    // this.update();
   }
 
   get value() {
@@ -198,6 +202,8 @@ class NumberInput {
       parent
     );
 
+    addInput(config.name, input);
+
     if (typeof config.minimum === 'object') {
       for (let i = 0; i < config.minimum.length; i++) {
         getInput(config.minimum[i]).subscribe((val) => {
@@ -227,8 +233,6 @@ class NumberInput {
         });
       }
     }
-
-    addInput(config.name, input);
   }
 }
 
@@ -276,6 +280,8 @@ class BooleanInput {
    */
   subscribe(cb) {
     this._listeners.push(cb);
+
+    // this.update();
   }
 
   get value() {
@@ -317,7 +323,7 @@ class EnumInput {
    * @param {string?} label
    * @param {string} defaultValue
    * @param {boolean} multiline
-   * @param {{displayName:string|number,value:string|number}[]} options
+   * @param {{displayName:string,value:string|number}[]} options
    * @param {HTMLElement} parent
    */
   constructor(name, label, defaultValue, multiline, options, parent) {
@@ -333,7 +339,7 @@ class EnumInput {
 
     this.value = this._defaultValue;
 
-    if (!multiline) {
+    if (!(multiline ?? false)) {
       parent.appendChild(this._input);
     }
 
@@ -364,6 +370,8 @@ class EnumInput {
    */
   subscribe(cb) {
     this._listeners.push(cb);
+
+    // this.update();
   }
 
   drawOptions() {
@@ -422,7 +430,7 @@ class VectorInput extends EnumInput {
   /**
    * @param {string} name
    * @param {string} label
-   * @param {0,-1'|'1,-1'|'1,0'|'1,1'|'0,1'|'-1,1'|'-1,0'|'-1,-1'} defaultValue
+   * @param {'0,-1'|'1,-1'|'1,0'|'1,1'|'0,1'|'-1,1'|'-1,0'|'-1,-1'} defaultValue
    * @param {HTMLElement} parent
   */
   constructor(name, label, defaultValue, parent) {
@@ -443,7 +451,6 @@ class VectorInput extends EnumInput {
       ],
       parent
     );
-    console.log(this.value);
   }
 
   static parseConfig(config, parent) {
@@ -614,6 +621,8 @@ class PiecesInput {
    */
   subscribe(cb) {
     this._listeners.push(cb);
+
+    // this.update();
   }
 
   get value() {
@@ -747,8 +756,8 @@ class TurnsInput {
    * @param {string} name
    * @param {string} label
    * @param {string} defaultValue
-   * @param {number} players
-   * @param {number} pieces
+   * @param {number|string} players
+   * @param {string} pieces
    * @param {number} minimumTurns
    * @param {number} maximumTurns
    * @param {HTMLElement} parent
@@ -764,14 +773,16 @@ class TurnsInput {
     parent
   ) {
     this._defaultValue = defaultValue;
-    this._players = players;
-    this._pieces = pieces;
+    this._players = players ?? 2;
+    this._pieces = pieces ?? "1,1";
     this._minimumTurns = minimumTurns;
     this._maximumTurns = maximumTurns;
     this._rowValues = defaultValue.split(',').map((val) => ({
       player: parseInt(val.split('-')[0]),
       piece: parseInt(val.split('-')[1]),
     }));
+
+    console.log(players, pieces)
 
     const table = document.createElement('table');
     table.id = name;
@@ -833,6 +844,18 @@ class TurnsInput {
     row.appendChild(numberCell);
 
     const playerCell = document.createElement('td');
+    console.log(
+      this.players
+    )
+    console.log(
+      this.players,
+      Array(this.players),
+      Array(this.players)
+        .fill(1)
+        .map((_, i) => ({
+          value: i + '',
+          displayName: SYMBOLS[i] + '',
+        })))
     const playerInput = new EnumInput(
       `player-${index}`,
       undefined,
@@ -861,7 +884,7 @@ class TurnsInput {
       undefined,
       piece,
       false,
-      Array(this.pieces)
+      Array(this.pieces.length)
         .fill(1)
         .map((_, i) => ({
           value: i + '',
@@ -908,7 +931,6 @@ class TurnsInput {
   }
 
   addRow() {
-    console.log(this._rowValues.length, this.maximumTurns);
     if (this._rowValues.length >= this.maximumTurns) {
       return;
     }
@@ -931,6 +953,8 @@ class TurnsInput {
    */
   subscribe(cb) {
     this._listeners.push(cb);
+
+    // this.update();
   }
 
   get value() {
@@ -941,7 +965,6 @@ class TurnsInput {
   }
 
   set value(val) {
-    console.log(val);
     if (val.match(/^([0-9]+-[0-9]+,)*[0-9]+-[0-9]+$/) !== null) {
       this._rowValues = val.split(',').map((v) => {
         return {
@@ -987,21 +1010,21 @@ class TurnsInput {
   }
 
   get players() {
-    return this._players ?? '2';
+    return this._players ?? 2;
   }
 
   set players(val) {
-    this._players = parseInt(val);
+    this._players = parseInt(val ?? "2");
 
     this.drawRows();
   }
 
   get pieces() {
-    return (this._pieces ?? '1').split(',').length;
+    return (this._pieces ?? '1,1').split(',')
   }
 
   set pieces(val) {
-    this._pieces = val;
+    this._pieces = val ?? "1,1";
 
     this.drawRows();
   }
@@ -1041,7 +1064,7 @@ class TurnsInput {
 
     if (typeof config.minimumTurns === 'object') {
       for (let i = 0; i < config.minimumTurns.length; i++) {
-        getInput(config.minimumTurns[i]).subscribe((val) => {
+        getInput(config.minimumTurns[i]).subscribe((_val) => {
           let minimumValue = getInput(config.minimumTurns[0]).value;
           for (let i = 1; i < config.minimumTurns.length; i++) {
             minimumValue = Math.min(
@@ -1056,7 +1079,7 @@ class TurnsInput {
 
     if (typeof config.maximumTurns === 'object') {
       for (let i = 0; i < config.maximumTurns.length; i++) {
-        getInput(config.maximumTurns[i]).subscribe((val) => {
+        getInput(config.maximumTurns[i]).subscribe((_val) => {
           let maximumValue = getInput(config.maximumTurns[0]).value;
           for (let i = 1; i < config.maximumTurns.length; i++) {
             maximumValue = Math.max(
@@ -1202,6 +1225,8 @@ class DirectionsInput {
    */
   subscribe(cb) {
     this._listeners.push(cb);
+
+    // this.update();
   }
 
   get value() {
@@ -1319,6 +1344,11 @@ class PresetInput {
 {"id":"3playertictactoe","name":"3 Player Tic Tac Toe","options":{"turnPattern":"0-0,1-1,2-2","pieces":"1,1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":3,"boardHeight":6,"boardWidth":6,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}}
 ]`;
 
+  /**
+   * @param {string} name
+   * @param {string} defaultValue
+   * @param {HTMLElement} parent
+   */
   constructor(name, defaultValue, parent) {
     this.presets = JSON.parse(
       localStorage.getItem('presets') ?? this.defaultPresets
@@ -1335,14 +1365,6 @@ class PresetInput {
 
     this.currentPreset = defaultValue;
 
-    this._selection.subscribe((val) => {
-      if (val === 'custom') {
-        this._loadButton.disabled = true;
-      } else {
-        this._loadButton.disabled = false;
-      }
-    });
-
     this._loadButton = document.createElement('input');
     this._loadButton.type = 'button';
     this._loadButton.value = 'Load';
@@ -1351,6 +1373,14 @@ class PresetInput {
       this.load();
     });
     parent.appendChild(this._loadButton);
+
+    this._selection.subscribe((val) => {
+      if (val === 'custom') {
+        this._loadButton.disabled = true;
+      } else {
+        this._loadButton.disabled = false;
+      }
+    });
 
     this._deleteButton = document.createElement('input');
     this._deleteButton.type = 'button';
@@ -1369,14 +1399,6 @@ class PresetInput {
       parent
     );
     this._nameInput._input.disabled = true;
-    this._nameInput.subscribe((val) => {
-      console.log(val);
-      if ((val ?? '') === '') {
-        this._saveButton.disabled = true;
-      } else {
-        this._saveButton.disabled = false;
-      }
-    });
 
     this._saveButton = document.createElement('input');
     this._saveButton.type = 'button';
@@ -1386,6 +1408,14 @@ class PresetInput {
       this.save();
     });
     parent.appendChild(this._saveButton);
+
+    this._nameInput.subscribe((val) => {
+      if ((val ?? '') === '') {
+        this._saveButton.disabled = true;
+      } else {
+        this._saveButton.disabled = false;
+      }
+    });
   }
 
   updateDisplay() {
@@ -1444,7 +1474,6 @@ class PresetInput {
       if (inputNames[i] === 'engine') {
         continue;
       }
-      console.log(preset.options[inputNames[i]], inputs[inputNames[i]].value);
       inputs[inputNames[i]].value = preset.options[inputNames[i]];
     }
     this.isEditing = false;
@@ -1492,12 +1521,6 @@ class PresetInput {
     this.updateDisplay();
   }
 
-  update() { }
-
-  receiveUpdate(inputName, value) {
-    this.edit();
-  }
-
   get value() {
     return this._selection.value;
   }
@@ -1523,6 +1546,7 @@ function parseSections(sections) {
   const sectionContainer = document.getElementById('sections');
   for (let i = 0; i < sections.length; i++) {
     let section;
+    // Check if the section already exists
     if (document.getElementById(sections[i].name) !== null) {
       section = document.getElementById(sections[i].name);
     } else {
@@ -1572,6 +1596,7 @@ function parseConfig(config, parent) {
 }
 
 function initConfig() {
+  console.dir(inputs)
   Object.values(inputs).forEach((val) => {
     val.update();
   });

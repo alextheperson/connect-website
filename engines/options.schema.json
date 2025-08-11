@@ -1,0 +1,399 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://connect.alexsol.is/engine/option.schema.json",
+  "title": "Engine Configuration Options",
+  "description": "A description of the configuration options for a particular engine",
+  "type": "object",
+  "required": [
+    "sections"
+  ],
+  "properties": {
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "options"
+        ],
+        "properties": {
+          "name": {
+            "description": "The name of the section",
+            "type": "string"
+          },
+          "options": {
+            "description": "A list of sections in the configuration menu",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "number",
+                    "boolean",
+                    "enum",
+                    "vector",
+                    "pieces",
+                    "turns",
+                    "directions"
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "type",
+                "defaultValue"
+              ],
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/textInput"
+                },
+                {
+                  "$ref": "#/$defs/numberInput"
+                },
+                {
+                  "$ref": "#/$defs/booleanInput"
+                },
+                {
+                  "$ref": "#/$defs/enumInput"
+                },
+                {
+                  "$ref": "#/$defs/vectorInput"
+                },
+                {
+                  "$ref": "#/$defs/piecesInput"
+                },
+                {
+                  "$ref": "#/$defs/turnsInput"
+                },
+                {
+                  "$ref": "#/$defs/directionsInput"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "textInput": {
+      "description": "A text input, with an optional placeholder",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "number"
+        },
+        "defaultValue": {
+          "type": "string"
+        },
+        "placeholder": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "numberInput": {
+      "description": "A numerical input, with optional min and max values.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "number"
+        },
+        "defaultValue": {
+          "type": "integer"
+        },
+        "minimumValue": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "maximumValue": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "booleanInput": {
+      "description": "Represents a control that can be toggled on and off.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "boolean"
+        },
+        "defaultValue": {
+          "type": "boolean"
+        }
+      }
+    },
+    "enumInput": {
+      "description": "Represents a list of options where the user can select only one.",
+      "type": "object",
+      "required": [
+        "options"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "enum"
+        },
+        "defaultValue": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
+        "multiline": {
+          "type": "boolean"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "displayName",
+              "value"
+            ],
+            "properties": {
+              "displayName": {
+                "type": "string"
+              },
+              "value": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "vectorInput": {
+      "description": "Allows the user to choose a rectangular 'vector' that can be 1, -1, or 0 in two axes.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "vector"
+        },
+        "defaultValue": {
+          "type": "string",
+          "enum": [
+            "0,-1",
+            "1,-1",
+            "1,0",
+            "1,1",
+            "0,1",
+            "-1,1",
+            "-1,0",
+            "-1,-1"
+          ]
+        }
+      }
+    },
+    "piecesInput": {
+      "description": "An input that allows the user to select how many pieces the game should use, and which pieces can be used to win the game",
+      "type": "object",
+      "required": [
+        "minimumPieces",
+        "maximumPieces",
+        "canWinDefault"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "pieces"
+        },
+        "defaultValue": {
+          "type": "string",
+          "pattern": "^([0-9]+,)*[0-9]+$"
+        },
+        "minimumPieces": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "maximumPieces": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "canWinDefault": {
+          "type": "boolean"
+        }
+      }
+    },
+    "turnsInput": {
+      "description": "Allows the user to construct the turn pattern for the game, selecting which players use which pieces on which turns.",
+      "type": "object",
+      "required": [
+        "players",
+        "pieces"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "turns"
+        },
+        "defaultValue": {
+          "type": "boolean"
+        },
+        "players": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "pieces": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^([0-9]+,)*[0-9]+$"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "minimumTurns": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "maximumTurns": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "directionsInput": {
+      "description": "Allows the user to create a pattern of rectangular directions (vectors).",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "directions"
+        },
+        "defaultValue": {
+          "type": "string",
+          "pattern": "^((1|0|(-1)),)*(1|0|(-1))$"
+        },
+        "minimumTurns": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "maximumTurns": {
+          "oneOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

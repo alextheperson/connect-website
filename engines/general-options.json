@@ -1,0 +1,85 @@
+{
+  "$schema": "./options.schema.json",
+  "sections": [
+    {
+      "name": "General",
+      "options": [
+        {
+          "name": "engine",
+          "type": "enum",
+          "defaultValue": "standard-engine",
+          "options": [
+            {
+              "value": "standard-engine",
+              "displayName": "Standard Engine"
+            },
+            {
+              "value": "gravity-engine",
+              "displayName": "Gravity Engine"
+            },
+            {
+              "value": "fractal-engine",
+              "displayName": "Fractal Engine (Coming Soon!)"
+            },
+            {
+              "value": "hexagonal-engine",
+              "displayName": "Hexagonal Engine (Coming Soon!)"
+            }
+          ]
+        },
+        {
+          "name": "numPlayers",
+          "label": "Players",
+          "multiline": false,
+          "type": "enum",
+          "defaultValue": 2,
+          "options": [
+            {
+              "value": 2,
+              "displayName": "2"
+            },
+            {
+              "value": 3,
+              "displayName": "3"
+            },
+            {
+              "value": 4,
+              "displayName": "4"
+            },
+            {
+              "value": 5,
+              "displayName": "5"
+            }
+          ]
+        },
+        {
+          "name": "allowSpectators",
+          "label": "Allow Spectators",
+          "type": "boolean",
+          "defaultValue": false
+        },
+        {
+          "name": "totalTurnTime",
+          "label": "Total Player Time",
+          "type": "number",
+          "min": 0,
+          "defaultValue": 0
+        },
+        {
+          "name": "turnTime",
+          "label": "Time per Turn",
+          "type": "number",
+          "min": 0,
+          "defaultValue": 0
+        },
+        {
+          "name": "enableCorrespondence",
+          "label": "Correspondence Game",
+          "type": "boolean",
+          "title": "If enabled, the game will wait 7 days after the last move before it closes the game for inactivity.",
+          "defaultValue": false
+        }
+      ]
+    }
+  ]
+}

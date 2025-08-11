@@ -4,54 +4,56 @@ const presetManager = new PresetInput(
   document.getElementById('presets')
 );
 
-function load(currentEngine) {
-  inputs = {};
-  sectionIds.forEach((id) => {
-    document.getElementById(id).remove();
+let generalConfigOptions = {}
+
+
+function loadGeneralConfig() {
+  const req = new XMLHttpRequest();
+  req.addEventListener('load', (req) => {
+    generalConfigOptions = JSON.parse(req.target.response);
+
+    createConfig("standard-engine")
   });
-  sectionIds = [];
-
-  parseSections([
-    {
-      name: 'General',
-      options: [
-        {
-          name: 'engine',
-          label: undefined,
-          type: 'enum',
-          defaultValue: currentEngine,
-          options: [
-            { value: 'standard-engine', displayName: 'Standard Engine' },
-            { value: 'gravity-engine', displayName: 'Gravity Engine' },
-            // { value: 'fractal-engine', displayName: 'Fractal Engine' },
-          ],
-        },
-      ],
-    },
-  ]);
-
-  inputs['engine'].subscribe((val) => {
-    const req = new XMLHttpRequest();
-    req.addEventListener('load', (req) => {
-      load(val);
-
-      parseSections(JSON.parse(req.target.response).sections);
-
-      for (let i = 0; i < Object.keys(inputs).length; i++) {
-        Object.values(inputs)[i].subscribe((val) => {
-          presetManager.receiveUpdate(Object.keys(inputs)[i], val);
-        });
-      }
-      presetManager.applyPreset();
-    });
-    req.open('GET', `engine/${val}/options.json`);
-    req.send();
-  });
+  req.open('GET', `/config/general-options.json`);
+  req.send();
 }
 
-load('standard-engine');
+/**
+ * Query the server to get the config options for the selected engine
+ * @param {string} engineName The name of the engine to get the config options for
+ */
+function createConfig(engineName) {
+  const req = new XMLHttpRequest();
 
-initConfig();
+  req.addEventListener('load', (req) => {
+    // Clear the old config
+    document.getElementById("sections").innerHTML = '';
+    inputs = []
+
+    // Create the new config
+    parseSections(generalConfigOptions.sections);
+    parseSections(JSON.parse(req.target.response).sections);
+
+    // Subscribe the preset manager to every input so that it can know when anything changes.
+    for (let i = 0; i < Object.keys(inputs).length; i++) {
+      Object.values(inputs)[i].subscribe((_val) => {
+        presetManager.edit();
+      });
+    }
+
+    // Set the value of the engine selector to the currently selected engine
+    inputs["engine"].value = engineName
+
+    // Subscribe to the engine dropdown, so that the configuration can be reloaded when it changes.
+    inputs['engine'].subscribe(createConfig);
+  });
+
+  req.open('GET', `engine/${engineName}/options.json`);
+  req.send();
+}
+
+// Load the config for the first time
+loadGeneralConfig()
 
 document.getElementById('form').addEventListener('submit', (e) => {
   const formData = new FormData(document.getElementById('form'));
@@ -61,7 +63,7 @@ document.getElementById('form').addEventListener('submit', (e) => {
   });
 
   const request = new XMLHttpRequest();
-  request.onreadystatechange = function () {
+  request.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       window.location.pathname =
         window.location.pathname.split('/').slice(0, -1).join('/') +
