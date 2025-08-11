@@ -46,6 +46,9 @@ function createConfig(engineName) {
 
     // Subscribe to the engine dropdown, so that the configuration can be reloaded when it changes.
     inputs['engine'].subscribe(createConfig);
+
+    // We apply the preset here, because loading the preset would overwrite it if we applied it earlier (like when we choose the engine)
+    presetManager.applyPreset()
   });
 
   req.open('GET', `engine/${engineName}/options.json`);

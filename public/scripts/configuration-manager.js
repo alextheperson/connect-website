@@ -702,7 +702,7 @@ class PiecesInput {
 
     if (typeof config.minimumPieces === 'object') {
       for (let i = 0; i < config.minimumPieces.length; i++) {
-        getInput(config.minimumPieces[i]).subscribe((val) => {
+        getInput(config.minimumPieces[i]).subscribe((_val) => {
           let minimumValue = getInput(config.minimumPieces[0]).value;
           for (let i = 1; i < config.minimumPieces.length; i++) {
             minimumValue = Math.min(
@@ -717,7 +717,7 @@ class PiecesInput {
 
     if (typeof config.maximumPieces === 'object') {
       for (let i = 0; i < config.maximumPieces.length; i++) {
-        getInput(config.maximumPieces[i]).subscribe((val) => {
+        getInput(config.maximumPieces[i]).subscribe((_val) => {
           let maximumValue = getInput(config.maximumPieces[0]).value;
           for (let i = 1; i < config.maximumPieces.length; i++) {
             maximumValue = Math.max(
@@ -782,8 +782,6 @@ class TurnsInput {
       piece: parseInt(val.split('-')[1]),
     }));
 
-    console.log(players, pieces)
-
     const table = document.createElement('table');
     table.id = name;
 
@@ -844,18 +842,6 @@ class TurnsInput {
     row.appendChild(numberCell);
 
     const playerCell = document.createElement('td');
-    console.log(
-      this.players
-    )
-    console.log(
-      this.players,
-      Array(this.players),
-      Array(this.players)
-        .fill(1)
-        .map((_, i) => ({
-          value: i + '',
-          displayName: SYMBOLS[i] + '',
-        })))
     const playerInput = new EnumInput(
       `player-${index}`,
       undefined,
@@ -972,9 +958,10 @@ class TurnsInput {
             Math.max(parseInt(v.split('-')[0]), 0),
             this.players
           ),
-          piece: Math.min(Math.max(parseInt(v.split('-')[1]), 0), this.pieces),
+          piece: Math.min(Math.max(parseInt(v.split('-')[1]), 0), this.pieces.length),
         };
       });
+      console.log("rows", this._rowValues)
       this.drawRows();
     }
     this.update();
@@ -1292,7 +1279,7 @@ class DirectionsInput {
 
     if (typeof config.minimumTurns === 'object') {
       for (let i = 0; i < config.minimumTurns.length; i++) {
-        getInput(config.minimumTurns[i]).subscribe((val) => {
+        getInput(config.minimumTurns[i]).subscribe((_val) => {
           let minimumValue = getInput(config.minimumTurns[0]).value;
           for (let i = 1; i < config.minimumTurns.length; i++) {
             minimumValue = Math.min(
@@ -1307,7 +1294,7 @@ class DirectionsInput {
 
     if (typeof config.maximumTurns === 'object') {
       for (let i = 0; i < config.maximumTurns.length; i++) {
-        getInput(config.maximumTurns[i]).subscribe((val) => {
+        getInput(config.maximumTurns[i]).subscribe((_val) => {
           let maximumValue = getInput(config.maximumTurns[0]).value;
           for (let i = 1; i < config.maximumTurns.length; i++) {
             maximumValue = Math.max(
@@ -1337,12 +1324,8 @@ class PresetInput {
 
   currentPreset;
 
-  defaultPresets = `[
-{"id":"tictactoe","name":"Tic Tac Toe","options":{"allowDiagonals":true,"allowSpectators":false,"boardHeight":3,"boardWidth":3,"doGravity":false,"engine":"standard-engine","gravityAngle":"0,1","numPlayers":"2","numToConnect":3,"pieces":"1,1","preset":"tictactoe","turnPattern":"0-0,1-1"}},
-{"id":"gomomku","name":"Gomomku","options":{"turnPattern":"0-0,1-1","pieces":"1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":5,"boardHeight":15,"boardWidth":15,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}},
-{"id":"connect4","name":"Connect 4","options":{"turnPattern":"0-0,1-1","pieces":"1,1","gravityAngle":"0,1","doGravity":true,"allowDiagonals":true,"numToConnect":4,"boardHeight":6,"boardWidth":7,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}},
-{"id":"3playertictactoe","name":"3 Player Tic Tac Toe","options":{"turnPattern":"0-0,1-1,2-2","pieces":"1,1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":3,"boardHeight":6,"boardWidth":6,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}}
-]`;
+  // I'm so sorry
+  defaultPresets = `[{"id":"tictactoe","name":"Tic Tac Toe","options":{"turnPattern":"0-0,1-1","pieces":"1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":3,"boardHeight":3,"boardWidth":3,"enableCorrespondence":false,"turnTime":0,"totalTurnTime":0,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}},{"id":"gomoku","name":"Gomoku","options":{"turnPattern":"0-0,1-1","pieces":"1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":5,"boardHeight":15,"boardWidth":15,"enableCorrespondence":false,"turnTime":0,"totalTurnTime":0,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}},{"id":"connect4","name":"Connect 4","options":{"turnPattern":"0-0,1-1","pieces":"1,1","gravityAngle":"0,1","doGravity":true,"allowDiagonals":true,"numToConnect":4,"boardHeight":6,"boardWidth":7,"enableCorrespondence":false,"turnTime":0,"totalTurnTime":0,"allowSpectators":false,"numPlayers":"2","engine":"standard-engine"}},{"id":"3playertictactoe","name":"3 Player Tic Tac Toe","options":{"turnPattern":"0-0,1-1,2-2","pieces":"1,1,1","gravityAngle":"0,1","doGravity":false,"allowDiagonals":true,"numToConnect":4,"boardHeight":6,"boardWidth":6,"enableCorrespondence":false,"turnTime":0,"totalTurnTime":0,"allowSpectators":false,"numPlayers":"3","engine":"standard-engine"}}]`;
 
   /**
    * @param {string} name
@@ -1447,7 +1430,11 @@ class PresetInput {
     }
   }
 
+  /**
+   * Load a preset and select the correct engine
+   */
   load() {
+    console.log("load")
     const preset = this.presets
       .filter((val) => {
         return val.id === this._selection.value;
@@ -1457,8 +1444,12 @@ class PresetInput {
     this.currentPreset = this._selection.value;
 
     inputs['engine'].value = preset.options['engine'];
+    // We don't apply the preset here, because it will be overwritten when the config for the selected engine is loaded.
   }
 
+  /**
+   * Apply the preset to all the config options apart from the engine selector. It needs to be applied after the config for the engine has been loaded
+   */
   applyPreset() {
     if (this.currentPreset === '-') {
       return;
@@ -1470,6 +1461,7 @@ class PresetInput {
         return val.id === this.currentPreset;
       })
       .at(0);
+
     for (let i = 0; i < inputNames.length; i++) {
       if (inputNames[i] === 'engine') {
         continue;
@@ -1482,6 +1474,9 @@ class PresetInput {
     this._selection.value = this.currentPreset;
   }
 
+  /**
+   * Save the current config as a new preset
+   */
   save() {
     let preset = {};
     const inputNames = Object.keys(inputs);
@@ -1504,6 +1499,9 @@ class PresetInput {
     this.updateDisplay();
   }
 
+  /**
+   * Delete the selected preset
+   */
   delete() {
     localStorage.setItem(
       'presets',
@@ -1516,6 +1514,9 @@ class PresetInput {
     this.updateDisplay();
   }
 
+  /**
+   * This function should be run when the config is changed at all. It changes the preset to `custom`
+   */
   edit() {
     this.isEditing = true;
     this.updateDisplay();
@@ -1596,7 +1597,6 @@ function parseConfig(config, parent) {
 }
 
 function initConfig() {
-  console.dir(inputs)
   Object.values(inputs).forEach((val) => {
     val.update();
   });
