@@ -121,7 +121,7 @@
         "defaultValue": {
           "type": "integer"
         },
-        "minimumValue": {
+        "minimum": {
           "oneOf": [
             {
               "type": "integer"
@@ -134,7 +134,7 @@
             }
           ]
         },
-        "maximumValue": {
+        "maximum": {
           "oneOf": [
             {
               "type": "integer"

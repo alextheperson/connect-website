@@ -62,14 +62,14 @@
           "name": "totalTurnTime",
           "label": "Total Player Time",
           "type": "number",
-          "min": 0,
+          "minimum": 0,
           "defaultValue": 0
         },
         {
           "name": "turnTime",
           "label": "Time per Turn",
           "type": "number",
-          "min": 0,
+          "minimum": 0,
           "defaultValue": 0
         },
         {
