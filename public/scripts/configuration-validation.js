@@ -14,7 +14,7 @@ function loadGeneralConfig() {
 
     createConfig("standard-engine")
   });
-  req.open('GET', `/config/general-options.json`);
+  req.open('GET', `config/general-options.json`);
   req.send();
 }
 
@@ -65,6 +65,7 @@ document.getElementById('form').addEventListener('submit', (e) => {
   const request = new XMLHttpRequest();
   request.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
+      // I have to do this evil stuff because I might not be at the root. It just trims off a bit of the URL before adding things.
       window.location.pathname =
         window.location.pathname.split('/').slice(0, -1).join('/') +
         `/game/${this.responseText}/`;
