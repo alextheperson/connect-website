@@ -95,3 +95,5 @@ dist/
 app.js
 
 dist/
+
+.direnv/**
