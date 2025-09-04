@@ -39,6 +39,7 @@ class BoardDisplay {
       return shape;
     } else {
       this._canvas.draw(this._drawnShapes[id]);
+      return this._drawnShapes[id]
     }
   }
   /**
@@ -62,6 +63,7 @@ class BoardDisplay {
       return shape;
     } else {
       this._canvas.draw(this._drawnShapes[id]);
+      return this._drawnShapes[id]
     }
   }
 
@@ -71,9 +73,8 @@ class BoardDisplay {
    * @param {object} opts Options
    */
   polygon(points, opts) {
-    let id = `p-${JSON.stringify(points)}-${opts.stroke}-${opts.strokeWidth}-${
-      opts.fill
-    }-${opts.roughness}`;
+    let id = `p-${JSON.stringify(points)}-${opts.stroke}-${opts.strokeWidth}-${opts.fill
+      }-${opts.roughness}`;
     if (this._drawnShapes[id] === undefined) {
       const shape = this._canvas.polygon(points, {
         hachureGap: 8,
@@ -86,6 +87,7 @@ class BoardDisplay {
       return shape;
     } else {
       this._canvas.draw(this._drawnShapes[id]);
+      return this._drawnShapes[id]
     }
   }
 
@@ -111,6 +113,7 @@ class BoardDisplay {
       return shape;
     } else {
       this._canvas.draw(this._drawnShapes[id]);
+      return this._drawnShapes[id]
     }
   }
 
@@ -260,8 +263,8 @@ class BoardDisplay {
       this._pieceShapes[id] = [];
       for (let i = 1; i < w; i++) {
         this._pieceShapes[id].push(
-          this.line(i * spaceSize, 0, i * spaceSize, this._element.height, {
-            strokeWidth: spaceSize / 15,
+          this.line(i * cellSize, 0, i * cellSize, this._element.height, {
+            strokeWidth: cellSize / 15,
             roughness: 1,
             seed: 1,
             stroke: '#000000',
@@ -271,8 +274,8 @@ class BoardDisplay {
 
       for (let i = 1; i < h; i++) {
         this._pieceShapes[id].push(
-          this.line(0, i * spaceSize, this._element.width, i * spaceSize, {
-            strokeWidth: spaceSize / 15,
+          this.line(0, i * cellSize, this._element.width, i * cellSize, {
+            strokeWidth: cellSize / 15,
             roughness: 1,
             seed: 1,
             stroke: '#000000',
@@ -294,5 +297,13 @@ class BoardDisplay {
   set height(val) {
     this._element.style.height = val + 'px';
     this._element.height = val;
+  }
+
+  get width() {
+    return this._element.width;
+  }
+
+  get height() {
+    return this._element.height;
   }
 }
