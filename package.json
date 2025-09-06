@@ -1,7 +1,8 @@
 {
   "scripts": {
     "dev": "tsc; node app.js",
-    "build": "tsc;mkdir dist;cp -a engines dist;cp -a public dist;cp -a src dist;cp app.js dist;cp package.json dist;cp .htaccess dist"
+    "build": "tsc;mkdir dist;cp -a engines dist;cp -a public dist;cp -a src dist;cp app.js dist;cp package.json dist;cp .htaccess dist",
+    "test": "tsc; node --test --experimental-test-coverage"
   },
   "dependencies": {
     "express": "^5.1.0",
