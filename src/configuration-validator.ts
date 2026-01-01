@@ -73,21 +73,39 @@ export interface DirectionsOption extends Option {
 export type OptionSet = { [index: string]: Option };
 
 export class ConfigurationValidator {
-  configurationSets: Record<EngineSelection, OptionSet> = {
-    'standard-engine': this.parseOptions(StandardOptions),
-    'gravity-engine': this.parseOptions(GravityOptions),
-    'fractal-engine': this.parseOptions(FractalOptions),
-    'hexagonal-engine': this.parseOptions(HexagonalOptions),
+  static configurationSets: Record<EngineSelection, OptionSet> = {
+    'standard-engine': ConfigurationValidator.parseOptions(StandardOptions),
+    'gravity-engine': ConfigurationValidator.parseOptions(GravityOptions),
+    'fractal-engine': ConfigurationValidator.parseOptions(FractalOptions),
+    'hexagonal-engine': ConfigurationValidator.parseOptions(HexagonalOptions),
   };
-  values: Record<string, string>;
-  currentEngine!: EngineSelection;
-  currentConfiguration!: OptionSet;
+  values!: Record<string, string>;
+  currentConfiguration: OptionSet;
 
-  constructor(values: { [index: string]: string }) {
-    this.values = values;
+  constructor(options: OptionSet) {
+    this.currentConfiguration = options;
   }
 
-  parseOptions(config: any) {
+  /**
+   * This loads user inputs to then be validated.
+   */
+  loadConfiguration(values: { [index: string]: string }) {
+    this.values = values;
+    return this;
+  }
+
+  /**
+   * Get the option set for an engine, based on its name
+   */
+  static getEngineOptions(engine: string): OptionSet {
+    if (this.configurationSets[engine as EngineSelection] !== undefined) {
+      return this.configurationSets[engine as EngineSelection];
+    }
+
+    throw new Error(`The engine '${engine} does not exist.'`);
+  }
+
+  static parseOptions(config: any) {
     let optionSet: OptionSet = {};
 
     if (GeneralOptions.sections instanceof Array) {
@@ -129,7 +147,7 @@ export class ConfigurationValidator {
         return value;
       } else {
         throw new Error(
-          `The '${propertyName}' property is malformed in option '${optionName}' of engine '${this.currentEngine}'. Please report this bug.`
+          `The '${propertyName}' property is malformed in option '${optionName}'. Please report this bug.`
         );
       }
     }
@@ -138,14 +156,22 @@ export class ConfigurationValidator {
   validateNumber(name: string): number {
     if (!Object.keys(this.currentConfiguration).includes(name)) {
       throw new Error(
-        `The selected engine ('${this.currentEngine}') does not have an option '${name}'.`
+        `The selected option set does not have an option '${name}'.`
       );
     }
 
     let value: number;
     try {
+      // I assume that I put this in here because it would throw an error, but it doesn't
       value = parseInt(this.values[name]);
     } catch {
+      throw new Error(`The option '${name}' is not an Integer.`);
+    }
+
+    // This should actually do the behavior that the above statement tries to do
+    if (this.values[name].match(/^[0-9]+$/)) {
+      value = parseInt(this.values[name])
+    } else {
       throw new Error(`The option '${name}' is not an Integer.`);
     }
 
@@ -185,7 +211,7 @@ export class ConfigurationValidator {
   validateBoolean(name: string): boolean {
     if (!Object.keys(this.currentConfiguration).includes(name)) {
       throw new Error(
-        `The selected engine ('${this.currentEngine}') does not have an option '${name}'.`
+        `The selected option set does not have an option '${name}'.`
       );
     }
 
@@ -201,7 +227,7 @@ export class ConfigurationValidator {
   validateEnum(name: string): string {
     if (!Object.keys(this.currentConfiguration).includes(name)) {
       throw new Error(
-        `The selected engine ('${this.currentEngine}') does not have an option '${name}'.`
+        `The selected option set does not have an option '${name}'.`
       );
     }
 
@@ -209,13 +235,13 @@ export class ConfigurationValidator {
 
     if (configOptions.options === undefined) {
       throw new Error(
-        `The 'options' property of the ${name} option of the engine '${this.currentEngine}' is missing. Please report this error.`
+        `The 'options' property of the ${name} option is missing. Please report this error.`
       );
     }
 
     if (!(configOptions.options instanceof Array)) {
       throw new Error(
-        `The 'options' property of the ${name} option of the engine '${this.currentEngine}' is not an array. Please report the error.`
+        `The 'options' property of the ${name} option is not an array. Please report this error.`
       );
     }
 
@@ -225,18 +251,32 @@ export class ConfigurationValidator {
         .includes(this.values[name] + '')
     ) {
       throw new Error(
-        `The value of '${name}' is not one of the valid options.`
+        `The value of '${name}' ('${this.values[name]}') is not one of the valid options.`
       );
     }
 
     return this.values[name];
   }
 
+  validateEngine(name: string): EngineSelection {
+    let engine = this.values[name];
+    if (ConfigurationValidator.configurationSets[engine as EngineSelection] !== undefined) {
+      return engine as EngineSelection;
+    }
+
+    throw new Error(`Could not find the engine ${engine}`);
+  }
+
   validateVector(name: string): Vector {
-    return {
-      x: parseInt(this.values[name].split(',')[0]) as 1 | 0 | -1,
-      y: parseInt(this.values[name].split(',')[1]) as 1 | 0 | -1,
-    };
+    if (this.values[name].match(/^(1|0|\-1),(1|0|\-1)$/)) {
+      return {
+        x: parseInt(this.values[name].split(',')[0]) as 1 | 0 | -1,
+        y: parseInt(this.values[name].split(',')[1]) as 1 | 0 | -1,
+      };
+    }
+    else {
+      throw new Error(`The ${name} option should be a vector (eg. '-1,0', '0,1', etc.)`);
+    }
   }
 
   validatePieces(name: string): PieceSet {
@@ -254,90 +294,94 @@ export class ConfigurationValidator {
   }
 
   validateTurns(name: string): TurnPattern {
-    return this.values[name].split(',').map((val) => {
-      let nums = val.split('-');
-      return {
-        player: parseInt(nums[0]),
-        piece: parseInt(nums[1]),
-      };
-    });
+    if (this.values[name].match(/^(([0-9]+-[0-9]+),)*([0-9]+-[0-9]+)$/)) {
+      return this.values[name].split(',').map((val) => {
+        let nums = val.split('-');
+        return {
+          player: parseInt(nums[0]),
+          piece: parseInt(nums[1]),
+        };
+      });
+    } else {
+      throw new Error(`The option ${name} does not have the correct format`);
+    }
   }
 
   validateDirections(name: string): Vector[] {
-    return this.values[name].split('|').map((val) => {
-      return {
-        x: parseInt(val.split(',')[0]) as 1 | 0 | -1,
-        y: parseInt(val.split(',')[1]) as 1 | 0 | -1,
-      };
-    });
+    if (this.values[name].match(/^((1|0|-1),(1|0|-1)\|)*((1|0|-1),(1|0|-1))$/)) {
+      return this.values[name].split('|').map((val) => {
+        if (val === "0,0") {
+          throw new Error(`In option ${name}, the gravity goes to '0,0', which is illegal`)
+        }
+
+        return {
+          x: parseInt(val.split(',')[0]) as 1 | 0 | -1,
+          y: parseInt(val.split(',')[1]) as 1 | 0 | -1,
+        };
+      });
+    } else {
+      throw new Error(`The option ${name} does not have the correct format`);
+    }
   }
 
   validate() {
-    if (
-      this.values.engine !== undefined &&
-      this.configurationSets[this.values.engine as EngineSelection] !== undefined
-    ) {
-      this.currentEngine = this.values.engine as EngineSelection;
-      this.currentConfiguration = this.configurationSets[this.currentEngine];
-      let parsedSetting: GameSetting = {
-        engine: this.currentEngine,
-        numPlayers: this.validateNumber('numPlayers'),
-        allowSpectators: this.validateBoolean('allowSpectators'),
-      };
-      Object.keys(this.currentConfiguration).forEach((val) => {
-        const type = this.currentConfiguration[val].type;
-        const name = this.currentConfiguration[val].name;
-        switch (type) {
-          case 'number':
-            parsedSetting = {
-              [name]: this.validateNumber(name),
-              ...parsedSetting,
-            };
-            break;
-          case 'boolean':
-            parsedSetting = {
-              [name]: this.validateBoolean(name),
-              ...parsedSetting,
-            };
-            break;
-          case 'enum':
-            parsedSetting = {
-              [name]: this.validateEnum(name),
-              ...parsedSetting,
-            };
-            break;
-          case 'vector':
-            parsedSetting = {
-              [name]: this.validateVector(name),
-              ...parsedSetting,
-            };
-            break;
-          case 'pieces':
-            parsedSetting = {
-              [name]: this.validatePieces(name),
-              ...parsedSetting,
-            };
-            break;
-          case 'turns':
-            parsedSetting = {
-              [name]: this.validateTurns(name),
-              ...parsedSetting,
-            };
-            break;
-          case 'directions':
-            parsedSetting = {
-              [name]: this.validateDirections(name),
-              ...parsedSetting,
-            };
-            break;
-          default:
-            throw new Error(
-              `The option '${name}' has an invalid type: '${type}'`
-            );
-        }
-      });
-      return parsedSetting;
-    }
-    throw new Error(`The engine '${this.values.engine} does not exist.'`);
+    let parsedSetting: GameSetting = {
+      engine: this.validateEngine('engine'),
+      numPlayers: this.validateNumber('numPlayers'),
+      allowSpectators: this.validateBoolean('allowSpectators'),
+    };
+    Object.keys(this.currentConfiguration).forEach((val) => {
+      const type = this.currentConfiguration[val].type;
+      const name = this.currentConfiguration[val].name;
+      switch (type) {
+        case 'number':
+          parsedSetting = {
+            [name]: this.validateNumber(name),
+            ...parsedSetting,
+          };
+          break;
+        case 'boolean':
+          parsedSetting = {
+            [name]: this.validateBoolean(name),
+            ...parsedSetting,
+          };
+          break;
+        case 'enum':
+          parsedSetting = {
+            [name]: this.validateEnum(name),
+            ...parsedSetting,
+          };
+          break;
+        case 'vector':
+          parsedSetting = {
+            [name]: this.validateVector(name),
+            ...parsedSetting,
+          };
+          break;
+        case 'pieces':
+          parsedSetting = {
+            [name]: this.validatePieces(name),
+            ...parsedSetting,
+          };
+          break;
+        case 'turns':
+          parsedSetting = {
+            [name]: this.validateTurns(name),
+            ...parsedSetting,
+          };
+          break;
+        case 'directions':
+          parsedSetting = {
+            [name]: this.validateDirections(name),
+            ...parsedSetting,
+          };
+          break;
+        default:
+          throw new Error(
+            `The option '${name}' has an invalid type: '${type}'`
+          );
+      }
+    });
+    return parsedSetting;
   }
 }
