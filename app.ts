@@ -81,7 +81,6 @@ router.get('/engine/:engine/:resource', (req, res) => {
 router.post('/game', upload.none(), (req, res) => {
   const newId = createNewGame(parseGameSettings(req.body)).id;
   res.send(newId);
-  // res.sendFile(path.join(__dirname + '/public/html/game.html'));
 });
 
 router.get('/tokens/:filename/:color', (req, res) => {
@@ -150,8 +149,6 @@ gameNamespaces.on('connection', (socket) => {
     socket.emit('join-failure', { reason: 'badCode' });
   }
 
-  // socket.on(Constants.MSG_TYPES.JOIN_GAME, joinGame);
-  // socket.on(Constants.MSG_TYPES.INPUT, handleInput);
   socket.on('disconnect', () => {
     if (currentGame) {
       if (currentGame.hasPlayer(socket.id)) {
@@ -174,7 +171,9 @@ gameNamespaces.on('connection', (socket) => {
 });
 
 function parseGameSettings(body: any) {
-  let sett = new ConfigurationValidator(body).validate();
+  let engine = body["engine"];
+  let validator = new ConfigurationValidator(ConfigurationValidator.getEngineOptions(engine));
+  let sett = validator.loadConfiguration(body).validate();
   return sett;
 }
 
