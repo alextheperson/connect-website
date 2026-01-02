@@ -46,14 +46,14 @@ router.get('/game/:code/', (req, res) => {
     games.get(req.params.code)?.settings.engine ?? 'standard-engine';
 
   fs.readFile(
-    path.join(__dirname + '/public/html/game.html'),
+    path.join(__dirname + `/engines/${selectedEngine}/page.html`),
     'utf-8',
     (err, data) => {
       if (err) {
         throw err;
       }
       res.type('text/html');
-      res.send(data.replace('{{selected-engine}}', selectedEngine));
+      res.send(data);
     }
   );
 });

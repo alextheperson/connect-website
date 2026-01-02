@@ -12,8 +12,6 @@ let boardShapes = [];
 function handleStartGame(arg) {
   console.log('start-game', arg);
 
-  document.getElementById("sidebar").innerHTML = `<div id="turns" class="timeline"></div>`;
-
   document.getElementById('lobby').classList.add('hidden');
   document.getElementById('error').classList.add('hidden');
 

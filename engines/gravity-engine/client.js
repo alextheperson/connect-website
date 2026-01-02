@@ -64,9 +64,9 @@ function drawGravityDisplay() {
     const timelineText = document.createElement('span');
     timelineText.innerHTML =
       gravitySymbol[
-        gameSettings.gravityPattern[i].x +
-          ',' +
-          gameSettings.gravityPattern[i].y
+      gameSettings.gravityPattern[i].x +
+      ',' +
+      gameSettings.gravityPattern[i].y
       ];
     timelineItem.appendChild(timelineText);
     gravityTimeline.appendChild(timelineItem);
@@ -193,9 +193,9 @@ function drawGameEnd(arg) {
         arg.position.x * spaceSize + spaceSize / 2,
         arg.position.y * spaceSize + spaceSize / 2,
         (arg.position.x + gameSettings.numToConnect) * spaceSize -
-          spaceSize / 2,
+        spaceSize / 2,
         (arg.position.y + gameSettings.numToConnect) * spaceSize -
-          spaceSize / 2,
+        spaceSize / 2,
         {
           strokeWidth: 5,
           roughness: 5,
@@ -208,9 +208,9 @@ function drawGameEnd(arg) {
         arg.position.x * spaceSize + spaceSize / 2,
         arg.position.y * spaceSize + spaceSize / 2,
         (arg.position.x - gameSettings.numToConnect) * spaceSize +
-          spaceSize * 1.5,
+        spaceSize * 1.5,
         (arg.position.y + gameSettings.numToConnect) * spaceSize -
-          spaceSize / 2,
+        spaceSize / 2,
         {
           strokeWidth: 5,
           roughness: 5,
@@ -224,8 +224,7 @@ function drawGameEnd(arg) {
   } else {
     document.getElementById(
       'result'
-    ).innerHTML = `<img class="cell-image" src="../../tokens/${
-      SHAPES[arg.turn.player.index]
+    ).innerHTML = `<img class="cell-image" src="../../tokens/${SHAPES[arg.turn.player.index]
     }.svg/ffffff"/> <span>Wins!</span>
     `;
   }
