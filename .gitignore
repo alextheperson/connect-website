@@ -84,7 +84,7 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-# Added by me
+### Added by me
 .DS_Store
 dist/
 
@@ -99,3 +99,5 @@ app.js
 dist/
 
 .direnv/**
+
+.todo
