@@ -80,15 +80,21 @@ export class StandardEngine implements GameEngine {
   }
 
   validateMove(x: number, y: number, turn: Turn): boolean {
-    let gravityPosition = this.computeGravity(x, y, this.gravityAngle);
-    return (
-      turn.index == this.currentTurnNumber &&
-      (this.board.isEmpty(x, y) ?? false) &&
-      (!this.doGravity ||
-        (gravityPosition !== null &&
-          gravityPosition.x === x &&
-          gravityPosition.y === y))
-    );
+    const gravityPosition = this.computeGravity(x, y, this.gravityAngle);
+    const turnX = this.doGravity ? gravityPosition.x : x;
+    const turnY = this.doGravity ? gravityPosition.y : y;
+
+    if (turn.index != this.currentTurnNumber) {
+      console.log("The indicies do not match.")
+      return false
+    }
+
+    if (!(this.board.isEmpty(turnX, turnY) ?? false)) {
+      console.log("The space is not empty.")
+      return false
+    }
+
+    return true
   }
 
   checkForConnect(x1: number, y1: number, x2: number, y2: number) {
@@ -169,7 +175,10 @@ export class StandardEngine implements GameEngine {
     }
   }
 
-  computeGravity(x: number, y: number, direction: Vector) {
+  /**
+  * Computes the gravity for a single piece. If the space is already occupied, it will return the original position.
+  */
+  computeGravity(x: number, y: number, direction: Vector): { x: number, y: number } {
     let localX = x;
     if (direction.x === 1) {
       localX = 0;
@@ -211,7 +220,7 @@ export class StandardEngine implements GameEngine {
         }
       }
     }
-    return null;
+    return { x: x, y: y };
   }
 
   applyGravityToBoard() {
