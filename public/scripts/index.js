@@ -28,3 +28,18 @@ socket.on('join-failure', handleJoinFailure);
 socket.on('game-end', handleGameEnd);
 
 socket.on('invalid-move', handleInvalidMove);
+
+window.addEventListener("resize", onResize);
+
+onResize()
+
+function onResize(e) {
+  let container = document.getElementById("game");
+  if (document.body.offsetHeight > document.body.offsetWidth) {
+    container.classList.add("column");
+    container.classList.remove("row");
+  } else {
+    container.classList.add("row");
+    container.classList.remove("column");
+  }
+}

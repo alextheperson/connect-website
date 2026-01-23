@@ -3,13 +3,23 @@
 }
 
 #game {
-  display: flex;
-  flex-direction: row;
-  height: 100%;
-  width: 100%;
-  gap: 20px;
-  padding: 20px;
-  flex-wrap: wrap;
+  display: grid;
+  gap: var(--padding);
+  background-color: var(--background-dark);
+  padding: var(--padding);
+  --sidebar-size: 10em;
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  --padding: 20px;
+}
+
+#game.row {
+  grid-template-columns: calc(100% - var(--sidebar-size)) var(--sidebar-size);
+}
+
+#game.column {
+  grid-template-rows: calc(100% - var(--sidebar-size)) var(--sidebar-size);
 }
 
 #game.hidden,
@@ -18,26 +28,32 @@
 }
 
 #board-container {
-  overflow: hidden;
-  display: flex;
+  /* aspect-ratio: 1; */
+  background-color: var(--background);
 }
 
-.cell-image {
-  display: block;
+.column #board-container {
+  max-width: calc(100vw - calc(var(--padding) * 2));
+  /* max-height: calc(100% - var(--sidebar-size)); */
+  max-height: 100%;
+}
+
+.row #board-container {
+  max-height: calc(100vh - calc(var(--padding) * 2));
+  /* max-width: calc(100% - var(--sidebar-size)); */
+  max-width: 100%;
+}
+
+canvas {
   width: 100%;
   height: 100%;
 }
 
-#game.row {
-  flex-direction: row;
-}
-
-#game.column {
-  flex-direction: column;
-}
-
 #sidebar {
   display: flex;
+  padding: var(--padding);
+  background-color: var(--background);
+  box-sizing: border-box;
 }
 
 #game.row #sidebar {
@@ -48,49 +64,47 @@
   flex-direction: column;
 }
 
+.timeline {
+  display: flex;
+  gap: var(--padding);
+  align-content: start;
+  justify-content: start;
+  position: relative;
+  flex-grow: 1;
+  height: 0;
+  width: 0;
+}
+
 #game.row .timeline {
   flex-direction: column;
-  display: flex;
-  margin-right: 22px;
 }
 
 #game.column .timeline {
   flex-direction: row;
-  display: flex;
-  margin-bottom: 22px;
 }
 
-.timeline {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  flex-shrink: 1;
-  align-content: start;
-  justify-content: start;
-  position: relative;
-}
 
 .timeline-indicator {
   --position: 0;
-  width: 75px;
-  height: 75px;
   border-radius: 1em;
   outline: 3px solid var(--primary-color);
-  outline-offset: 1px;
+  outline-offset: -1px;
   position: absolute;
+  aspect-ratio: 1;
   transition: ease-in-out 0.1s;
+  --step-size: 120px;
 }
 
 #game.row .timeline-indicator {
-  top: calc(var(--position) * 85px);
+  top: calc(var(--position) * var(--step-size));
 }
 
 #game.column .timeline-indicator {
-  left: calc(var(--position) * 85px);
+  left: calc(var(--position) * var(--step-size));
 }
 
 .timeline-indicator::after {
-  --size: 10px;
+  --size: 1em;
   position: absolute;
   display: block;
   content: '';
@@ -101,8 +115,8 @@
 #game.row .timeline-indicator::after {
   border-top: calc(var(--size) / 2) solid transparent;
   border-bottom: calc(var(--size) / 2) solid transparent;
-  border-right: var(--size) solid var(--primary-color);
-  right: calc(calc(-1 * var(--size)) - 6px);
+  border-left: var(--size) solid var(--primary-color);
+  left: calc(calc(-1 * var(--size)) - 6px);
   top: 50%;
   transform: translate(0, -50%);
 }
@@ -110,15 +124,14 @@
 #game.column .timeline-indicator::after {
   border-left: calc(var(--size) / 2) solid transparent;
   border-right: calc(var(--size) / 2) solid transparent;
-  border-bottom: var(--size) solid var(--primary-color);
+  border-top: var(--size) solid var(--primary-color);
 
-  bottom: calc(calc(-1 * var(--size)) - 6px);
+  top: calc(calc(-1 * var(--size)) - 6px);
   left: 50%;
   transform: translate(-50%, 0);
 }
 
 .timeline-item {
-  width: 75px;
   border-radius: 1em;
   aspect-ratio: 1;
   display: flex;
@@ -127,8 +140,9 @@
 }
 
 .timeline-item img {
-  width: 100%;
   display: block;
+  max-height: 100%;
+  max-width: 100%;
 }
 
 .timeline-item span {

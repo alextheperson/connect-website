@@ -34,7 +34,7 @@ function handleStartGame(arg) {
   document.getElementById('game').classList.remove('hidden');
   boardContainer = document.getElementById('board-container');
   canvas = new BoardDisplay('board');
-  // canvas.rectangle(10, 10, 200, 200); // x, y, width, height
+  canvas.registerRedrawCallback(drawBoard);
   canvas._element.addEventListener('mousemove', hover);
   canvas._element.addEventListener('mouseout', () => {
     if (!gameFinished) {
@@ -74,37 +74,7 @@ function drawGravityDisplay() {
 }
 
 function createCells() {
-  canvas.width = 1;
-  canvas.height = 1;
-  const isWide = document.body.offsetHeight < document.body.offsetWidth;
-  document.getElementById('game').classList.remove('row', 'column');
-  document.getElementById('game').classList.add(isWide ? 'row' : 'column');
-  const sidePanelWidth = isWide
-    ? sidebar.offsetWidth + 60
-    : sidebar.offsetHeight + 60;
-  const aspectRatio = gameSettings.boardWidth / gameSettings.boardHeight;
-  const areaWidth = boardContainer.offsetWidth;
-  const areaHeight = boardContainer.offsetHeight;
-  if (isWide) {
-    const targetWidth = aspectRatio * areaHeight;
-    const targetHeight = areaHeight;
-    let scaleOffset = 1;
-    if (targetWidth > document.body.offsetWidth - sidePanelWidth) {
-      scaleOffset = (document.body.offsetWidth - sidePanelWidth) / targetWidth;
-    }
-    canvas.width = targetWidth * scaleOffset;
-    canvas.height = targetHeight * scaleOffset;
-  } else {
-    const targetWidth = areaWidth;
-    const targetHeight = aspectRatio * areaWidth;
-    let scaleOffset = 1;
-    if (targetHeight > document.body.offsetHeight - sidePanelWidth) {
-      scaleOffset = (document.body.offsetHeight - sidePanelWidth) / targetWidth;
-    }
-    canvas.width = areaWidth * scaleOffset;
-    canvas.height = targetHeight * scaleOffset;
-  }
-
+  boardContainer.style.aspectRatio = `${gameSettings.boardWidth} / ${gameSettings.boardHeight}`;
   spaceSize = canvas._element.offsetWidth / gameSettings.boardWidth;
 
   canvas.grid(
@@ -121,11 +91,8 @@ function createRulesList() {
 }
 
 function drawBoard() {
-  let padding = spaceSize / 20;
+  let padding = spaceSize / 8;
   canvas.erase();
-  let aspectRatio = gameSettings.boardWidth / gameSettings.boardHeight;
-  canvas.width = aspectRatio * canvas._element.offsetHeight;
-  canvas.height = canvas._element.offsetHeight;
 
   spaceSize = canvas._element.width / gameSettings.boardWidth;
 
@@ -231,7 +198,7 @@ function drawGameEnd(arg) {
 }
 
 function hover(e) {
-  let padding = spaceSize / 20;
+  let padding = spaceSize / 8;
   if (!gameFinished && turnManager.hasTurn && !!gameBoard) {
     let squareX = Math.floor(
       (e.clientX - canvas._element.offsetLeft) / spaceSize

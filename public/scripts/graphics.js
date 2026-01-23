@@ -3,6 +3,7 @@ class BoardDisplay {
   _element;
   _pieceShapes = {};
   _drawnShapes = {};
+  _resizeCallbacks = [];
 
   DRAWERS = [
     this.drawCrossPiece,
@@ -15,6 +16,29 @@ class BoardDisplay {
   constructor(canvasId) {
     this._canvas = rough.canvas(document.getElementById(canvasId));
     this._element = document.getElementById(canvasId);
+    this.updateCanvasSize();
+
+    try {
+      let resizeObserver = new ResizeObserver(this.updateCanvasSize.bind(this));
+      resizeObserver.observe(this._element);
+    } catch {
+      // As a fallback if the user doesn't support the resizeObserver API
+      window.addEventListener("resize", this.updateCanvasSize.bind(this));
+
+      console.log("You do not support the ResizeObserver API. Using window events instead.");
+    }
+  }
+
+  // Whenever we resize the canvas, it clears the content, which means we need to redraw the board.
+  registerRedrawCallback(callback) {
+    this._resizeCallbacks.push(callback);
+  }
+
+  updateCanvasSize() {
+    this._element.width = this._element.offsetWidth;
+    this._element.height = this._element.offsetHeight;
+
+    this._resizeCallbacks.forEach((cb) => cb());
   }
 
   /**
@@ -120,7 +144,7 @@ class BoardDisplay {
   erase() {
     this._element
       .getContext('2d')
-      .clearRect(0, 0, this._canvas.width, this._canvas.height);
+      .clearRect(0, 0, this.width, this.height);
   }
 
   drawCrossPiece(x, y, size, color, canvas) {
