@@ -1,6 +1,5 @@
 import { GameSetting, TurnPattern, TurnResults, Vector, PieceSet } from '../../src/game';
 import { Board, GameEngine, Piece, Player, Turn } from '../../src/game-engine';
-import { StandardEngine } from '../standard-engine/server';
 
 export class GravityEngine implements GameEngine {
   board: Board;
@@ -115,7 +114,7 @@ export class GravityEngine implements GameEngine {
 
   checkForConnect(x1: number, y1: number, x2: number, y2: number) {
     if (this.board.isEmpty(x1, y1) || this.board.isEmpty(x2, y2)) {
-      // check if it has gone off the the board vertically.
+      // check if it has gone off the board vertically.
       return false;
     }
     if (
@@ -130,7 +129,7 @@ export class GravityEngine implements GameEngine {
     return true;
   }
 
-  checkForEnd() {
+  checkForEnd(): { outcome: TurnResults.NORMAL | TurnResults.DRAW; } | { outcome: TurnResults.WIN; turn: Turn; direction: 'h' | 'v' | 'd1' | 'd2'; } {
     let hasDrawn = true;
     let winMessage;
 

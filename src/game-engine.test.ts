@@ -1,5 +1,5 @@
 import test, { describe } from "node:test";
-import { Board, Piece, Player, Turn } from "./game-engine";
+import { Board, ConnectionLine, Piece, Player, Turn } from "./game-engine";
 import assert from "assert";
 
 describe("game-engine/Board", () => {
@@ -108,4 +108,110 @@ describe("game-engine/Board", () => {
     assert(!rectangularBoard.isInBounds(6, 6))
     assert(!rectangularBoard.isInBounds(7, 6))
   })
+
+  describe("Board.checkDirection()", () => {
+    test("Length", () => {
+      const board = new Board(4, 4);
+      const turn1 = new Turn(0, new Piece(0, true), new Player(0));
+      const turn2 = new Turn(1, new Piece(1, true), new Player(1));
+
+      board.setSpace(0, 0, turn1);
+      board.setSpace(1, 1, turn1);
+      board.setSpace(2, 2, turn1);
+      board.setSpace(3, 3, turn2);
+      board.setSpace(0, 1, turn1);
+      board.setSpace(0, 2, turn1);
+      board.setSpace(0, 3, turn1);
+
+      let lines = board.checkDirection(0, 0, { x: 1, y: 1 }, Board.pieceCheck);
+      assert.deepStrictEqual(lines, new ConnectionLine(0, 0, 3, { x: 1, y: 1 }));
+
+      lines = board.checkDirection(0, 0, { x: 0, y: 1 }, Board.pieceCheck);
+      assert.deepStrictEqual(lines, new ConnectionLine(0, 0, 4, { x: 0, y: 1 }));
+    });
+    test("Starting on empty cell", () => {
+      const board = new Board(3, 3);
+      const turn1 = new Turn(0, new Piece(0, true), new Player(0));
+
+      board.setSpace(0, 1, turn1);
+      board.setSpace(1, 1, turn1);
+      board.setSpace(2, 2, turn1);
+
+      const lines = board.checkDirection(0, 0, { x: 1, y: 1 }, Board.pieceCheck);
+
+      assert.deepStrictEqual(lines, new ConnectionLine(0, 0, 0, { x: 1, y: 1 }));
+    });
+  });
+
+  describe("Board.checkForConnect()", () => {
+    test("Find lines", () => {
+      const board = new Board(4, 4);
+      const turn1 = new Turn(0, new Piece(0, true), new Player(0));
+      const turn2 = new Turn(1, new Piece(1, true), new Player(1));
+
+      board.setSpace(0, 0, turn1);
+      board.setSpace(1, 1, turn1);
+      board.setSpace(2, 2, turn1);
+      board.setSpace(3, 3, turn2);
+      board.setSpace(0, 1, turn1);
+      board.setSpace(0, 2, turn1);
+      board.setSpace(0, 3, turn1);
+      board.setSpace(1, 0, turn2);
+      board.setSpace(2, 0, turn2);
+      board.setSpace(3, 0, turn2);
+
+      let lines = board.checkForConnect(3, Board.AdjacentNeighbors, Board.pieceCheck);
+      assert.deepStrictEqual(lines, {
+        connections: [
+          new ConnectionLine(0, 0, 4, { x: 0, y: 1 }),
+          new ConnectionLine(0, 0, 3, { x: 1, y: 1 }),
+          new ConnectionLine(1, 0, 3, { x: 1, y: 0 })
+        ],
+        full: false
+      });
+    });
+    test("Full Board", () => {
+      const board = new Board(4, 4);
+      const turn1 = new Turn(0, new Piece(0, true), new Player(0));
+      const turn2 = new Turn(1, new Piece(1, true), new Player(1));
+
+      board.setSpace(0, 0, turn1);
+      board.setSpace(0, 1, turn1);
+      board.setSpace(0, 2, turn2);
+      board.setSpace(0, 3, turn2);
+
+      board.setSpace(1, 0, turn2);
+      board.setSpace(1, 1, turn2);
+      board.setSpace(1, 2, turn1);
+      board.setSpace(1, 3, turn1);
+
+      board.setSpace(2, 0, turn1);
+      board.setSpace(2, 1, turn1);
+      board.setSpace(2, 2, turn2);
+      board.setSpace(2, 3, turn2);
+
+      board.setSpace(3, 0, turn2);
+      board.setSpace(3, 1, turn2);
+      board.setSpace(3, 2, turn1);
+      board.setSpace(3, 3, turn1);
+
+      let lines = board.checkForConnect(3, Board.AdjacentNeighbors, Board.pieceCheck);
+      assert.deepStrictEqual(lines, { connections: [], full: true });
+    });
+    test("No Lines", () => {
+      const board = new Board(5, 5);
+      const turn1 = new Turn(0, new Piece(0, true), new Player(0));
+      const turn2 = new Turn(1, new Piece(1, true), new Player(1));
+
+      board.setSpace(0, 0, turn1);
+      board.setSpace(0, 3, turn2);
+      board.setSpace(1, 1, turn2);
+      board.setSpace(1, 3, turn1);
+      board.setSpace(2, 3, turn2);
+      board.setSpace(3, 2, turn1);
+
+      let lines = board.checkForConnect(3, Board.AdjacentNeighbors, Board.pieceCheck);
+      assert.deepStrictEqual(lines, { connections: [], full: false });
+    });
+  });
 });

@@ -1,4 +1,5 @@
-import { TurnResults } from './game';
+import { dir } from 'console';
+import { PieceSet, TurnPattern, TurnResults } from './game';
 
 /**
  * Defines a set of rules for running a game
@@ -25,8 +26,8 @@ export interface GameEngine {
    * Checks to see if the game has been won or drawn
    */
   checkForEnd():
-    | { outcome: TurnResults }
-    | { outcome: TurnResults; turn: Turn; direction: 'h' | 'v' | 'd1' | 'd2' };
+    | { outcome: TurnResults.NORMAL | TurnResults.DRAW; }
+    | { outcome: TurnResults.WIN; turn: Turn; direction: 'h' | 'v' | 'd1' | 'd2'; }
 
   /**
    * @returns a packet to send to clients telling them the state of the board
@@ -122,6 +123,60 @@ export class Turn {
     this.player = player;
     this.index = index;
   }
+
+  /**
+   * Create an array of `Turn`s from a `TurnPattern`, which is what you get from the configuration.
+   */
+  static fromConfiguration(turns: TurnPattern, pieces: PieceSet): Turn[] {
+    const turnList: Turn[] = [];
+
+    turns.forEach((el, i) => {
+      turnList.push(new Turn(
+        i,
+        new Piece(el.piece, (pieces)[el.piece]),
+        new Player(el.player)
+      ));
+    });
+
+    return turnList;
+  }
+}
+
+export class ConnectionLine {
+  x: number;
+  y: number;
+  length: number;
+  direction: { x: number, y: number };
+
+  constructor(x: number, y: number, length: number, direction: { x: number, y: number }) {
+    this.x = x;
+    this.y = y;
+    this.length = length;
+    this.direction = direction;
+  }
+
+  get start() {
+    return { x: this.x, y: this.y };
+  }
+
+  get end() {
+    return {
+      x: this.x + this.direction.x * this.length,
+      y: this.y + this.direction.y * this.length
+    };
+  }
+
+  /**
+   * Return a list of all spaces that are covered by the line.
+   */
+  listSpaces() {
+    let spaces: { x: number, y: number }[] = [];
+    for (let i = 0; i < this.length; i++) {
+      spaces.push({ x: this.x + this.direction.x * i, y: this.y + this.direction.y * i });
+    }
+
+    return spaces;
+  }
 }
 
 export type BoardSpace = { turn: Turn; age: number };
@@ -145,6 +200,11 @@ export class Board {
    * The height of the game board
    */
   readonly height: number;
+
+  /** No Diagonals: Only down & right **/
+  static readonly OrthagonalNeighbors = [{ x: 0, y: 1 }, { x: 1, y: 0 }];
+  /** With Diagonals: Down, Right, Southwest, and Southeast **/
+  static readonly AdjacentNeighbors = [{ x: 0, y: 1 }, { x: 1, y: 0 }, { x: -1, y: 1 }, { x: 1, y: 1 }];
 
   /**
    * Creates a new game board with a certain width and height
@@ -221,10 +281,10 @@ export class Board {
    * Runs a callback function on every space of the board. It runs them sequentially from left to right and top to bottom
    * @param cb The callback function to execute
    */
-  forEachSpace(cb: (x: number, y: number, content: BoardSpace) => void) {
+  forEachSpace(cb: (x: number, y: number, content: BoardSpace | undefined) => void) {
     for (let y = 0; y < this.content.length; y++) {
       for (let x = 0; x < this.content[y].length; x++) {
-        cb(x, y, this.getSpace(x, y) as BoardSpace);
+        cb(x, y, this.getSpace(x, y));
       }
     }
   }
@@ -255,4 +315,118 @@ export class Board {
   isInBounds(x: number, y: number) {
     return y >= 0 && y < this.height && x >= 0 && x < this.width;
   }
+
+  /**
+   * Search the board for lines of pieces in a row.
+   * @param minLength The minimum number of pieces required to be in a row for a successfulConnection
+   * @param neigborDirections A list of offsets that list the allowable neighbors to check. *Remember that you only need half of them*.
+   * @param pieceCheck A callback to check whether two pieces match.
+   * @returns A an object with the list of connetions found, and whether every space on the board is full.
+   */
+  checkForConnect(minLength: number, neigborDirections: { x: number, y: number }[], pieceCheck: PieceCheckCallback): { connections: ConnectionLine[], full: boolean } {
+    let full = true;
+    let connections: ConnectionLine[] = []
+
+    // This lists all of the spaces that have already been included in a line in that direction. This is to prevent, say a 5-long line from containing a 4-long line and two 3-long lines, etc.
+    // It is indexed by [directionX][directionY][spaceX][spaceY]. It's a little cursed, I'll admit.
+    let exclusions: boolean[][][][] = [];
+
+    // Initialize the exclusion list with each of the neighbor directions
+    neigborDirections.forEach((value) => {
+      if (exclusions[value.x] == undefined) {
+        exclusions[value.x] = [];
+      }
+      if (exclusions[value.x][value.y] == undefined) {
+        exclusions[value.x][value.y] = [];
+      }
+    });
+
+    this.forEachSpace((x, y, space) => {
+      if (space === undefined) {
+        full = false;
+        if (minLength > 0) {
+          // Because it is empty, it cannot be a part of a connection
+          return
+        }
+      }
+
+      let foundConnections: (ConnectionLine | null)[] = neigborDirections.map((value) => {
+        // Check if this cell and direction is in the exclusion list.
+        if ((((exclusions[value.x] ?? [])[value.y] ?? [])[x] ?? [])[y] ?? false) {
+          return null
+        }
+        let foundLine = this.checkDirection(x, y, value, pieceCheck);
+        foundLine.listSpaces().forEach((lineSpace) => {
+          // Add this cell and direction to the exclusion list (and add the cell coordinates if needed)
+          if (exclusions[value.x][value.y][lineSpace.x] == undefined) {
+            exclusions[value.x][value.y][lineSpace.x] = [];
+          }
+          exclusions[value.x][value.y][lineSpace.x][lineSpace.y] = true;
+        });
+        return foundLine;
+      });
+
+      // Why not a filter()? The reason is that TypeScript doesn't think that it guarantees the list will be free from nulls.
+      let validConnections: ConnectionLine[] = [];
+      foundConnections.forEach((connection) => {
+        if (connection !== null && connection.length >= minLength) {
+          validConnections.push(connection);
+        }
+      });
+
+      connections.push(...validConnections);
+    })
+
+    return { connections: connections, full: full }
+  }
+
+  /**
+   * Check in a direction from a starting cell. In reports how many cells in that direction match the starting cell.
+   * @param x The starting x position
+   * @param y The starting y position
+   * @param direction The direction of the line
+   * @param pieceCheck The callback function to determine whether two pieces match.
+   * @returns A `ConnectionLine` object represinting the line, with a `length` equal to the number of spaces in a row that match. The length is 0 if the starting square is empty.
+   */
+  checkDirection(x: number, y: number, direction: { x: number, y: number }, pieceCheck: PieceCheckCallback): ConnectionLine {
+    // Trivial case (the starting space is empty)
+    if (this.isEmpty(x, y)) {
+      return new ConnectionLine(x, y, 0, direction);
+    }
+
+    let lastX = x;
+    let lastY = y;
+    let lastSpace = this.getSpace(lastX, lastY);
+
+    let currentX = x + direction.x;
+    let currentY = y + direction.y;
+    let currentSpace = this.getSpace(currentX, currentY);
+
+    let length = 1;
+
+    while (lastSpace !== undefined && currentSpace !== undefined && pieceCheck(lastSpace, currentSpace)) {
+      lastX = currentX;
+      lastY = currentY;
+      lastSpace = this.getSpace(lastX, lastY);
+
+      currentX += direction.x;
+      currentY += direction.y;
+      currentSpace = this.getSpace(currentX, currentY);
+
+      length += 1;
+    }
+
+    return new ConnectionLine(x, y, length, direction);
+  }
+
+  /**
+   * Check whether two spaces are compatible for a k-in-a-row. That is, whether the pieces are the same, and they are both able to win a game.
+   */
+  static pieceCheck(space1: BoardSpace, space2: BoardSpace): boolean {
+    return space1.turn.piece.index == space2.turn.piece.index && space1.turn.piece.canWin && space2.turn.piece.canWin
+  }
 }
+
+export type NeighborCallback = ((x: number, y: number) => { x: number, y: number }[]);
+export type PieceCheckCallback = ((space1: BoardSpace, space2: BoardSpace) => boolean);
+

@@ -99,7 +99,7 @@ export class StandardEngine implements GameEngine {
 
   checkForConnect(x1: number, y1: number, x2: number, y2: number) {
     if (this.board.isEmpty(x1, y1) || this.board.isEmpty(x2, y2)) {
-      // check if it has gone off the the board vertically.
+      // check if it has gone off the board vertically.
       return false;
     }
     if (
@@ -114,7 +114,7 @@ export class StandardEngine implements GameEngine {
     return true;
   }
 
-  checkForEnd() {
+  checkForEnd(): { outcome: TurnResults.NORMAL | TurnResults.DRAW; } | { outcome: TurnResults.WIN; turn: Turn; direction: 'h' | 'v' | 'd1' | 'd2'; } {
     let hasDrawn = true;
     let winMessage;
 
