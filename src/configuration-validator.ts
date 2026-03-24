@@ -1,8 +1,8 @@
 import * as GeneralOptions from '../engines/general-options.json'
 import * as StandardOptions from '../engines/standard-engine/options.json';
 import * as GravityOptions from '../engines/gravity-engine/options.json';
-import * as FractalOptions from '../engines/standard-engine/options.json';
-import * as HexagonalOptions from '../engines/gravity-engine/options.json';
+import * as FractalOptions from '../engines/fractal-engine/options.json';
+import * as HexagonalOptions from '../engines/hexagonal-engine/options.json';
 
 import {
   EngineSelection,
@@ -333,6 +333,11 @@ export class ConfigurationValidator {
     Object.keys(this.currentConfiguration).forEach((val) => {
       const type = this.currentConfiguration[val].type;
       const name = this.currentConfiguration[val].name;
+
+      if (this.values[name] == undefined) {
+        throw new Error(`Could not find a value for the option ${name}.`)
+      }
+
       switch (type) {
         case 'number':
           parsedSetting = {
