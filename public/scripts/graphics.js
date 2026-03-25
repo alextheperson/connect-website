@@ -157,14 +157,14 @@ class BoardDisplay {
       piece.push(
         canvas.line(x, y, x + size, y + size, {
           stroke: color,
-          strokeWidth: spaceSize / 7,
+          strokeWidth: size / 7,
           roughness: 2,
         })
       );
       piece.push(
         canvas.line(x + size, y, x, y + size, {
           stroke: color,
-          strokeWidth: spaceSize / 7,
+          strokeWidth: size / 7,
           roughness: 2,
         })
       );
@@ -186,7 +186,7 @@ class BoardDisplay {
       piece.push(
         canvas.circle(x + size / 2, y + size / 2, size, {
           stroke: color,
-          strokeWidth: spaceSize / 7,
+          strokeWidth: size / 7,
           roughness: 2,
         })
       );
@@ -214,7 +214,7 @@ class BoardDisplay {
           ],
           {
             stroke: color,
-            strokeWidth: spaceSize / 7,
+            strokeWidth: size / 7,
             roughness: 2,
             seed: (x + y) * size,
           }
@@ -238,7 +238,7 @@ class BoardDisplay {
       piece.push(
         canvas.rectangle(x, y, size, size, {
           stroke: color,
-          strokeWidth: spaceSize / 7,
+          strokeWidth: size / 7,
           roughness: 2,
         })
       );
@@ -267,7 +267,7 @@ class BoardDisplay {
           ],
           {
             stroke: color,
-            strokeWidth: spaceSize / 7,
+            strokeWidth: size / 7,
             roughness: 2,
             seed: (x + y) * size,
           }
@@ -287,7 +287,7 @@ class BoardDisplay {
       this._pieceShapes[id] = [];
       for (let i = 1; i < w; i++) {
         this._pieceShapes[id].push(
-          this.line(i * cellSize, 0, i * cellSize, this._element.height, {
+          this.line(i * cellSize, x, i * cellSize, cellSize * h, {
             strokeWidth: cellSize / 15,
             roughness: 1,
             seed: 1,
@@ -298,7 +298,7 @@ class BoardDisplay {
 
       for (let i = 1; i < h; i++) {
         this._pieceShapes[id].push(
-          this.line(0, i * cellSize, this._element.width, i * cellSize, {
+          this.line(y, i * cellSize, cellSize * w, i * cellSize, {
             strokeWidth: cellSize / 15,
             roughness: 1,
             seed: 1,
